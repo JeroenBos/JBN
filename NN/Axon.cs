@@ -19,14 +19,39 @@ public sealed class Axon
     float weight;
     internal float Weight => weight;
 
-    int timeOfDelivery = -1;
+    int timeOfDelivery = NEVER;
+    int activationCount = 0;
+    float averageTimeBetweenActivations = float.NaN;
     internal void Activate(Machine machine)
     {
-        this.timeOfDelivery = machine.Time + this.length;
+        this.activationCount++;
+
+        int newTimeOfDelivery = machine.Time + this.length;
+        int timeBetweenActivations = newTimeOfDelivery - this.timeOfDelivery;
+        this.timeOfDelivery = newTimeOfDelivery;
+        if (float.IsNaN(averageTimeBetweenActivations))
+        {
+            averageTimeBetweenActivations = machine.Time;
+        }
+        else
+        {
+            averageTimeBetweenActivations = (averageTimeBetweenActivations * (activationCount - 1) + timeBetweenActivations) / activationCount;
+        }
         machine.AddEmitAction(this.timeOfDelivery, this);
     }
     internal void Emit(Machine machine)
     {
         this.endpoint.Receive(this.type, this.weight, machine);
+        // leave timeOfDelivery for feedback
+    }
+    internal void ProcessFeedback(float dopamine, float cortisol, int time)
+    {
+        int timeSinceLastActivation = time - this.timeOfDelivery - this.length;
+        this.weight = this.type.GetUpdatedWeight(this.weight,
+                                                 timeSinceLastActivation,
+                                                 this.averageTimeBetweenActivations,
+                                                 this.activationCount,
+                                                 dopamine,
+                                                 cortisol);
     }
 }

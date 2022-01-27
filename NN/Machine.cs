@@ -1,13 +1,16 @@
-namespace JBSnorro.NN;
+﻿namespace JBSnorro.NN;
 
 sealed class Machine
 {
     private readonly Network network;
+    private readonly GetFeedbackDelegate getFeedback;
     private int maxTime = -1;
 
-    public Machine(Network network)
+    public Machine(Network network) : this(network, _ => Feedback.Empty) {}
+    public Machine(Network network, GetFeedbackDelegate getFeedback)
     {
         this.network = network;
+        this.getFeedback = getFeedback;
         this.potentiallyActivatedDuringStep = new List<Neuron>();
         this.emits = new List<List<Axon>>();
         this.emits.Add(new List<Axon>());
@@ -28,6 +31,10 @@ sealed class Machine
             this.Tick();
 
             var latestOutput = this.CopyOutput(output);
+            bool stop = ProcessFeedback(latestOutput);
+            if (stop)
+                break;
+
             this.network.Decay(this.t + 1);
         }
         return output;
@@ -94,6 +101,12 @@ sealed class Machine
             }
         }
         return latestOutput;
+    }
+    private bool ProcessFeedback(float[] latestOutput)
+    {
+        var feedback = this.getFeedback(latestOutput);
+        this.network.ProcessFeedback(feedback.Dopamine, feedback.Cortisol, this.Time);
+        return feedback.Stop;
     }
     private readonly List<Neuron> potentiallyActivatedDuringStep;
     private readonly List<List<Axon>> emits;
