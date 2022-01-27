@@ -1,4 +1,5 @@
 using Xunit;
+using Assert = Xunit.Assert;
 using JBSnorro.NN;
 
 public class NetworkTests

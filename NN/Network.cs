@@ -2,10 +2,6 @@ namespace JBSnorro.NN;
 
 public class Network
 {
-    void Assert(bool condition)
-    {
-        if (!condition) throw new Exception();
-    }
     public Network(INeuronType[] nodeTypes,
                    int inputCount,
                    int outputCount,

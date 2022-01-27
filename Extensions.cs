@@ -1,3 +1,6 @@
+global using static Contracts;
+using System.Runtime.CompilerServices;
+
 public static class Extensions
 {
     public static HashSet<T?> Unique<T>(this T?[,] array)
@@ -27,10 +30,22 @@ public static class Extensions
     public static IEnumerable<T> Scan<T>(this IEnumerable<T> sequence, Func<T, T, T> apply, T initial = default!)
     {
         T current = initial;
-        foreach(T element in sequence)
+        foreach (T element in sequence)
         {
             current = apply(current, element);
             yield return current;
+        }
+    }
+}
+
+
+class Contracts
+{
+    public static void Assert(bool condition, [CallerArgumentExpression("condition")] string message = "")
+    {
+        if (!condition)
+        {
+            throw new Exception(message);
         }
     }
 }
