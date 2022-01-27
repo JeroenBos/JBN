@@ -92,16 +92,15 @@ public class NetworkTests
 
         var connections = new AxonType?[neuronCount, neuronCount];
 
+        var getLength = GetLengthFunctions.CreateDefault(neuronCount);
+        var getInitialWeight = GetInitialWeightFunctions.Random(random);
         for (int i = 0; i < neuronCount; i++)
         {
             for (int j = 0; j < neuronCount; j++)
             {
                 if (random.NextSingle() < connectionChance)
                 {
-                    connections[i, j] = new AxonType(
-                        length: GetLengthFunctions.Default(i, j, neuronCount),
-                        initialWeight: GetInitialWeightFunctions.Random(random)(i, j)
-                    );
+                    connections[i, j] = new AxonType(getLength, getInitialWeight);
                 }
             }
         }

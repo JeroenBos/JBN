@@ -45,12 +45,16 @@ static class NeuronTypes
 
 static class AxonTypes
 {
-    public static AxonType A { get; } = new AxonType();
-    public static AxonType LengthTwo { get; } = new AxonType(2);
+    public static AxonType A { get; } = new AxonType((_, _) => 1, (_, _) => 1);
+    public static AxonType LengthTwo { get; } = new AxonType((_, _) => 2, (_, _) => 1);
 
 }
 static class GetLengthFunctions
 {
+    public static Func<int, int, int> CreateDefault(int total, int speed = 4)
+    {
+        return (i, j) => Default(i, j, total, speed);
+    }
     public static int Default(int i, int j, int total, int speed = 4)
     {
         int side = (int)Math.Max(1, Math.Sqrt(total));
