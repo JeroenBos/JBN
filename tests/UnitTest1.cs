@@ -35,7 +35,7 @@ public class NetworkTests
     [Fact]
     public void RunActivatedNetworkOfOne()
     {
-        var connections = new AxonType[1, 1] { { AxonTypes.One } };
+        var connections = new AxonType?[1, 1] { { null }}; 
         var network = new Network(NeuronTypes.OnlyA,
                                   inputCount: 1,
                                   outputCount: 1,
@@ -50,4 +50,5 @@ public class NetworkTests
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 1 } });
     }
+    
 }

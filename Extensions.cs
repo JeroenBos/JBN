@@ -1,8 +1,8 @@
 public static class Extensions
 {
-    public static HashSet<T> Unique<T>(this T[,] array)
+    public static HashSet<T?> Unique<T>(this T?[,] array)
     {
-        var result = new HashSet<T>();
+        var result = new HashSet<T?>();
         for (int i = array.GetLowerBound(0); i <= array.GetUpperBound(0); i++)
         {
             for (int j = array.GetLowerBound(1); j <= array.GetUpperBound(1); j++)
