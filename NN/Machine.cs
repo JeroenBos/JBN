@@ -71,6 +71,8 @@ sealed class Machine
         //   happens at the end after registering output
         // the input axons are fired at time -1, and with length 1 arrive at their nodes in time 0
         // therefore, any initial charge (if any/implemented) should not decay just after time 0
+        // - receiving charge
+        //   happens in the middle of a timestep
 
     }
 

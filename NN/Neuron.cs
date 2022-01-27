@@ -30,16 +30,14 @@ public sealed class Neuron
     /// <summary> The time up until and including which the decay has been updated. Decay happens at the start of a timestep. </summary>
     private int decayUpdatedTime;
     /// <summary> The time this neuron was activated last. Activation happens at the end of a timestep. </summary>
-    private int lastActivatedTime = INeuronType.NEVER;
-    private int lastReceivedChargeTime = INeuronType.NEVER;
+    private int lastActivatedTime = NEVER;
+    private int lastReceivedChargeTime = NEVER;
+    /// <summary> If initialized to this value, it works together with <see cref="INeuronType.IsNever(int)"> 
+    /// and being subtracted from <see cref="decayUpdatedTime">. </summary>
+    private const int NEVER = int.MaxValue - 1;
+
     internal void Decay(int time)
     {
-        if (time == 0)
-        {
-            decayUpdatedTime++;
-            return; // there's no decay at time 0
-        }
-
         for (; decayUpdatedTime <= time; decayUpdatedTime++)
         {
             this.Charge *= this.type.GetDecay(decayUpdatedTime - lastReceivedChargeTime, decayUpdatedTime - lastActivatedTime);

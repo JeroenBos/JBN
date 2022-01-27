@@ -4,7 +4,11 @@ namespace JBSnorro.NN;
 
 public interface INeuronType
 {
-    internal const int NEVER = int.MinValue + 1;
+    internal static bool IsNever(int i)
+    {
+        // the int.MinValue/2 trick effectively puts the max run time at half of int.MaxValue. Fine for now
+        return i < int.MinValue / 2;
+    }
     float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation);
 }
 public sealed class RetentionOfOneNeuronType : INeuronType
@@ -12,11 +16,10 @@ public sealed class RetentionOfOneNeuronType : INeuronType
     /// <summary> Gets the decay of the charge given the times since last recept of charge and last activation. </summary>
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
-        // the NEVER/2 trick effectively puts the max run time at half of int.MaxValue. Fine for now
-        if (INeuronType.NEVER / 2 < timeSinceLastChargeReceipt && timeSinceLastChargeReceipt < 0)
+        if (!INeuronType.IsNever(timeSinceLastChargeReceipt) && timeSinceLastChargeReceipt < 0)
             throw new ArgumentOutOfRangeException(nameof(timeSinceLastChargeReceipt));
 
-        if (INeuronType.NEVER / 2 < timeSinceLastActivation && timeSinceLastActivation < 0)
+        if (!INeuronType.IsNever(timeSinceLastActivation) && timeSinceLastActivation < 0)
             throw new ArgumentOutOfRangeException(nameof(timeSinceLastActivation));
 
         if (timeSinceLastActivation == 1)
@@ -56,21 +59,43 @@ public sealed class VariableNeuronType : INeuronType
     }
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
+        // we can assume we're at the end of a time
+        bool hasReceivedCharge = !INeuronType.IsNever(timeSinceLastChargeReceipt);
+        bool hasActivated = !INeuronType.IsNever(timeSinceLastActivation);
+        bool activationWasLaterThanChargeReceipt = timeSinceLastChargeReceipt >= timeSinceLastActivation;
+
+
         int dt;
         (int max, float decay)[] list;
-        if (timeSinceLastChargeReceipt >= timeSinceLastActivation && timeSinceLastActivation >= INeuronType.NEVER / 2)
+        if (hasActivated)
         {
+            Assert(hasReceivedCharge);
+
             list = this.activation;
             dt = timeSinceLastActivation;
         }
-        else if(timeSinceLastChargeReceipt >= INeuronType.NEVER / 2)
+        else if (!hasReceivedCharge)
+        {
+            Assert(!hasActivated);
+
+            // In this case the current decay _must_ be 0, so we can return anything. 
+            // 0 would make any mistake stand out.
+            return 0;
+        }
+        else // has received charge without activation
         {
             list = this.noActivation;
             dt = timeSinceLastChargeReceipt;
         }
-        else // no charge ever received (nor activation)
+
+
+        if (dt == 0)
         {
-            return 1;
+            // dt == 0 is a special case which is assumed to always return 1, unless explicitly stated otherwise (through ctor arguments)
+            if (list.Length == 0 || list[0].max != 0)
+            {
+                return 1;
+            }
         }
 
         foreach (var (maxDt, decay) in list)

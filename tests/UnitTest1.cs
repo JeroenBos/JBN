@@ -189,7 +189,7 @@ public class NeuronTypeTests
     public void TestNeuronInputChargeDecay()
     {
         var type = new VariableNeuronType(
-            new (int, float)[0],
+            new[] { (0, 1f) },
             new[] { (2, 0.5f) }  // in constrast to the test above, activation is triggered in this one, hence we use that list
         );
 
