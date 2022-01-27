@@ -97,7 +97,7 @@ public class NetworkTests
                 if (random.Next() < int.MaxValue / 10)
                 {
                     connections[i, j] = new AxonType(
-                        length: GetLengthFunctions.Default(i, j),
+                        length: GetLengthFunctions.Default(i, j, neuronCount),
                         initialWeight: GetInitialWeightFunctions.Random(random)(i, j)
                     );
                 }

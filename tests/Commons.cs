@@ -49,9 +49,15 @@ static class AxonTypes
 }
 static class GetLengthFunctions
 {
-    public static int Default(int i, int j)
+    public static int Default(int i, int j, int total, int speed = 4)
     {
-        return (int)Math.Max(1, Math.Sqrt(i * i + j * j) / 4);
+        int side = (int)Math.Max(1, Math.Sqrt(total));
+        int ix = Math.DivRem(i, side, out int iy);
+        int jx = Math.DivRem(j, side, out int jy);
+        int dx = ix - jx;
+        int dy = iy - jy;
+        var result = (int)Math.Max(1, Math.Sqrt(dx * dx + dy * dy) / speed);
+        return result;
     }
 }
 
