@@ -24,4 +24,13 @@ public static class Extensions
         }
         return true;
     }
+    public static IEnumerable<T> Scan<T>(this IEnumerable<T> sequence, Func<T, T, T> apply, T initial = default!)
+    {
+        T current = initial;
+        foreach(T element in sequence)
+        {
+            current = apply(current, element);
+            yield return current;
+        }
+    }
 }
