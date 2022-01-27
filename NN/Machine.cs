@@ -1,4 +1,4 @@
-﻿namespace JBSnorro.NN;
+namespace JBSnorro.NN;
 
 class Machine
 {
@@ -18,12 +18,12 @@ class Machine
         if (this.t != -1) throw new InvalidOperationException("This machine has already run");
         if (this.emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
         this.maxTime = maxTime;
-        this.emits.RemoveAt(0);
-        this.emits.Add(new List<Axon>());
+        this.emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
+        this.emits.Add(new List<Axon>()); // so we need to skip this.emits[0].
 
         var output = new float[maxTime, this.network.output.Length];
         // assumes the input axioms have been triggered
-        for (int t = 0; t <= output.GetUpperBound(1); t++)
+        for (int t = 0; t < maxTime; t++)
         {
             this.t = t;
             this.Tick();

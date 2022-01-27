@@ -10,10 +10,10 @@ public sealed class Axon
         this.weight = initialWeight;
         this.endpoint = endpoint;
     }
-    AxonType type;
-    readonly int length;
+    private readonly AxonType type;
+    private readonly int length;
+    private readonly Neuron endpoint;
     float weight;
-    Neuron endpoint;
 
     int timeOfDelivery = -1;
     internal void Activate(Machine machine)
