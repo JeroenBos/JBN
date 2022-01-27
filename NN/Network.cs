@@ -79,4 +79,11 @@ public class Network
             medium[row, i] = nodes[nodes.Length - outputCount + i - 1].Charge;
         }
     }
+    internal void Decay(int time)
+    {
+        foreach(var node in this.nodes)
+        {
+            node.Decay(time);
+        }
+    }
 }

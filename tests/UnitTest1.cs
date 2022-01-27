@@ -31,11 +31,11 @@ public class NetworkTests
         Assert.Equal(output, new float[,] { { 0 } });
     }
 
-    
+
     [Fact]
     public void RunActivatedNetworkOfOne()
     {
-        var connections = new AxonType?[1, 1] { { null }}; 
+        var connections = new AxonType?[1, 1] { { null } };
         var network = new Network(NeuronTypes.OnlyA,
                                   inputCount: 1,
                                   outputCount: 1,
@@ -46,9 +46,47 @@ public class NetworkTests
 
         var machine = new Machine(network);
         network.Input[0].Activate(machine);
-        
+
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 1 } });
     }
-    
+
+
+    [Fact]
+    public void TestNeuronDeactivatesAfterActivation()
+    {
+        var connections = new AxonType?[1, 1] { { null } };
+        var network = new Network(NeuronTypes.OnlyA,
+                                  inputCount: 1,
+                                  outputCount: 1,
+                                  connections,
+                                  GetLengthFunctions.One,
+                                  GetInitialWeightFunctions.One);
+
+
+        var machine = new Machine(network);
+        network.Input[0].Activate(machine);
+
+        var output = machine.Run(2);
+        Assert.Equal(output, new float[,] { { 1 }, { 0 } });
+    }
+    [Fact]
+    public void TestNeuronCanActivateSelf()
+    {
+        var connections = new AxonType?[1, 1] { { AxonTypes.A } };
+        var network = new Network(NeuronTypes.OnlyA,
+                                  inputCount: 1,
+                                  outputCount: 1,
+                                  connections,
+                                  GetLengthFunctions.Two,
+                                  GetInitialWeightFunctions.One);
+
+
+        var machine = new Machine(network);
+        network.Input[0].Activate(machine);
+
+        var output = machine.Run(3);
+        Assert.Equal(output, new float[,] { { 1 }, { 0 }, { 1 } });
+    }
+
 }

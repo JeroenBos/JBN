@@ -1,4 +1,4 @@
-namespace JBSnorro.NN;
+﻿namespace JBSnorro.NN;
 
 class Machine
 {
@@ -32,6 +32,7 @@ class Machine
             {
                 output[t, i] = this.network.output[i];
             }
+            this.network.Decay(this.t + 1);
         }
         return output;
     }

@@ -21,17 +21,16 @@ public sealed class Neuron
 
     private int decayUpdatedTime;
     private int lastActivatedTime = NeuronType.NEVER;
-    private void Decay(Machine machine)
+    internal void Decay(int time)
     {
-        int t = machine.Time;
-        for (; decayUpdatedTime < t; decayUpdatedTime++)
+        for (; decayUpdatedTime < time; decayUpdatedTime++)
         {
-            this.Charge *= this.type.GetDecay(t - decayUpdatedTime, t - lastActivatedTime);
+            this.Charge *= this.type.GetDecay(time - decayUpdatedTime, time - lastActivatedTime);
         }
     }
     internal void Receive(AxonType axonType, float weight, Machine machine)
     {
-        Decay(machine);
+        // Decay(machine.Time); redundant if machine calls network.Decay every time step
         bool alreadyRegistered = this.Charge >= threshold;
         this.Charge += weight;
         if (this.Charge >= threshold && !alreadyRegistered)
