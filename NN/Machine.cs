@@ -56,6 +56,20 @@ class Machine
         this.emits.RemoveAt(0);
         this.emits.Add(emittingAxons);
         potentiallyActivatedDuringStep.Clear();
+
+        // so what kind of events are there and how do they relate to the integer nature of time?
+        // - decay of a neuron
+        //   - must be after charge has been outputted
+        //   - if it receive charge on time T, let's say also the decay of time T still happens
+        //   so decay or a neuron happens just after time T
+        // - activation of a neuron
+        //   - happens at the end
+        //   - must happen after all axons this time step have fired. if it peeks over the threshold
+        //     and dips below again, it will not activate.
+        // - registering output
+        //   happens at the end (order w.r.t. activation is not relevant)
+        // - clear neuron charge
+        //   happens at the end after registering output
     }
 
     private readonly List<Neuron> potentiallyActivatedDuringStep;

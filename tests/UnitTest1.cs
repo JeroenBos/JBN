@@ -6,7 +6,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetwork()
     {
-        var connections = new AxonType[1, 1];
+        var connections = new AxonType?[1, 1];
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
@@ -18,7 +18,7 @@ public class NetworkTests
     [Fact]
     public void RunUnactivatedNetwork()
     {
-        var connections = new AxonType[1, 1];
+        var connections = new AxonType?[1, 1];
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
@@ -88,5 +88,106 @@ public class NetworkTests
         var output = machine.Run(3);
         Assert.Equal(output, new float[,] { { 1 }, { 0 }, { 1 } });
     }
+    [Fact]
+    public void StressTest()
+    {
+        var random = new Random(Seed: 0);
+        const int neuronCount = 100;
+        const int inputCount = 10;
+        const int outputCount = 10;
+        const int maxTime = 100;
 
+        var connections = new AxonType?[neuronCount, neuronCount];
+
+        for (int i = 0; i < neuronCount; i++)
+        {
+            for (int j = 0; j < neuronCount; j++)
+            {
+                if (random.Next() < int.MaxValue / 10)
+                {
+                    connections[i, j] = AxonTypes.A;
+                }
+            }
+        }
+        var neuronTypes = new INeuronType[neuronCount];
+        for (int i = 0; i < neuronCount; i++)
+        {
+            neuronTypes[i] = random.Next(3) switch
+            {
+                0 => NeuronTypes.A,
+                1 => NeuronTypes.B,
+                2 => NeuronTypes.C,
+                _ => throw new Exception()
+            };
+        }
+        var randomInitialization = new bool[inputCount];
+        for (int i = 0; i < inputCount; i++)
+        {
+            randomInitialization[i] = random.Next(2) == 0;
+        }
+
+        var network = new Network(neuronTypes,
+                                  inputCount,
+                                  outputCount,
+                                  connections,
+                                  GetLengthFunctions.Default,
+                                  GetInitialWeightFunctions.Random(random));
+
+
+        var machine = new Machine(network);
+        foreach (var (activate, input) in randomInitialization.Zip(network.Input))
+        {
+            if (activate)
+            {
+                network.Input[0].Activate(machine);
+            }
+        }
+
+        var output = machine.Run(maxTime);
+        Console.WriteLine(output);
+    }
+
+}
+public class NeuronTypeTests
+{
+    [Fact]
+    public void TestDecaySequence()
+    {
+        var n = new VariableNeuronType(new[] {
+            (2, 0.5f)
+         }, new (int, float)[0]);
+
+        var sequence = n.GetNoActivationDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
+        Assert.Equal(sequence, new[] { "0.50", "0.50", "0.00", "0.00" });
+    }
+    
+    [Fact]
+    public void TestCumulativeDecaySequence()
+    {
+        var n = new VariableNeuronType(new[] {
+            (3, 0.5f)
+         }, new (int, float)[0]);
+
+        var sequence = n.GetNoActivationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
+        Assert.Equal(sequence, new[] { "0.50", "0.25", "0.12", "0.00" });
+    }
+
+    
+    [Fact]
+    public void TestNeuronChargeDecay()
+    {
+        var type = new VariableNeuronType(new[] {
+            (3, 0.5f)
+         }, new (int, float)[0]);
+
+        var neuron = new Neuron(type, 0, initialCharge: 1);
+        var charges = new float[4];
+        for (int t = 0; t < charges.Length; t++)
+        {
+            neuron.Decay(t);
+            charges[t] = neuron.Charge;
+        }
+        // these are the charges at the ends of timesteps just before clearance
+        Assert.Equal(charges, new [] { 1f, 0.50f, 0.25f, 0.125f });
+    }
 }

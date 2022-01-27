@@ -27,10 +27,14 @@ public sealed class Neuron
     internal void Decay(int time)
     {
         if (time == 0)
+        {
+            decayUpdatedTime++;
             return; // there's no decay at time 0
+        }
+
         for (; decayUpdatedTime <= time; decayUpdatedTime++)
         {
-            // decay gets a +1 because it's at the start of the time, whereas activation is at the end. time is in the middle
+            // decay gets a +1 because it's at the start of the time, whereas activation is at the end. time is in the middle, but closer to the end
             this.Charge *= this.type.GetDecay(time - decayUpdatedTime + 1, time - lastActivatedTime);
         }
     }
