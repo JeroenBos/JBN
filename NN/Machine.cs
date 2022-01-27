@@ -27,10 +27,7 @@ sealed class Machine
         {
             this.Tick();
 
-            for (int i = 0; i < this.network.output.Length; i++)
-            {
-                output[t, i] = this.network.output[i];
-            }
+            var latestOutput = this.CopyOutput(output);
             this.network.Decay(this.t + 1);
         }
         return output;
@@ -86,7 +83,18 @@ sealed class Machine
         //   happens in the middle of a timestep
 
     }
-
+    private float[] CopyOutput(float[,]? totalOutput)
+    {
+        var latestOutput = this.network.output;
+        if (totalOutput != null)
+        {
+            for (int i = 0; i < latestOutput.Length; i++)
+            {
+                totalOutput[t, i] = latestOutput[i];
+            }
+        }
+        return latestOutput;
+    }
     private readonly List<Neuron> potentiallyActivatedDuringStep;
     private readonly List<List<Axon>> emits;
     private int t = -1;
