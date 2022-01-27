@@ -23,8 +23,8 @@ public sealed class Neuron
         this.initializedAxonCount++;
     }
     private int initializedAxonCount;
-    readonly INeuronType type;
-    readonly Axon[] axons;
+    private readonly INeuronType type;
+    private readonly Axon[] axons;
     internal float Charge { get; private set; }
 
     /// <summary> The time up until and including which the decay has been updated. Decay happens at the start of a timestep. </summary>
