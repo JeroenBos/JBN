@@ -35,7 +35,7 @@ public class Network
             this.nodes[i] = new Neuron(nodeTypes[i], axonCount);
             totalAxonCount += axonCount;
         }
-        
+
         this.axons = new Axon[totalAxonCount];
         int axonsIndex = 0;
         for (int i = 0; i < nodeCount; i++)
@@ -83,7 +83,7 @@ public class Network
     }
     internal void Decay(int time)
     {
-        foreach(var node in this.nodes)
+        foreach (var node in this.nodes)
         {
             node.Decay(time);
         }

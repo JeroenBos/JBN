@@ -4,11 +4,6 @@ namespace JBSnorro.NN;
 
 public interface INeuronType
 {
-    internal static bool IsNever(int i)
-    {
-        // the int.MinValue/2 trick effectively puts the max run time at half of int.MaxValue. Fine for now
-        return i < int.MinValue / 2;
-    }
     float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation);
 }
 public sealed class RetentionOfOneNeuronType : INeuronType
@@ -16,10 +11,10 @@ public sealed class RetentionOfOneNeuronType : INeuronType
     /// <summary> Gets the decay of the charge given the times since last recept of charge and last activation. </summary>
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
-        if (!INeuronType.IsNever(timeSinceLastChargeReceipt) && timeSinceLastChargeReceipt < 0)
+        if (!IsNever(timeSinceLastChargeReceipt) && timeSinceLastChargeReceipt < 0)
             throw new ArgumentOutOfRangeException(nameof(timeSinceLastChargeReceipt));
 
-        if (!INeuronType.IsNever(timeSinceLastActivation) && timeSinceLastActivation < 0)
+        if (!IsNever(timeSinceLastActivation) && timeSinceLastActivation < 0)
             throw new ArgumentOutOfRangeException(nameof(timeSinceLastActivation));
 
         if (timeSinceLastActivation == 1)
@@ -61,8 +56,8 @@ public sealed class VariableNeuronType : INeuronType
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
         // we can assume we're at the end of a time
-        bool hasReceivedCharge = !INeuronType.IsNever(timeSinceLastChargeReceipt);
-        bool hasActivated = !INeuronType.IsNever(timeSinceLastActivation);
+        bool hasReceivedCharge = !IsNever(timeSinceLastChargeReceipt);
+        bool hasActivated = !IsNever(timeSinceLastActivation);
         bool activationWasLaterThanChargeReceipt = timeSinceLastChargeReceipt >= timeSinceLastActivation;
 
 

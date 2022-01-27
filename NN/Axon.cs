@@ -5,6 +5,9 @@ public sealed class Axon
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this triggers them at t=0, and allows throwing when dt==0
     public Axon(AxonType type, Neuron endpoint, int length, float initialWeight = 1)
     {
+        if (length <= 0 || length > MAX_LENGTH)
+            throw new ArgumentOutOfRangeException(nameof(length));
+
         this.type = type;
         this.length = length;
         this.weight = initialWeight;
