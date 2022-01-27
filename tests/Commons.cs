@@ -66,3 +66,13 @@ static class GetInitialWeightFunctions
         }
     }
 }
+
+class Machines
+{
+    public static Machine AtTime0 { get; }
+    static Machines()
+    {
+        AtTime0 = new Machine(new Network(Array.Empty<INeuronType>(), 0, 0, new AxonType[0, 0]));
+        AtTime0.Run(0);
+    }
+}

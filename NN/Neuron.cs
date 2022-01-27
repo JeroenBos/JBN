@@ -47,13 +47,18 @@ public sealed class Neuron
     }
     internal void Receive(AxonType axonType, float weight, Machine machine)
     {
+        // potentially, weight could be modified by the axon type
+        Receive(weight, machine);
+    }
+    internal void Receive(float charge, Machine machine)
+    {
         if (!MachineTriggersDecay)
         {
             Decay(machine.Time);
         }
         bool alreadyRegistered = this.Charge >= threshold;
+        this.Charge += charge;
         this.lastReceivedChargeTime = machine.Time;
-        this.Charge += weight;
         if (this.Charge >= threshold && !alreadyRegistered)
         {
             machine.RegisterPotentialActivation(this);

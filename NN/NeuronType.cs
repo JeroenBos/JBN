@@ -29,6 +29,10 @@ public sealed class VariableNeuronType : INeuronType
     private readonly (int maxDt, float decay)[] noActivation;
     private readonly (int maxDt, float decay)[] activation;
 
+    /// <summary> 
+    /// The maxDT should be thought of as number of time steps until and inclusing which the associated decay rate applies. 
+    /// For example, a maxDT of 2 will apply 
+    /// </summary>
     public VariableNeuronType((int maxDt, float decay)[] noActivation, (int maxDt, float decay)[] activation)
     {
         for (int i = 0; i < noActivation.Length - 1; i++)
