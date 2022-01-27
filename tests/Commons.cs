@@ -1,6 +1,5 @@
 using JBSnorro.NN;
 
-
 static class NeuronTypes
 {
     public static INeuronType A { get; }
@@ -45,38 +44,8 @@ static class NeuronTypes
 
 static class AxonTypes
 {
-    public static AxonType A { get; } = new AxonType((_, _) => 1, (_, _) => 1);
-    public static AxonType LengthTwo { get; } = new AxonType((_, _) => 2, (_, _) => 1);
-
-}
-static class GetLengthFunctions
-{
-    public static Func<int, int, int> CreateDefault(int total, int speed = 4)
-    {
-        return (i, j) => Default(i, j, total, speed);
-    }
-    public static int Default(int i, int j, int total, int speed = 4)
-    {
-        int side = (int)Math.Max(1, Math.Sqrt(total));
-        int ix = Math.DivRem(i, side, out int iy);
-        int jx = Math.DivRem(j, side, out int jy);
-        int dx = ix - jx;
-        int dy = iy - jy;
-        var result = (int)Math.Max(1, Math.Sqrt(dx * dx + dy * dy) / speed);
-        return result;
-    }
-}
-
-static class GetInitialWeightFunctions
-{
-    public static Func<int, int, float> Random(Random random)
-    {
-        return f;
-        float f(int i, int j)
-        {
-            return 2 * random.NextSingle() - 0.9f;
-        }
-    }
+    public static AxonType A { get; } = new AxonType(length: 1, initialWeight: 1);
+    public static AxonType LengthTwo { get; } = new AxonType(length: 2, initialWeight: 1);
 }
 
 class Machines

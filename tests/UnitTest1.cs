@@ -92,8 +92,8 @@ public class NetworkTests
 
         var connections = new AxonType?[neuronCount, neuronCount];
 
-        var getLength = GetLengthFunctions.CreateDefault(neuronCount);
-        var getInitialWeight = GetInitialWeightFunctions.Random(random);
+        var getLength = AxonType.CreateDefault2DGetLength(neuronCount);
+        var getInitialWeight = AxonType.CreateRandomWeightInitializer(random);
         for (int i = 0; i < neuronCount; i++)
         {
             for (int j = 0; j < neuronCount; j++)
