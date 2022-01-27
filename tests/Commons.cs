@@ -44,8 +44,8 @@ static class NeuronTypes
 
 static class AxonTypes
 {
-    public static AxonType A { get; } = new AxonType(length: 1, initialWeight: 1);
-    public static AxonType LengthTwo { get; } = new AxonType(length: 2, initialWeight: 1);
+    public static AxonType A { get; } = new AxonType(type: 1, length: 1, initialWeight: 1);
+    public static AxonType LengthTwo { get; } = new AxonType(type: 2, length: 2, initialWeight: 1);
 }
 
 class Machines

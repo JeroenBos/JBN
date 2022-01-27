@@ -3,7 +3,7 @@ namespace JBSnorro.NN;
 public sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this triggers them at t=0, and allows throwing when dt==0
-    public Axon(AxonType type, Neuron endpoint, int length, float initialWeight = 1)
+    public Axon(AxonType type, Neuron endpoint, int length, float initialWeight)
     {
         if (length <= 0 || length > MAX_LENGTH)
             throw new ArgumentOutOfRangeException(nameof(length));
@@ -47,6 +47,7 @@ public sealed class Axon
     internal void ProcessFeedback(float dopamine, float cortisol, int time)
     {
         int timeSinceLastActivation = time - this.timeOfDelivery - this.length;
+        // TODO: pass along a vector representing position
         this.weight = this.type.GetUpdatedWeight(this.weight,
                                                  timeSinceLastActivation,
                                                  this.averageTimeBetweenActivations,

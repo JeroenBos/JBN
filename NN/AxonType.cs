@@ -2,20 +2,22 @@ namespace JBSnorro.NN;
 
 public sealed class AxonType
 {
-    public static AxonType Input { get; } = new(length: 1, initialWeight: 1);
+    public static AxonType Input { get; } = new(type: 0, length: 1, initialWeight: 1);
 
-
+    private readonly byte type;
     private readonly Func<int, int, int> getLength;
-    private readonly Func<int, int, float> getInitialWeight;
+    private readonly Func<byte, int, int, float> getInitialWeight;
     private readonly GetUpdatedWeightDelegate getUpdatedWeight;
 
-    internal AxonType(int length, int initialWeight) : this((_, _) => length, (_, _) => initialWeight) { }
-    public AxonType(Func<int, int, int> getLength, Func<int, int, float> getInitialWeight)
-      : this(getLength, getInitialWeight, DefaultGetUpdatedWeightDelegate) { }
-    public AxonType(Func<int, int, int> getLength,
-                    Func<int, int, float> getInitialWeight,
+    internal AxonType(byte type, int length, int initialWeight) : this(type, (_, _) => length, (_, _, _) => initialWeight) { }
+    public AxonType(byte type, Func<int, int, int> getLength, Func<byte, int, int, float> getInitialWeight)
+      : this(type, getLength, getInitialWeight, DefaultGetUpdatedWeightDelegate) { }
+    public AxonType(byte type,
+                    Func<int, int, int> getLength,
+                    Func<byte, int, int, float> getInitialWeight,
                     GetUpdatedWeightDelegate getUpdatedWeight)
     {
+        this.type = type;
         this.getLength = getLength;
         this.getInitialWeight = getInitialWeight;
         this.getUpdatedWeight = getUpdatedWeight;
@@ -26,7 +28,7 @@ public sealed class AxonType
     }
     public float GetInitialWeight(int i, int j)
     {
-        return this.getInitialWeight(i, j);
+        return this.getInitialWeight(this.type, i, j);
     }
     public float GetUpdatedWeight(float currentWeight,
                                   int timeSinceLastActivation,
@@ -36,6 +38,7 @@ public sealed class AxonType
                                   float cortisol)
     {
         return getUpdatedWeight(currentWeight,
+                                this.type,
                                 timeSinceLastActivation,
                                 averageTimeBetweenActivations,
                                 activationCount,
@@ -44,10 +47,10 @@ public sealed class AxonType
     }
 
 
-    public delegate float GetUpdatedWeightDelegate(float weight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, float dopamine, float cortisol);
+    public delegate float GetUpdatedWeightDelegate(float weight, byte type, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, float dopamine, float cortisol);
 
     // some default delegate implementations
-    private static float DefaultGetUpdatedWeightDelegate(float weight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, float dopamine, float cortisol)
+    private static float DefaultGetUpdatedWeightDelegate(float weight, byte type, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, float dopamine, float cortisol)
     {
         return weight;
     }
@@ -66,10 +69,10 @@ public sealed class AxonType
         return result;
     }
 
-    public static Func<int, int, float> CreateRandomWeightInitializer(Random random)
+    public static Func<byte, int, int, float> CreateRandomWeightInitializer(Random random)
     {
         return f;
-        float f(int i, int j)
+        float f(byte type, int i, int j)
         {
             return 2 * random.NextSingle() - 0.9f;
         }

@@ -100,7 +100,7 @@ public class NetworkTests
             {
                 if (random.NextSingle() < connectionChance)
                 {
-                    connections[i, j] = new AxonType(getLength, getInitialWeight);
+                    connections[i, j] = new AxonType(type: 255, getLength, getInitialWeight);
                 }
             }
         }

@@ -54,7 +54,7 @@ public class Network
 
         for (int i = 0; i < inputCount; i++)
         {
-            this.Input[i] = new Axon(AxonType.Input, this.nodes[i], length: Axon.InputLength);
+            this.Input[i] = new Axon(AxonType.Input, this.nodes[i], length: Axon.InputLength, initialWeight: 1);
         }
     }
 
