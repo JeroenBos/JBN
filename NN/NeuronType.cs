@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace JBSnorro.NN;
 
 public interface INeuronType
@@ -35,20 +37,22 @@ public sealed class VariableNeuronType : INeuronType
     /// </summary>
     public VariableNeuronType((int maxDt, float decay)[] noActivation, (int maxDt, float decay)[] activation)
     {
-        for (int i = 0; i < noActivation.Length - 1; i++)
-        {
-            if (noActivation[i].maxDt >= noActivation[i + 1].maxDt)
-                throw new ArgumentException("maxDts must be increasing", nameof(noActivation));
-        }
-
-        for (int i = 0; i < activation.Length - 1; i++)
-        {
-            if (activation[i].maxDt >= activation[i + 1].maxDt)
-                throw new ArgumentException("maxDts must be increasing", nameof(activation));
-        }
+        verify(noActivation);
+        verify(activation);
 
         this.noActivation = noActivation;
         this.activation = activation;
+
+        static void verify((int maxDt, float decay)[] list, [CallerArgumentExpression("list")] string paramName = "")
+        {
+            for (int i = 0; i < list.Length - 1; i++)
+            {
+                if (list[i].maxDt >= list[i + 1].maxDt)
+                    throw new ArgumentException("maxDts must be increasing", paramName);
+            }
+            if (list.Length != 0 && list[0].maxDt < 0)
+                throw new ArgumentException("maxDts must be nonnegative", paramName);
+        }
     }
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
