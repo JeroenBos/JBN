@@ -3,16 +3,15 @@ using JBSnorro.NN;
 
 static class NeuronTypes
 {
-    public static NeuronType Empty { get; } = new NeuronType();
-    public static NeuronType A { get; } = new NeuronType();
-    public static NeuronType[] OnlyA { get; }
-    public static NeuronType One { get; } = new NeuronType();
-    public static NeuronType[] OnlyOne { get; }
+    public static INeuronType A { get; }
+    public static INeuronType[] OnlyA { get; }
+    public static INeuronType One { get; } = new RetentionOfOneNeuronType();
+    public static INeuronType[] OnlyOne { get; }
 
     static NeuronTypes()
     {
-        OnlyA = new NeuronType[] { A };
-        OnlyOne = new NeuronType[] { One };
+        OnlyA = new INeuronType[] { A };
+        OnlyOne = new INeuronType[] { One };
     }
 }
 

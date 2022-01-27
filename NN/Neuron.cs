@@ -3,11 +3,12 @@ namespace JBSnorro.NN;
 public sealed class Neuron
 {
     internal const float threshold = 1;
-    public Neuron(NeuronType type, int axonCount)
+    public Neuron(INeuronType type, int axonCount, float initialCharge = 0)
     {
         this.type = type;
         this.axons = new Axon[axonCount];
         this.initializedAxonCount = 0;
+        this.Charge = initialCharge;
     }
     internal void AddAxon(Axon axon)
     {
@@ -15,12 +16,12 @@ public sealed class Neuron
         this.initializedAxonCount++;
     }
     private int initializedAxonCount;
-    readonly NeuronType type;
+    readonly INeuronType type;
     readonly Axon[] axons;
     internal float Charge { get; private set; }
 
     private int decayUpdatedTime;
-    private int lastActivatedTime = NeuronType.NEVER;
+    private int lastActivatedTime = INeuronType.NEVER;
     internal void Decay(int time)
     {
         for (; decayUpdatedTime < time; decayUpdatedTime++)

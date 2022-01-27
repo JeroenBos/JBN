@@ -6,7 +6,7 @@ public class Network
     {
         if (!condition) throw new Exception();
     }
-    public Network(NeuronType[] nodeTypes,
+    public Network(INeuronType[] nodeTypes,
                    int inputCount,
                    int outputCount,
                    AxonType?[,] connections,
@@ -58,7 +58,7 @@ public class Network
     }
 
     private readonly AxonType[] axonTypes;
-    private readonly NeuronType[] nodeTypes;
+    private readonly INeuronType[] nodeTypes;
     private readonly Neuron[] nodes;
     public Axon[] Input { get; }
     private readonly int outputCount;

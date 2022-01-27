@@ -6,7 +6,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetwork()
     {
-        var connections = new AxonType[1, 1] { { AxonTypes.One } };
+        var connections = new AxonType[1, 1];
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
@@ -18,8 +18,8 @@ public class NetworkTests
     [Fact]
     public void RunUnactivatedNetwork()
     {
-        var connections = new AxonType[1, 1] { { AxonTypes.One } };
-        var network = new Network(NeuronTypes.OnlyA,
+        var connections = new AxonType[1, 1];
+        var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
                                   connections,
@@ -36,7 +36,7 @@ public class NetworkTests
     public void RunActivatedNetworkOfOne()
     {
         var connections = new AxonType?[1, 1] { { null } };
-        var network = new Network(NeuronTypes.OnlyA,
+        var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
                                   connections,
@@ -56,7 +56,7 @@ public class NetworkTests
     public void TestNeuronDeactivatesAfterActivation()
     {
         var connections = new AxonType?[1, 1] { { null } };
-        var network = new Network(NeuronTypes.OnlyA,
+        var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
                                   connections,
@@ -74,7 +74,7 @@ public class NetworkTests
     public void TestNeuronCanActivateSelf()
     {
         var connections = new AxonType?[1, 1] { { AxonTypes.A } };
-        var network = new Network(NeuronTypes.OnlyA,
+        var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
                                   connections,
