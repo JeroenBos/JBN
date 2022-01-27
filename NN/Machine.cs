@@ -1,6 +1,6 @@
 ﻿namespace JBSnorro.NN;
 
-class Machine
+sealed class Machine
 {
     private readonly Network network;
     private int maxTime = -1;
@@ -23,9 +23,8 @@ class Machine
 
         var output = new float[maxTime, this.network.output.Length];
         // assumes the input axioms have been triggered
-        for (int t = 0; t < maxTime; t++)
+        for (this.t = 0; t < maxTime; t++)
         {
-            this.t = t;
             this.Tick();
 
             for (int i = 0; i < this.network.output.Length; i++)
