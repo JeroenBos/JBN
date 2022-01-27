@@ -36,6 +36,18 @@ public static class Extensions
             yield return current;
         }
     }
+    public static T[,] Initialize2DArray<T>(int size0, int size1, T initialValue)
+    {
+        var result = new T[size0, size1];
+        for (int y = 0; y < size1; y++)
+        {
+            for (int x = 0; x < size0; x++)
+            {
+                result[x, y] = initialValue;
+            }
+        }
+        return result;
+    }
 }
 
 

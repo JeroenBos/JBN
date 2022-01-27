@@ -1,4 +1,4 @@
-﻿namespace JBSnorro.NN;
+namespace JBSnorro.NN;
 
 sealed class Machine
 {
@@ -21,7 +21,7 @@ sealed class Machine
         this.emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
         this.emits.Add(new List<Axon>()); // so we need to skip this.emits[0].
 
-        var output = new float[maxTime, this.network.output.Length];
+        var output = Extensions.Initialize2DArray(maxTime, this.network.output.Length, float.NaN);
         // assumes the input axioms have been triggered
         for (this.t = 0; t < maxTime; t++)
         {
