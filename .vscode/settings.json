@@ -1,0 +1,6 @@
+{
+	"files.exclude": {
+		"tests/JBN.Tests.csproj_": true,
+    }
+
+}
