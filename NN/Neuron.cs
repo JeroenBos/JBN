@@ -20,13 +20,18 @@ public sealed class Neuron
     readonly Axon[] axons;
     internal float Charge { get; private set; }
 
+    /// <summary> The time up until and including which the decay has been updated. Decay happens at the start of a timestep. </summary>
     private int decayUpdatedTime;
+    /// <summary> The time this neuron was activated last. Activation happens at the end of a timestep. </summary>
     private int lastActivatedTime = INeuronType.NEVER;
     internal void Decay(int time)
     {
-        for (; decayUpdatedTime < time; decayUpdatedTime++)
+        if (time == 0)
+            return; // there's no decay at time 0
+        for (; decayUpdatedTime <= time; decayUpdatedTime++)
         {
-            this.Charge *= this.type.GetDecay(time - decayUpdatedTime, time - lastActivatedTime);
+            // decay gets a +1 because it's at the start of the time, whereas activation is at the end. time is in the middle
+            this.Charge *= this.type.GetDecay(time - decayUpdatedTime + 1, time - lastActivatedTime);
         }
     }
     internal void Receive(AxonType axonType, float weight, Machine machine)
