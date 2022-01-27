@@ -141,11 +141,11 @@ public sealed class VariableNeuronType : INeuronType
     }
     internal IEnumerable<float> GetActivationCumulativeDecaySequence()
     {
-        return GetDecaySequence(this.activation).Scan(floatMultiplication, 1);
+        return GetActivationDecaySequence().Scan(floatMultiplication, 1);
     }
     internal IEnumerable<float> GetNoActivationCumulativeDecaySequence()
     {
-        return GetDecaySequence(this.noActivation).Scan(floatMultiplication, 1);
+        return GetNoActivationDecaySequence().Scan(floatMultiplication, 1);
     }
     static float floatMultiplication(float a, float b) => a * b;
 }
