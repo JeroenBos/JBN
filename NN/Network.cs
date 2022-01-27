@@ -21,6 +21,7 @@ public class Network
         this.Input = new Axon[inputCount];
         this.outputCount = outputCount;
 
+        int totalAxonCount = 0;
         for (int i = 0; i < nodeCount; i++)
         {
             int axonCount = 0;
@@ -32,7 +33,11 @@ public class Network
                 }
             }
             this.nodes[i] = new Neuron(nodeTypes[i], axonCount);
+            totalAxonCount += axonCount;
         }
+        
+        this.axons = new Axon[totalAxonCount];
+        int axonsIndex = 0;
         for (int i = 0; i < nodeCount; i++)
         {
             for (int j = 0; j < nodeCount; j++)
@@ -40,7 +45,9 @@ public class Network
                 var connectionType = connections[i, j];
                 if (connectionType != null)
                 {
-                    this.nodes[i].AddAxon(new Axon(connectionType, this.nodes[j], connectionType.GetLength(i, j), connectionType.GetInitialWeight(i, j)));
+                    var axon = new Axon(connectionType, this.nodes[j], connectionType.GetLength(i, j), connectionType.GetInitialWeight(i, j));
+                    this.nodes[i].AddAxon(axon);
+                    axons[axonsIndex++] = axon;
                 }
             }
         }
@@ -54,6 +61,7 @@ public class Network
     private readonly AxonType[] axonTypes;
     private readonly INeuronType[] nodeTypes;
     private readonly Neuron[] nodes;
+    internal readonly Axon[] axons;  // excluding input axons
     public Axon[] Input { get; }
     private readonly int outputCount;
     internal float[] output
