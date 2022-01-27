@@ -84,9 +84,11 @@ public class NetworkTests
     {
         var random = new Random(Seed: 0);
         const int neuronCount = 100;
-        const int inputCount = 10;
-        const int outputCount = 10;
-        const int maxTime = 100;
+        const int inputCount = 5;
+        const int outputCount = 5;
+        const int maxTime = 15;
+        const float initializationChange = 1f;
+        const float connectionChance = 0.5f;
 
         var connections = new AxonType?[neuronCount, neuronCount];
 
@@ -94,7 +96,7 @@ public class NetworkTests
         {
             for (int j = 0; j < neuronCount; j++)
             {
-                if (random.Next() < int.MaxValue / 10)
+                if (random.NextSingle() < connectionChance)
                 {
                     connections[i, j] = new AxonType(
                         length: GetLengthFunctions.Default(i, j, neuronCount),
@@ -117,7 +119,7 @@ public class NetworkTests
         var randomInitialization = new bool[inputCount];
         for (int i = 0; i < inputCount; i++)
         {
-            randomInitialization[i] = random.Next(2) == 0;
+            randomInitialization[i] = random.NextSingle() < initializationChange;
         }
 
         var network = new Network(neuronTypes,

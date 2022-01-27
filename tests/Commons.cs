@@ -12,28 +12,30 @@ static class NeuronTypes
 
     static NeuronTypes()
     {
+        float sqrt2 = (float)Math.Sqrt(2);
+        float invSqrt2 = 1 / sqrt2;
         A = new VariableNeuronType(new[] {
-            (1, 1f),
-            (int.MaxValue, 1f),
-        }, new[] {
-            (1, 1),
-            (int.MaxValue, 1f),
+            (10, 0.9f),
+            (11, 0f),
+        }, new (int, float)[] {
+            (0, 1f),
         });
 
-        B = new VariableNeuronType(new[] {
-            (1, 1f),
-            (int.MaxValue, 1f),
+        B = new VariableNeuronType(new (int, float)[] {
+            // does not decay
         }, new[] {
-            (1, 1),
-            (int.MaxValue, 1f),
+            (1, 0.1f),
         });
 
         C = new VariableNeuronType(new[] {
-            (1, 1f),
-            (int.MaxValue, 1f),
+            (1, 0.9f),
         }, new[] {
-            (1, 1),
-            (int.MaxValue, 1f),
+            (1, 0.1f),
+            (2, sqrt2),
+            (3, sqrt2),
+            (4, 1),
+            (5, invSqrt2),
+            (6, invSqrt2),
         });
 
         OnlyA = new[] { A };
@@ -68,7 +70,7 @@ static class GetInitialWeightFunctions
         return f;
         float f(int i, int j)
         {
-            return 2 * random.NextSingle() - 1;
+            return 2 * random.NextSingle() - 0.9f;
         }
     }
 }
