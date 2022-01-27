@@ -138,7 +138,18 @@ public class NetworkTests
         }
 
         var output = machine.Run(maxTime);
-        Console.WriteLine(output);
+        for (int t = 0; t < maxTime; t++)
+        {
+            Console.Write("[");
+            for (int i = 0; i < outputCount; i++)
+            {
+                Console.Write(output[t, i].ToString("n2"));
+                if (i != outputCount - 1)
+                    Console.Write(", ");
+
+            }
+            Console.WriteLine("]");
+        }
     }
 
 }

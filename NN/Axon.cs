@@ -14,6 +14,7 @@ public sealed class Axon
     private readonly int length;
     private readonly Neuron endpoint;
     float weight;
+    internal float Weight => weight;
 
     int timeOfDelivery = -1;
     internal void Activate(Machine machine)

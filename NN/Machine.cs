@@ -38,17 +38,28 @@ sealed class Machine
     private void Tick()
     {
         var emittingAxons = this.emits[0];
+        float positiveCumulativeOomph = 0;
+        float negativeCumulativeOomph = 0;
         foreach (Axon axon in emittingAxons)
         {
+            float w = axon.Weight;
+            if (w < 0)
+                negativeCumulativeOomph -= w;
+            else
+                positiveCumulativeOomph += w;
             axon.Emit(this);
         }
+        int activationCount = 0;
         foreach (Neuron neuron in potentiallyActivatedDuringStep)
         {
             if (neuron.Charge >= Neuron.threshold)
             {
+                activationCount++;
                 neuron.Activate(this);
             }
         }
+
+        Console.WriteLine($"t={this.t:d2}, emits: {emittingAxons.Count}(Σ={positiveCumulativeOomph:n2}/-{negativeCumulativeOomph:n2}), acts: {activationCount}");
 
         // clean up
         emittingAxons.Clear();
