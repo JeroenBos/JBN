@@ -2,6 +2,8 @@ namespace JBSnorro.NN;
 
 public sealed class Neuron
 {
+    private static readonly bool MachineTriggersDecay = true;  // certain operations are redundant if machine calls network.Decay every time step
+
     internal const float threshold = 1;
     public Neuron(INeuronType type, int axonCount, float initialCharge = 0)
     {
@@ -40,7 +42,10 @@ public sealed class Neuron
     }
     internal void Receive(AxonType axonType, float weight, Machine machine)
     {
-        // Decay(machine.Time); redundant if machine calls network.Decay every time step
+        if (!MachineTriggersDecay)
+        {
+            Decay(machine.Time);
+        }
         bool alreadyRegistered = this.Charge >= threshold;
         this.Charge += weight;
         if (this.Charge >= threshold && !alreadyRegistered)
@@ -50,6 +55,11 @@ public sealed class Neuron
     }
     internal void Activate(Machine machine)
     {
+        if (!MachineTriggersDecay && this.lastActivatedTime > this.decayUpdatedTime)
+        {
+            this.Decay(machine.Time);
+        }
+
         lastActivatedTime = machine.Time;
         foreach (var axon in this.axons)
         {
