@@ -30,7 +30,8 @@ public sealed class RetentionOfOneNeuronType : INeuronType
 
 public sealed class VariableNeuronType : INeuronType
 {
-    const float tailValue = 0;
+    const float ActivationTailValue = 1;
+    const float ChargeTailValue = 0;
     private readonly (int maxDt, float decay)[] noActivation;
     private readonly (int maxDt, float decay)[] activation;
 
@@ -66,6 +67,7 @@ public sealed class VariableNeuronType : INeuronType
 
 
         int dt;
+        float tail;
         (int max, float decay)[] list;
         if (hasActivated)
         {
@@ -73,6 +75,7 @@ public sealed class VariableNeuronType : INeuronType
 
             list = this.activation;
             dt = timeSinceLastActivation;
+            tail = ActivationTailValue;
         }
         else if (!hasReceivedCharge)
         {
@@ -86,6 +89,7 @@ public sealed class VariableNeuronType : INeuronType
         {
             list = this.noActivation;
             dt = timeSinceLastChargeReceipt;
+            tail = ChargeTailValue;
         }
 
 
@@ -105,17 +109,17 @@ public sealed class VariableNeuronType : INeuronType
                 return decay;
             }
         }
-        return tailValue;
+        return tail;
     }
     internal IEnumerable<float> GetActivationDecaySequence()
     {
-        return GetDecaySequence(this.activation);
+        return GetDecaySequence(this.activation, ActivationTailValue);
     }
     internal IEnumerable<float> GetNoActivationDecaySequence()
     {
-        return GetDecaySequence(this.noActivation);
+        return GetDecaySequence(this.noActivation, ChargeTailValue);
     }
-    private IEnumerable<float> GetDecaySequence((int maxDt, float decay)[] decays)
+    private IEnumerable<float> GetDecaySequence((int maxDt, float decay)[] decays, float tailValue)
     {
         int currentIndex = 0;
         int currentMaxDt = decays[currentIndex].maxDt;

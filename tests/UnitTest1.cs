@@ -191,8 +191,8 @@ public class NeuronTypeTests
     public void TestNeuronInputChargeDecay()
     {
         var type = new VariableNeuronType(
-            new[] { (0, 1f) },
-            new[] { (2, 0.5f) }  // in constrast to the test above, activation is triggered in this one, hence we use that list
+            new (int, float)[0],
+            new[] { (2, 0.5f) }  // in contrast to the test above, activation is triggered in this one, hence we use that list
         );
 
         var neuron = new Neuron(type, 0);
@@ -209,7 +209,7 @@ public class NeuronTypeTests
         // these are the charges at the ends of timesteps just before clearance
         // given that the initial axon fires at time 0 and reaches the neuron between time 0 and 1,
         // the charge at the end of time 0 is 1f
-        Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0 });
+        Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0.25f });
     }
 
 }
