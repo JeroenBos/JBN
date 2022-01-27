@@ -44,18 +44,11 @@ static class NeuronTypes
 static class AxonTypes
 {
     public static AxonType A { get; } = new AxonType();
+    public static AxonType LengthTwo { get; } = new AxonType(2);
 
 }
 static class GetLengthFunctions
 {
-    public static int One(int i, int j)
-    {
-        return 1;
-    }
-    public static int Two(int i, int j)
-    {
-        return 2;
-    }
     public static int Default(int i, int j)
     {
         return (int)Math.Max(1, Math.Sqrt(i * i + j * j) / 4);
@@ -64,10 +57,6 @@ static class GetLengthFunctions
 
 static class GetInitialWeightFunctions
 {
-    public static float One(int i, int j)
-    {
-        return 1;
-    }
     public static Func<int, int, float> Random(Random random)
     {
         return f;

@@ -10,9 +10,7 @@ public class NetworkTests
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
-                                  connections,
-                                  GetLengthFunctions.One,
-                                  GetInitialWeightFunctions.One);
+                                  connections);
     }
 
     [Fact]
@@ -22,9 +20,7 @@ public class NetworkTests
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
-                                  connections,
-                                  GetLengthFunctions.One,
-                                  GetInitialWeightFunctions.One);
+                                  connections);
 
         var machine = new Machine(network);
         var output = machine.Run(1);
@@ -39,9 +35,7 @@ public class NetworkTests
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
-                                  connections,
-                                  GetLengthFunctions.One,
-                                  GetInitialWeightFunctions.One);
+                                  connections);
 
 
         var machine = new Machine(network);
@@ -59,9 +53,7 @@ public class NetworkTests
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
-                                  connections,
-                                  GetLengthFunctions.One,
-                                  GetInitialWeightFunctions.One);
+                                  connections);
 
 
         var machine = new Machine(network);
@@ -73,13 +65,11 @@ public class NetworkTests
     [Fact]
     public void TestNeuronCanActivateSelf()
     {
-        var connections = new AxonType?[1, 1] { { AxonTypes.A } };
+        var connections = new AxonType?[1, 1] { { AxonTypes.LengthTwo } };
         var network = new Network(NeuronTypes.OnlyOne,
                                   inputCount: 1,
                                   outputCount: 1,
-                                  connections,
-                                  GetLengthFunctions.Two,
-                                  GetInitialWeightFunctions.One);
+                                  connections);
 
 
         var machine = new Machine(network);
@@ -105,7 +95,10 @@ public class NetworkTests
             {
                 if (random.Next() < int.MaxValue / 10)
                 {
-                    connections[i, j] = AxonTypes.A;
+                    connections[i, j] = new AxonType(
+                        length: GetLengthFunctions.Default(i, j),
+                        initialWeight: GetInitialWeightFunctions.Random(random)(i, j)
+                    );
                 }
             }
         }
@@ -129,9 +122,7 @@ public class NetworkTests
         var network = new Network(neuronTypes,
                                   inputCount,
                                   outputCount,
-                                  connections,
-                                  GetLengthFunctions.Default,
-                                  GetInitialWeightFunctions.Random(random));
+                                  connections);
 
 
         var machine = new Machine(network);
@@ -160,7 +151,7 @@ public class NeuronTypeTests
         var sequence = n.GetNoActivationDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
         Assert.Equal(sequence, new[] { "0.50", "0.50", "0.00", "0.00" });
     }
-    
+
     [Fact]
     public void TestCumulativeDecaySequence()
     {
@@ -172,7 +163,7 @@ public class NeuronTypeTests
         Assert.Equal(sequence, new[] { "0.50", "0.25", "0.12", "0.00" });
     }
 
-    
+
     [Fact]
     public void TestNeuronChargeDecay()
     {
@@ -188,6 +179,6 @@ public class NeuronTypeTests
             charges[t] = neuron.Charge;
         }
         // these are the charges at the ends of timesteps just before clearance
-        Assert.Equal(charges, new [] { 1f, 0.50f, 0.25f, 0.125f });
+        Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0.125f });
     }
 }

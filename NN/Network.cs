@@ -9,9 +9,7 @@ public class Network
     public Network(INeuronType[] nodeTypes,
                    int inputCount,
                    int outputCount,
-                   AxonType?[,] connections,
-                   Func<int, int, int> getLength,
-                   Func<int, int, float> getInitialWeight)
+                   AxonType?[,] connections)
     {
         int nodeCount = nodeTypes.Length;
         Assert(connections.GetLength(0) == nodeCount);
@@ -43,10 +41,10 @@ public class Network
         {
             for (int j = 0; j < nodeCount; j++)
             {
-                var connection = connections[i, j];
-                if (connection != null)
+                var connectionType = connections[i, j];
+                if (connectionType != null)
                 {
-                    this.nodes[i].AddAxon(new Axon(connection, this.nodes[j], getLength(i, j), getInitialWeight(i, j)));
+                    this.nodes[i].AddAxon(new Axon(connectionType, this.nodes[j], connectionType.GetLength(i, j), connectionType.GetInitialWeight(i, j)));
                 }
             }
         }
