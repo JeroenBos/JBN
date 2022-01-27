@@ -10,11 +10,11 @@ public sealed class RetentionOfOneNeuronType : INeuronType
     /// <summary> Gets the decay of the charge given the times since last recept of charge and last activation. </summary>
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
-        if (timeSinceLastChargeReceipt <= 0)
+        // the NEVER/2 trick effectively puts the max run time at half of int.MaxValue. Fine for now
+        if (INeuronType.NEVER / 2 < timeSinceLastChargeReceipt && timeSinceLastChargeReceipt < 0)
             throw new ArgumentOutOfRangeException(nameof(timeSinceLastChargeReceipt));
 
-        // this NEVER/2 trick effectively puts the max run time at half of int.MaxValue. Fine for now
-        if (INeuronType.NEVER / 2 < timeSinceLastActivation && timeSinceLastActivation <= 0)
+        if (INeuronType.NEVER / 2 < timeSinceLastActivation && timeSinceLastActivation < 0)
             throw new ArgumentOutOfRangeException(nameof(timeSinceLastActivation));
 
         if (timeSinceLastActivation == 1)
@@ -55,10 +55,14 @@ public sealed class VariableNeuronType : INeuronType
             list = this.activation;
             dt = timeSinceLastActivation;
         }
-        else
+        else if(timeSinceLastChargeReceipt >= INeuronType.NEVER / 2)
         {
             list = this.noActivation;
             dt = timeSinceLastChargeReceipt;
+        }
+        else // no charge ever received (nor activation)
+        {
+            return 1;
         }
 
         foreach (var (maxDt, decay) in list)

@@ -11,6 +11,11 @@ public sealed class Neuron
         this.axons = new Axon[axonCount];
         this.initializedAxonCount = 0;
         this.Charge = initialCharge;
+        if (initialCharge != 0)
+        {
+            this.lastReceivedChargeTime = 0;
+            // this, in combination with decay being skipped at t=0, results in decay working as expected
+        }
     }
     internal void AddAxon(Axon axon)
     {
@@ -26,6 +31,7 @@ public sealed class Neuron
     private int decayUpdatedTime;
     /// <summary> The time this neuron was activated last. Activation happens at the end of a timestep. </summary>
     private int lastActivatedTime = INeuronType.NEVER;
+    private int lastReceivedChargeTime = INeuronType.NEVER;
     internal void Decay(int time)
     {
         if (time == 0)
@@ -36,8 +42,7 @@ public sealed class Neuron
 
         for (; decayUpdatedTime <= time; decayUpdatedTime++)
         {
-            // decay gets a +1 because it's at the start of the time, whereas activation is at the end. time is in the middle, but closer to the end
-            this.Charge *= this.type.GetDecay(time - decayUpdatedTime + 1, time - lastActivatedTime);
+            this.Charge *= this.type.GetDecay(decayUpdatedTime - lastReceivedChargeTime, decayUpdatedTime - lastActivatedTime);
         }
     }
     internal void Receive(AxonType axonType, float weight, Machine machine)
@@ -47,6 +52,7 @@ public sealed class Neuron
             Decay(machine.Time);
         }
         bool alreadyRegistered = this.Charge >= threshold;
+        this.lastReceivedChargeTime = machine.Time;
         this.Charge += weight;
         if (this.Charge >= threshold && !alreadyRegistered)
         {

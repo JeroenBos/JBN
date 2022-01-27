@@ -61,7 +61,7 @@ class Machine
         // - decay of a neuron
         //   - must be after charge has been outputted
         //   - if it receive charge on time T, let's say also the decay of time T still happens
-        //   so decay or a neuron happens just after time T
+        //   so decay or a neuron happens just after time T (except at t=0)
         // - activation of a neuron
         //   - happens at the end
         //   - must happen after all axons this time step have fired. if it peeks over the threshold
@@ -70,6 +70,9 @@ class Machine
         //   happens at the end (order w.r.t. activation is not relevant)
         // - clear neuron charge
         //   happens at the end after registering output
+        // the input axons are fired at time -1, and with length 1 arrive at their nodes in time 0
+        // therefore, any initial charge (if any/implemented) should not decay just after time 0
+
     }
 
     private readonly List<Neuron> potentiallyActivatedDuringStep;
