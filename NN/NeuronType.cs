@@ -8,7 +8,7 @@ public interface INeuronType
 }
 public sealed class RetentionOfOneNeuronType : INeuronType
 {
-    /// <summary> Gets the decay of the charge given the times since last recept of charge and last activation. </summary>
+    /// <summary> Gets the decay of the charge given the times since last receipt of charge and last activation. </summary>
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
         if (!IsNever(timeSinceLastChargeReceipt) && timeSinceLastChargeReceipt < 0)
@@ -55,7 +55,7 @@ public sealed class VariableNeuronType : INeuronType
     }
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
-        // we can assume we're at the end of a time
+        // we can assume we're at the end of a time step
         bool hasReceivedCharge = !IsNever(timeSinceLastChargeReceipt);
         bool hasActivated = !IsNever(timeSinceLastActivation);
         bool activationWasLaterThanChargeReceipt = timeSinceLastChargeReceipt >= timeSinceLastActivation;
