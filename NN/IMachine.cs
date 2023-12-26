@@ -20,5 +20,8 @@ public interface IMachine
     /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.
     /// </summary>
     void RegisterPotentialActivation(Neuron neuron);
+    /// <summary>
+    /// Sets the specified axon to emit charge at the specified time.
+    /// </summary>
     void AddEmitAction(int time, Axon axon);
 }
