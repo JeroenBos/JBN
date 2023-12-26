@@ -1,3 +1,5 @@
+using JBSnorro.NN.Internals;
+
 namespace JBSnorro.NN;
 
 public sealed class Axon
@@ -22,7 +24,7 @@ public sealed class Axon
     private int activationCount = 0;
     private float averageTimeBetweenActivations = float.NaN;
     internal float Weight => weight;
-    internal void Activate(Machine machine)
+    internal void Activate(IMachine machine)
     {
         this.activationCount++;
 

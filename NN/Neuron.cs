@@ -1,3 +1,5 @@
+using JBSnorro.NN.Internals;
+
 namespace JBSnorro.NN;
 
 public sealed class Neuron

@@ -24,7 +24,7 @@ public class NetworkTests
                                   outputCount: 1,
                                   connections);
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 0 } });
     }
@@ -40,7 +40,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         network.Input[0].Activate(machine);
 
         var output = machine.Run(1);
@@ -58,7 +58,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         network.Input[0].Activate(machine);
 
         var output = machine.Run(2);
@@ -74,7 +74,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         network.Input[0].Activate(machine);
 
         var output = machine.Run(3);
@@ -128,7 +128,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         foreach (var (activate, input) in randomInitialization.Zip(network.Input))
         {
             if (activate)

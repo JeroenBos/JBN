@@ -1,3 +1,4 @@
+using JBSnorro.NN.Internals;
 using JBSnorro.NN;
 
 namespace Tests.JBSnorro.NN;
