@@ -24,4 +24,6 @@ public interface IMachine
     /// Sets the specified axon to emit charge at the specified time.
     /// </summary>
     void AddEmitAction(int time, Axon axon);
+
+    event OnTickDelegate OnTick;
 }

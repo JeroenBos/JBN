@@ -1,6 +1,6 @@
 ﻿namespace JBSnorro.NN.Internals;
 
-sealed class Machine : IMachine
+internal sealed class Machine : IMachine
 {
     private readonly Network network;
     private readonly GetFeedbackDelegate getFeedback;
@@ -9,6 +9,9 @@ sealed class Machine : IMachine
 
     private int maxTime = -1;
     private int t = -1;
+
+    public event OnTickDelegate? OnTick;
+
     internal int Time => t;
 
     public Machine(Network network) : this(network, _ => Feedback.Empty) { }
@@ -16,11 +19,8 @@ sealed class Machine : IMachine
     {
         this.network = network;
         this.getFeedback = getFeedback;
-        potentiallyActivatedDuringStep = new List<Neuron>();
-        emits = new List<List<Axon>>
-        {
-            new()
-        };
+        this.potentiallyActivatedDuringStep = new List<Neuron>();
+        this.emits = new List<List<Axon>> { new() };
     }
 
     public float[,] Run(int maxTime)
@@ -71,7 +71,7 @@ sealed class Machine : IMachine
             }
         }
 
-        Console.WriteLine($"t={t:d2}, emits: {emittingAxons.Count}(Σ={positiveCumulativeOomph:n2}/-{negativeCumulativeOomph:n2}), acts: {activationCount}");
+        this.OnTick?.Invoke(this, new OnTickEventArgs(Time: Time, EmittingAxonCount: emittingAxons.Count, PositiveCumulativeOomph: positiveCumulativeOomph, NegativeCumulativeOomph: negativeCumulativeOomph, ActivationCount: activationCount));
 
         // clean up
         emittingAxons.Clear();
