@@ -73,7 +73,7 @@ public sealed class Neuron
         this.lastActivatedTime = machine.Time;
         foreach (var axon in this.axons)
         {
-            axon.Activate(machine);
+            axon.Activate(machine.Time, machine.AddEmitAction);
         }
     }
 }
