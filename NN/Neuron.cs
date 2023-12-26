@@ -7,6 +7,16 @@ public sealed class Neuron
     private static readonly bool MachineTriggersDecay = true;  // certain operations are redundant if machine calls network.Decay every time step
 
     internal const float threshold = 1;
+    private readonly INeuronType type;
+    private readonly Axon[] axons;
+    private int initializedAxonCount;
+    /// <summary> The time up until and including which the decay has been updated. Decay happens at the start of a timestep. </summary>
+    private int decayUpdatedTime;
+    /// <summary> The time this neuron was activated last. Activation happens at the end of a timestep. </summary>
+    private int lastActivatedTime = NEVER;
+    private int lastReceivedChargeTime = NEVER;
+    internal float Charge { get; private set; }
+
     public Neuron(INeuronType type, int axonCount, float initialCharge = 0)
     {
         this.type = type;
@@ -19,21 +29,13 @@ public sealed class Neuron
             // this, in combination with decay being skipped at t=0, results in decay working as expected
         }
     }
+
     internal void AddAxon(Axon axon)
     {
         this.axons[initializedAxonCount] = axon;
         this.initializedAxonCount++;
     }
-    private int initializedAxonCount;
-    private readonly INeuronType type;
-    private readonly Axon[] axons;
-    internal float Charge { get; private set; }
 
-    /// <summary> The time up until and including which the decay has been updated. Decay happens at the start of a timestep. </summary>
-    private int decayUpdatedTime;
-    /// <summary> The time this neuron was activated last. Activation happens at the end of a timestep. </summary>
-    private int lastActivatedTime = NEVER;
-    private int lastReceivedChargeTime = NEVER;
 
     internal void Decay(int time)
     {
@@ -68,10 +70,10 @@ public sealed class Neuron
             this.Decay(machine.Time);
         }
 
-        lastActivatedTime = machine.Time;
+        this.lastActivatedTime = machine.Time;
         foreach (var axon in this.axons)
         {
-            axon.Activate(machine);
+            axon.Activate(machine.Time, machine.AddEmitAction);
         }
     }
 }

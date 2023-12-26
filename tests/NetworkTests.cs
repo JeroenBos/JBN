@@ -224,3 +224,11 @@ public class NeuronTypeTests
     }
 
 }
+
+internal static class Adapters
+{
+    public static void Activate(this Axon axon, IMachine machine)
+    {
+        axon.Activate(machine.Time, machine.AddEmitAction);
+    }
+}

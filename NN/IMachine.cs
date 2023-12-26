@@ -16,6 +16,9 @@ public interface IMachine
 
     internal int Time { get; }
 
-    void AddEmitAction(int time, Axon axon);
+    /// <summary>
+    /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.
+    /// </summary>
     void RegisterPotentialActivation(Neuron neuron);
+    void AddEmitAction(int time, Axon axon);
 }

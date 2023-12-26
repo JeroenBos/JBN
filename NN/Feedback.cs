@@ -9,4 +9,4 @@ public sealed class Feedback
     public bool Stop { get; init; }
 }
 
-public delegate Feedback GetFeedbackDelegate(float[] latestOutput);
+public delegate Feedback GetFeedbackDelegate(ReadOnlySpan<float> latestOutput);

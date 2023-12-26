@@ -27,11 +27,12 @@ sealed class Machine : IMachine
     {
         if (t != -1) throw new InvalidOperationException("This machine has already run");
         if (emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
+
         this.maxTime = maxTime;
         emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
-        emits.Add(new List<Axon>()); // so we need to skip this.emits[0].
+        emits.Add(new List<Axon>()); // so we need to skip this.emits[0]
 
-        var output = Extensions.Initialize2DArray(maxTime, network.output.Length, float.NaN);
+        float[,] output = Extensions.Initialize2DArray(maxTime, network.output.Length, float.NaN);
         // assumes the input axioms have been triggered
         for (t = 0; t < maxTime; t++)
         {
@@ -97,19 +98,17 @@ sealed class Machine : IMachine
         //   happens in the middle of a timestep
 
     }
-    private float[] CopyOutput(float[,]? totalOutput)
+    private float[] CopyOutput(float[,] totalOutput)
     {
+        // PERF: use ReadOnlySpan2D<T>
         var latestOutput = network.output;
-        if (totalOutput != null)
+        for (int i = 0; i < latestOutput.Length; i++)
         {
-            for (int i = 0; i < latestOutput.Length; i++)
-            {
-                totalOutput[t, i] = latestOutput[i];
-            }
+            totalOutput[this.t, i] = latestOutput[i];
         }
         return latestOutput;
     }
-    private bool ProcessFeedback(float[] latestOutput)
+    private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
         var feedback = getFeedback(latestOutput);
         network.ProcessFeedback(feedback.Dopamine, feedback.Cortisol, Time);
@@ -121,8 +120,8 @@ sealed class Machine : IMachine
         if (time >= maxTime && maxTime != -1)
             return;
 
-        int dt = time - t;
-        if (dt <= 0) throw new Exception("dt <= 0");
+        int dt = time - this.t;
+        if (dt <= 0) throw new ArgumentOutOfRangeException(nameof(time), "dt <= 0");
         while (dt >= emits.Count)
         {
             emits.Add(new List<Axon>());
