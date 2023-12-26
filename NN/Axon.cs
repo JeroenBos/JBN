@@ -13,15 +13,15 @@ public sealed class Axon
         this.weight = initialWeight;
         this.endpoint = endpoint;
     }
+
     private readonly AxonType type;
     private readonly int length;
     private readonly Neuron endpoint;
-    float weight;
+    private float weight;
+    private int timeOfDelivery = NEVER;
+    private int activationCount = 0;
+    private float averageTimeBetweenActivations = float.NaN;
     internal float Weight => weight;
-
-    int timeOfDelivery = NEVER;
-    int activationCount = 0;
-    float averageTimeBetweenActivations = float.NaN;
     internal void Activate(Machine machine)
     {
         this.activationCount++;
