@@ -34,16 +34,15 @@ public sealed class AxonType
                                   int timeSinceLastActivation,
                                   float averageTimeBetweenActivations,
                                   int activationCount,
-                                  float dopamine,
-                                  float cortisol)
+                                  Feedback feedback)
     {
         return getUpdatedWeight(currentWeight,
                                 this.type,
                                 timeSinceLastActivation,
                                 averageTimeBetweenActivations,
                                 activationCount,
-                                dopamine,
-                                cortisol);
+                                feedback.Dopamine,
+                                feedback.Cortisol);
     }
 
 

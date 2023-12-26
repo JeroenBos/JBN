@@ -85,11 +85,11 @@ public class Network
             node.Decay(time);
         }
     }
-    internal void ProcessFeedback(float dopamine, float cortisol, int time)
+    internal void ProcessFeedback(Feedback feedback, int time)
     {
         foreach (var axon in this.axons)
         {
-            axon.ProcessFeedback(dopamine, cortisol, time);
+            axon.ProcessFeedback(feedback, time);
         }
     }
 }

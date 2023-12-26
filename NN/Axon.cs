@@ -46,7 +46,7 @@ public sealed class Axon
         this.endpoint.Receive(this.type, this.weight, machine);
         // leave timeOfDelivery for feedback
     }
-    internal void ProcessFeedback(float dopamine, float cortisol, int time)
+    internal void ProcessFeedback(Feedback feedback, int time)
     {
         int timeSinceLastActivation = time - this.timeOfDelivery - this.length;
         // TODO: pass along a vector representing position
@@ -54,8 +54,7 @@ public sealed class Axon
                                                  timeSinceLastActivation,
                                                  this.averageTimeBetweenActivations,
                                                  this.activationCount,
-                                                 dopamine,
-                                                 cortisol);
+                                                 feedback);
     }
 }
 

@@ -111,7 +111,7 @@ internal sealed class Machine : IMachine
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
         var feedback = getFeedback(latestOutput);
-        network.ProcessFeedback(feedback.Dopamine, feedback.Cortisol, Time);
+        network.ProcessFeedback(feedback, Time);
         return feedback.Stop;
     }
 
