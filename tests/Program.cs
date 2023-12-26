@@ -1,3 +1,3 @@
-using JBSnorro.NN;
+using Tests.JBSnorro.NN;
 
 new NetworkTests().StressTest();

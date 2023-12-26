@@ -1,16 +1,16 @@
-I'm on linux now and vscode doesn't support multiple projects so I'm just going to shove
-my test project into my actual project.
-
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-
+	<ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+	<NoWarn>CS7022</NoWarn> <!-- I can't find the property that prevents generating this file -->
   </PropertyGroup>
 
   <ItemGroup>
+	<Using Include="Xunit" />
+	<Using Include="System.Collections.Immutable" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">

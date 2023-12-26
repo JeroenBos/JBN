@@ -1,5 +1,7 @@
 using JBSnorro.NN;
 
+namespace Tests.JBSnorro.NN;
+
 static class NeuronTypes
 {
     public static INeuronType A { get; }
