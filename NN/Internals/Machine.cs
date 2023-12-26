@@ -117,7 +117,6 @@ internal sealed class Machine : IMachine
 
     public void AddEmitAction(int time, Axon axon)
     {
-        if (maxTime == -1) throw new InvalidOperationException("maxTime == -1");
         if (time >= maxTime && maxTime != -1)
             return;
         int dt = time - this.t;

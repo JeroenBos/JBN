@@ -172,7 +172,7 @@ public class NeuronTypeTests
     public void TestCumulativeDecaySequence()
     {
         var neuron = (VariableNeuronType)INeuronType.CreateVariable(
-            new[] { (3, 0.5f)}, 
+            new[] { (3, 0.5f) }, 
             new (int, float)[0]
         );
 
