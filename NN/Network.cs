@@ -21,9 +21,9 @@ public class Network
     }
 
     public Network(INeuronType[] nodeTypes,
-               int inputCount,
-               int outputCount,
-               AxonType?[,] connections)
+                   int inputCount,
+                   int outputCount,
+                   AxonType?[,] connections)
     {
         int nodeCount = nodeTypes.Length;
         Assert(connections.GetLength(0) == nodeCount);
@@ -85,7 +85,7 @@ public class Network
             node.Decay(time);
         }
     }
-    internal void ProcessFeedback(Feedback feedback, int time)
+    internal void Process(Feedback feedback, int time)
     {
         foreach (var axon in this.axons)
         {
