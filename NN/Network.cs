@@ -2,10 +2,28 @@ namespace JBSnorro.NN;
 
 public class Network
 {
+    private readonly AxonType[] axonTypes;
+    private readonly INeuronType[] nodeTypes;
+    private readonly Neuron[] nodes;
+    internal readonly Axon[] axons;  // excluding input axons
+    private readonly int outputCount;
+
+    public IReadOnlyList<Axon> Input { get; }
+    internal float[] output
+    {
+        get
+        {
+            float[] result = new float[this.outputCount];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = nodes[nodes.Length - outputCount + i].Charge;
+            return result;
+        }
+    }
+
     public Network(INeuronType[] nodeTypes,
-                   int inputCount,
-                   int outputCount,
-                   AxonType?[,] connections)
+               int inputCount,
+               int outputCount,
+               AxonType?[,] connections)
     {
         int nodeCount = nodeTypes.Length;
         Assert(connections.GetLength(0) == nodeCount);
@@ -18,7 +36,8 @@ public class Network
         this.nodeTypes = nodeTypes;
         this.axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
         this.nodes = new Neuron[nodeCount];
-        this.Input = new Axon[inputCount];
+        var input = new Axon[inputCount];
+        this.Input = input;
         this.outputCount = outputCount;
 
         int totalAxonCount = 0;
@@ -54,33 +73,11 @@ public class Network
 
         for (int i = 0; i < inputCount; i++)
         {
-            this.Input[i] = new Axon(AxonType.Input, this.nodes[i], length: Axon.InputLength, initialWeight: 1);
+            input[i] = new Axon(AxonType.Input, this.nodes[i], length: Axon.InputLength, initialWeight: 1);
         }
     }
 
-    private readonly AxonType[] axonTypes;
-    private readonly INeuronType[] nodeTypes;
-    private readonly Neuron[] nodes;
-    internal readonly Axon[] axons;  // excluding input axons
-    public Axon[] Input { get; }
-    private readonly int outputCount;
-    internal float[] output
-    {
-        get
-        {
-            float[] result = new float[this.outputCount];
-            for (int i = 0; i < result.Length; i++)
-                result[i] = nodes[nodes.Length - outputCount + i].Charge;
-            return result;
-        }
-    }
-    public void WriteOutputTo(float[,] medium, int row)
-    {
-        for (int i = 0; i < this.outputCount; i++)
-        {
-            medium[row, i] = nodes[nodes.Length - outputCount + i - 1].Charge;
-        }
-    }
+
     internal void Decay(int time)
     {
         foreach (var node in this.nodes)
@@ -88,11 +85,11 @@ public class Network
             node.Decay(time);
         }
     }
-    internal void ProcessFeedback(float dopamine, float cortisol, int time)
+    internal void ProcessFeedback(Feedback feedback, int time)
     {
         foreach (var axon in this.axons)
         {
-            axon.ProcessFeedback(dopamine, cortisol, time);
+            axon.ProcessFeedback(feedback, time);
         }
     }
 }

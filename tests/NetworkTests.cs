@@ -1,5 +1,6 @@
 using Assert = Xunit.Assert;
 using JBSnorro.NN;
+using VariableNeuronType = global::JBSnorro.NN.Internals.VariableNeuronType;
 
 namespace Tests.JBSnorro.NN;
 
@@ -24,7 +25,7 @@ public class NetworkTests
                                   outputCount: 1,
                                   connections);
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 0 } });
     }
@@ -40,7 +41,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         network.Input[0].Activate(machine);
 
         var output = machine.Run(1);
@@ -58,7 +59,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         network.Input[0].Activate(machine);
 
         var output = machine.Run(2);
@@ -74,7 +75,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         network.Input[0].Activate(machine);
 
         var output = machine.Run(3);
@@ -128,7 +129,7 @@ public class NetworkTests
                                   connections);
 
 
-        var machine = new Machine(network);
+        var machine = IMachine.Create(network);
         foreach (var (activate, input) in randomInitialization.Zip(network.Input))
         {
             if (activate)
@@ -158,9 +159,10 @@ public class NeuronTypeTests
     [Fact]
     public void TestDecaySequence()
     {
-        var n = new VariableNeuronType(new[] {
-            (2, 0.5f)
-         }, new (int, float)[0]);
+        var n = (VariableNeuronType)INeuronType.CreateVariable(
+            new[] { (2, 0.5f) },
+            new (int, float)[0]
+        );
 
         var sequence = n.GetNoActivationDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
         Assert.Equal(sequence, new[] { "0.50", "0.50", "0.00", "0.00" });
@@ -169,11 +171,12 @@ public class NeuronTypeTests
     [Fact]
     public void TestCumulativeDecaySequence()
     {
-        var n = new VariableNeuronType(new[] {
-            (3, 0.5f)
-         }, new (int, float)[0]);
+        var neuron = (VariableNeuronType)INeuronType.CreateVariable(
+            new[] { (3, 0.5f) }, 
+            new (int, float)[0]
+        );
 
-        var sequence = n.GetNoActivationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
+        var sequence = neuron.GetNoActivationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
         Assert.Equal(sequence, new[] { "0.50", "0.25", "0.12", "0.00" });
     }
 
@@ -181,9 +184,10 @@ public class NeuronTypeTests
     [Fact]
     public void TestNeuronInitialChargeDecay()
     {
-        var type = new VariableNeuronType(new[] {
-            (2, 0.5f)
-         }, new (int, float)[0]);
+        var type = INeuronType.CreateVariable(
+            new[] { (2, 0.5f) },
+            new (int, float)[0]
+        );
 
         var neuron = new Neuron(type, 0, initialCharge: 1);
         var charges = new float[4];
@@ -223,4 +227,12 @@ public class NeuronTypeTests
         Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0.25f });
     }
 
+}
+
+internal static class Adapters
+{
+    public static void Activate(this Axon axon, IMachine machine)
+    {
+        axon.Activate(machine.Time, machine.AddEmitAction);
+    }
 }

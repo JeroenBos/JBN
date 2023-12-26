@@ -1,47 +1,55 @@
-﻿namespace JBSnorro.NN;
+﻿namespace JBSnorro.NN.Internals;
 
-sealed class Machine
+internal sealed class Machine : IMachine
 {
     private readonly Network network;
     private readonly GetFeedbackDelegate getFeedback;
-    private int maxTime = -1;
+    private readonly List<Neuron> potentiallyActivatedDuringStep;
+    private readonly List<List<Axon>> emits;
 
-    public Machine(Network network) : this(network, _ => Feedback.Empty) {}
+    private int maxTime = -1;
+    private int t = -1;
+
+    public event OnTickDelegate? OnTick;
+
+    internal int Time => t;
+
+    public Machine(Network network) : this(network, _ => Feedback.Empty) { }
     public Machine(Network network, GetFeedbackDelegate getFeedback)
     {
         this.network = network;
         this.getFeedback = getFeedback;
         this.potentiallyActivatedDuringStep = new List<Neuron>();
-        this.emits = new List<List<Axon>>();
-        this.emits.Add(new List<Axon>());
+        this.emits = new List<List<Axon>> { new() };
     }
 
     public float[,] Run(int maxTime)
     {
-        if (this.t != -1) throw new InvalidOperationException("This machine has already run");
-        if (this.emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
+        if (t != -1) throw new InvalidOperationException("This machine has already run");
+        if (emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
+
         this.maxTime = maxTime;
-        this.emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
-        this.emits.Add(new List<Axon>()); // so we need to skip this.emits[0].
+        emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
+        emits.Add(new List<Axon>()); // so we need to skip this.emits[0]
 
-        var output = Extensions.Initialize2DArray(maxTime, this.network.output.Length, float.NaN);
+        float[,] output = Extensions.Initialize2DArray(maxTime, network.output.Length, float.NaN);
         // assumes the input axioms have been triggered
-        for (this.t = 0; t < maxTime; t++)
+        for (t = 0; t < maxTime; t++)
         {
-            this.Tick();
+            Tick();
 
-            var latestOutput = this.CopyOutput(output);
+            var latestOutput = CopyOutput(output);
             bool stop = ProcessFeedback(latestOutput);
             if (stop)
                 break;
 
-            this.network.Decay(this.t + 1);
+            network.Decay(t + 1);
         }
         return output;
     }
     private void Tick()
     {
-        var emittingAxons = this.emits[0];
+        var emittingAxons = emits[0];
         float positiveCumulativeOomph = 0;
         float negativeCumulativeOomph = 0;
         foreach (Axon axon in emittingAxons)
@@ -63,12 +71,12 @@ sealed class Machine
             }
         }
 
-        Console.WriteLine($"t={this.t:d2}, emits: {emittingAxons.Count}(Σ={positiveCumulativeOomph:n2}/-{negativeCumulativeOomph:n2}), acts: {activationCount}");
+        this.OnTick?.Invoke(this, new OnTickEventArgs(Time: Time, EmittingAxonCount: emittingAxons.Count, PositiveCumulativeOomph: positiveCumulativeOomph, NegativeCumulativeOomph: negativeCumulativeOomph, ActivationCount: activationCount));
 
         // clean up
         emittingAxons.Clear();
-        this.emits.RemoveAt(0);
-        this.emits.Add(emittingAxons);
+        emits.RemoveAt(0);
+        emits.Add(emittingAxons);
         potentiallyActivatedDuringStep.Clear();
 
         // so what kind of events are there and how do they relate to the integer nature of time?
@@ -90,35 +98,30 @@ sealed class Machine
         //   happens in the middle of a timestep
 
     }
-    private float[] CopyOutput(float[,]? totalOutput)
+    private float[] CopyOutput(float[,] totalOutput)
     {
-        var latestOutput = this.network.output;
-        if (totalOutput != null)
+        // PERF: use ReadOnlySpan2D<T>
+        var latestOutput = network.output;
+        for (int i = 0; i < latestOutput.Length; i++)
         {
-            for (int i = 0; i < latestOutput.Length; i++)
-            {
-                totalOutput[t, i] = latestOutput[i];
-            }
+            totalOutput[this.t, i] = latestOutput[i];
         }
         return latestOutput;
     }
-    private bool ProcessFeedback(float[] latestOutput)
+    private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
-        var feedback = this.getFeedback(latestOutput);
-        this.network.ProcessFeedback(feedback.Dopamine, feedback.Cortisol, this.Time);
+        var feedback = getFeedback(latestOutput);
+        network.ProcessFeedback(feedback, Time);
         return feedback.Stop;
     }
-    private readonly List<Neuron> potentiallyActivatedDuringStep;
-    private readonly List<List<Axon>> emits;
-    private int t = -1;
-    internal int Time => t;
+
     public void AddEmitAction(int time, Axon axon)
     {
-        if (time >= this.maxTime && this.maxTime != -1)
+        if (time >= maxTime && maxTime != -1)
             return;
+        int dt = time - this.t;
+        if (dt <= 0) throw new ArgumentOutOfRangeException(nameof(time), "dt <= 0");
 
-        int dt = time - t;
-        if (dt <= 0) throw new Exception("dt <= 0");
         while (dt >= emits.Count)
         {
             emits.Add(new List<Axon>());
@@ -127,6 +130,7 @@ sealed class Machine
     }
     public void RegisterPotentialActivation(Neuron neuron)
     {
-        this.potentiallyActivatedDuringStep.Add(neuron);
+        potentiallyActivatedDuringStep.Add(neuron);
     }
+    int IMachine.Time => Time;
 }

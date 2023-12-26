@@ -1,3 +1,5 @@
+using JBSnorro.NN.Internals;
+
 namespace JBSnorro.NN;
 
 public sealed class Axon
@@ -22,29 +24,29 @@ public sealed class Axon
     private int activationCount = 0;
     private float averageTimeBetweenActivations = float.NaN;
     internal float Weight => weight;
-    internal void Activate(Machine machine)
+    internal void Activate(int time, AddEmitDelegate addEmit)
     {
         this.activationCount++;
 
-        int newTimeOfDelivery = machine.Time + this.length;
+        int newTimeOfDelivery = time + this.length;
         int timeBetweenActivations = newTimeOfDelivery - this.timeOfDelivery;
         this.timeOfDelivery = newTimeOfDelivery;
         if (float.IsNaN(averageTimeBetweenActivations))
         {
-            averageTimeBetweenActivations = machine.Time;
+            averageTimeBetweenActivations = time;
         }
         else
         {
             averageTimeBetweenActivations = (averageTimeBetweenActivations * (activationCount - 1) + timeBetweenActivations) / activationCount;
         }
-        machine.AddEmitAction(this.timeOfDelivery, this);
+        addEmit(this.timeOfDelivery, this);
     }
     internal void Emit(Machine machine)
     {
         this.endpoint.Receive(this.type, this.weight, machine);
         // leave timeOfDelivery for feedback
     }
-    internal void ProcessFeedback(float dopamine, float cortisol, int time)
+    internal void ProcessFeedback(Feedback feedback, int time)
     {
         int timeSinceLastActivation = time - this.timeOfDelivery - this.length;
         // TODO: pass along a vector representing position
@@ -52,7 +54,8 @@ public sealed class Axon
                                                  timeSinceLastActivation,
                                                  this.averageTimeBetweenActivations,
                                                  this.activationCount,
-                                                 dopamine,
-                                                 cortisol);
+                                                 feedback);
     }
 }
+
+public delegate void AddEmitDelegate(int time, Axon axon);
