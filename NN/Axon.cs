@@ -24,22 +24,22 @@ public sealed class Axon
     private int activationCount = 0;
     private float averageTimeBetweenActivations = float.NaN;
     internal float Weight => weight;
-    internal void Activate(int time, AddEmitDelegate addEmit)
+    internal void Activate(IMachine machine)
     {
         this.activationCount++;
 
-        int newTimeOfDelivery = time + this.length;
+        int newTimeOfDelivery = machine.Time + this.length;
         int timeBetweenActivations = newTimeOfDelivery - this.timeOfDelivery;
         this.timeOfDelivery = newTimeOfDelivery;
         if (float.IsNaN(averageTimeBetweenActivations))
         {
-            averageTimeBetweenActivations = time;
+            averageTimeBetweenActivations = machine.Time;
         }
         else
         {
             averageTimeBetweenActivations = (averageTimeBetweenActivations * (activationCount - 1) + timeBetweenActivations) / activationCount;
         }
-        addEmit(this.timeOfDelivery, this);
+        machine.AddEmitAction(this.timeOfDelivery, this);
     }
     internal void Emit(Machine machine)
     {

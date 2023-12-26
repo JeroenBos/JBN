@@ -32,7 +32,7 @@ internal sealed class Machine : IMachine
         emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
         emits.Add(new List<Axon>()); // so we need to skip this.emits[0]
 
-        float[,] output = Extensions.Initialize2DArray(maxTime, network.output.Length, float.NaN);
+        var output = Extensions.Initialize2DArray(maxTime, network.output.Length, float.NaN);
         // assumes the input axioms have been triggered
         for (t = 0; t < maxTime; t++)
         {
