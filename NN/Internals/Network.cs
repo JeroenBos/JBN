@@ -1,6 +1,6 @@
-namespace JBSnorro.NN;
+namespace JBSnorro.NN.Internals;
 
-public class Network
+internal sealed class Network : INetwork
 {
     private readonly AxonType[] axonTypes;
     private readonly INeuronType[] nodeTypes;
@@ -8,12 +8,13 @@ public class Network
     internal readonly Axon[] axons;  // excluding input axons
     private readonly int outputCount;
 
-    public IReadOnlyList<Axon> Input { get; }
-    internal float[] output
+    public IReadOnlyList<Axon> Inputs { get; }
+    public INetworkInitializer Initializer { get; }
+    public float[] Output
     {
         get
         {
-            float[] result = new float[this.outputCount];
+            float[] result = new float[outputCount];
             for (int i = 0; i < result.Length; i++)
                 result[i] = nodes[nodes.Length - outputCount + i].Charge;
             return result;
@@ -23,21 +24,24 @@ public class Network
     public Network(INeuronType[] nodeTypes,
                    int inputCount,
                    int outputCount,
-                   AxonType?[,] connections)
+                   AxonType?[,] connections,
+                   INetworkInitializer initializer,
+                   int? maxTime)
     {
         int nodeCount = nodeTypes.Length;
         Assert(connections.GetLength(0) == nodeCount);
         Assert(connections.GetLength(1) == nodeCount);
         Assert(inputCount <= nodeCount);
         Assert(outputCount <= nodeCount);
-        Assert(nodeTypes.All(t => t != null));
-
+        Assert(initializer is not null);
+        Assert(nodeTypes.All(t => t is not null));
+        Assert(maxTime is null || maxTime.Value > 0);
 
         this.nodeTypes = nodeTypes;
-        this.axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
-        this.nodes = new Neuron[nodeCount];
-        var input = new Axon[inputCount];
-        this.Input = input;
+        axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
+        nodes = new Neuron[nodeCount];
+        var inputs = new Axon[inputCount];
+        Inputs = inputs;
         this.outputCount = outputCount;
 
         int totalAxonCount = 0;
@@ -51,11 +55,11 @@ public class Network
                     axonCount++;
                 }
             }
-            this.nodes[i] = new Neuron(nodeTypes[i], axonCount);
+            nodes[i] = new Neuron(nodeTypes[i], axonCount);
             totalAxonCount += axonCount;
         }
 
-        this.axons = new Axon[totalAxonCount];
+        axons = new Axon[totalAxonCount];
         int axonsIndex = 0;
         for (int i = 0; i < nodeCount; i++)
         {
@@ -64,8 +68,8 @@ public class Network
                 var connectionType = connections[i, j];
                 if (connectionType != null)
                 {
-                    var axon = new Axon(connectionType, this.nodes[j], connectionType.GetLength(i, j), connectionType.GetInitialWeight(i, j));
-                    this.nodes[i].AddAxon(axon);
+                    var axon = new Axon(connectionType, nodes[j], connectionType.GetLength(i, j), connectionType.GetInitialWeight(i, j));
+                    nodes[i].AddAxon(axon);
                     axons[axonsIndex++] = axon;
                 }
             }
@@ -73,21 +77,25 @@ public class Network
 
         for (int i = 0; i < inputCount; i++)
         {
-            input[i] = new Axon(AxonType.Input, this.nodes[i], length: Axon.InputLength, initialWeight: 1);
+            inputs[i] = new Axon(AxonType.Input, nodes[i], length: Axon.InputLength, initialWeight: 1);
         }
+        this.Initializer = initializer;
     }
 
-
-    internal void Decay(int time)
+    public void Initialize(IMachine machine)
     {
-        foreach (var node in this.nodes)
+        this.Initializer.Activate(this.Inputs, machine);
+    }
+    public void Decay(int time)
+    {
+        foreach (var node in nodes)
         {
             node.Decay(time);
         }
     }
-    internal void Process(Feedback feedback, int time)
+    public void Process(Feedback feedback, int time)
     {
-        foreach (var axon in this.axons)
+        foreach (var axon in axons)
         {
             axon.ProcessFeedback(feedback, time);
         }

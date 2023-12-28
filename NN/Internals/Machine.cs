@@ -2,7 +2,7 @@
 
 internal sealed class Machine : IMachine
 {
-    private readonly Network network;
+    private readonly INetwork network;
     private readonly GetFeedbackDelegate getFeedback;
     private readonly List<Neuron> potentiallyActivatedDuringStep;
     private readonly List<List<Axon>> emits;
@@ -14,8 +14,8 @@ internal sealed class Machine : IMachine
 
     internal int Time => t;
 
-    public Machine(Network network) : this(network, _ => Feedback.Empty) { }
-    public Machine(Network network, GetFeedbackDelegate getFeedback)
+    public Machine(INetwork network) : this(network, _ => Feedback.Empty) { }
+    public Machine(INetwork network, GetFeedbackDelegate getFeedback)
     {
         this.network = network;
         this.getFeedback = getFeedback;
@@ -28,11 +28,13 @@ internal sealed class Machine : IMachine
         if (t != -1) throw new InvalidOperationException("This machine has already run");
         if (emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
 
+        this.network.Initialize(this);
+
         this.maxTime = maxTime;
         emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
         emits.Add(new List<Axon>()); // so we need to skip this.emits[0]
 
-        float[,] output = Extensions.Initialize2DArray(maxTime, network.output.Length, float.NaN);
+        float[,] output = Extensions.Initialize2DArray(maxTime, network.Output.Length, float.NaN);
         // assumes the input axioms have been triggered
         for (t = 0; t < maxTime; t++)
         {
@@ -101,7 +103,7 @@ internal sealed class Machine : IMachine
     private float[] CopyOutput(float[,] totalOutput)
     {
         // PERF: use ReadOnlySpan2D<T>
-        var latestOutput = network.output;
+        var latestOutput = network.Output;
         for (int i = 0; i < latestOutput.Length; i++)
         {
             totalOutput[this.t, i] = latestOutput[i];

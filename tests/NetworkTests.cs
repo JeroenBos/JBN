@@ -10,39 +10,26 @@ public class NetworkTests
     public void CreateNetwork()
     {
         var connections = new AxonType?[1, 1];
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
+        INetwork.Create(NeuronTypes.OnlyOne,
+                        inputCount: 1,
+                        outputCount: 1,
+                        connections,
+                        initializer: INetworkInitializer.CreateRandom(seed: 0),
+                        maxTime: null);
     }
-
-    [Fact]
-    public void RunUnactivatedNetwork()
-    {
-        var connections = new AxonType?[1, 1];
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
-
-        var machine = IMachine.Create(network);
-        var output = machine.Run(1);
-        Assert.Equal(output, new float[,] { { 0 } });
-    }
-
 
     [Fact]
     public void RunActivatedNetworkOfOne()
     {
         var connections = new AxonType?[1, 1] { { null } };
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
-
+        var network = INetwork.Create(NeuronTypes.OnlyOne,
+                                      inputCount: 1,
+                                      outputCount: 1,
+                                      connections,
+                                      initializer: INetworkInitializer.CreateUniformActivator(),
+                                      maxTime: null);
 
         var machine = IMachine.Create(network);
-        network.Input[0].Activate(machine);
 
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 1 } });
@@ -53,14 +40,15 @@ public class NetworkTests
     public void TestNeuronDeactivatesAfterActivation()
     {
         var connections = new AxonType?[1, 1] { { null } };
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
+        var network = INetwork.Create(NeuronTypes.OnlyOne,
+                                      inputCount: 1,
+                                      outputCount: 1,
+                                      connections,
+                                      initializer: INetworkInitializer.CreateUniformActivator(),
+                                      maxTime: null);
 
 
         var machine = IMachine.Create(network);
-        network.Input[0].Activate(machine);
 
         var output = machine.Run(2);
         Assert.Equal(output, new float[,] { { 1 }, { 0 } });
@@ -69,14 +57,15 @@ public class NetworkTests
     public void TestNeuronCanActivateSelf()
     {
         var connections = new AxonType?[1, 1] { { AxonTypes.LengthTwo } };
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
+        var network = INetwork.Create(NeuronTypes.OnlyOne,
+                                      inputCount: 1,
+                                      outputCount: 1,
+                                      connections,
+                                      initializer: INetworkInitializer.CreateUniformActivator(),
+                                      maxTime: null);
 
 
         var machine = IMachine.Create(network);
-        network.Input[0].Activate(machine);
 
         var output = machine.Run(3);
         Assert.Equal(output, new float[,] { { 1 }, { 0 }, { 1 } });
@@ -123,20 +112,15 @@ public class NetworkTests
             randomInitialization[i] = random.NextSingle() < initializationChange;
         }
 
-        var network = new Network(neuronTypes,
-                                  inputCount,
-                                  outputCount,
-                                  connections);
+        var network = INetwork.Create(neuronTypes,
+                                      inputCount,
+                                      outputCount,
+                                      connections,
+                                      INetworkInitializer.CreateRandom(random),
+                                      maxTime: null);
 
 
         var machine = IMachine.Create(network);
-        foreach (var (activate, input) in randomInitialization.Zip(network.Input))
-        {
-            if (activate)
-            {
-                network.Input[0].Activate(machine);
-            }
-        }
 
         var output = machine.Run(maxTime);
         for (int t = 0; t < maxTime; t++)
