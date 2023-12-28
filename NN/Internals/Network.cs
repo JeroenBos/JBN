@@ -10,6 +10,7 @@ internal sealed class Network : INetwork
 
     public IReadOnlyList<Axon> Inputs { get; }
     public INetworkInitializer Initializer { get; }
+    public IClock Clock { get; }
     public float[] Output
     {
         get
@@ -37,6 +38,7 @@ internal sealed class Network : INetwork
         Assert(nodeTypes.All(t => t is not null));
         Assert(maxTime is null || maxTime.Value > 0);
 
+        this.Clock = IClock.Create(maxTime);
         this.nodeTypes = nodeTypes;
         axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
         nodes = new Neuron[nodeCount];
@@ -100,4 +102,5 @@ internal sealed class Network : INetwork
             axon.ProcessFeedback(feedback, time);
         }
     }
+    IClock INetwork.MutableClock => this.Clock;
 }
