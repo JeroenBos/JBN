@@ -26,10 +26,12 @@ internal sealed class VariableNeuronType : INeuronType
     private readonly (int maxDt, float decay)[] noActivation;
     private readonly (int maxDt, float decay)[] activation;
 
-    /// <summary> 
-    /// The maxDT should be thought of as number of time steps until and inclusing which the associated decay rate applies. 
-    /// For example, a maxDt of 2 will apply 
+    /// <summary>
+    /// Creates a <see cref="INeuronType"/> where the activations are variable.
     /// </summary>
+    /// <param name="noActivation">
+    /// The maxDt should be thought of as number of time steps until and inclusing which the associated decay rate applies. 
+    /// </param>
     public VariableNeuronType((int maxDt, float decay)[] noActivation, (int maxDt, float decay)[] activation)
     {
         verify(noActivation);
@@ -49,6 +51,7 @@ internal sealed class VariableNeuronType : INeuronType
                 throw new ArgumentException("maxDts must be nonnegative", paramName);
         }
     }
+
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
         // we can assume we're at the end of a time step
@@ -136,11 +139,10 @@ internal sealed class VariableNeuronType : INeuronType
     }
     internal IEnumerable<float> GetActivationCumulativeDecaySequence()
     {
-        return GetActivationDecaySequence().Scan(floatMultiplication, 1);
+        return GetActivationDecaySequence().Scan((a, b) => a * b, 1);
     }
     internal IEnumerable<float> GetNoActivationCumulativeDecaySequence()
     {
-        return GetNoActivationDecaySequence().Scan(floatMultiplication, 1);
+        return GetNoActivationDecaySequence().Scan((a, b) => a * b, 1);
     }
-    static float floatMultiplication(float a, float b) => a * b;
 }
