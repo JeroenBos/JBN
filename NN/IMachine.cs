@@ -1,4 +1,5 @@
 ﻿using JBSnorro.NN.Internals;
+
 namespace JBSnorro.NN;
 
 public interface IMachine
@@ -12,18 +13,19 @@ public interface IMachine
         return new Machine(network, getFeedback);
     }
 
-    float[,] Run(int maxTime);
+    public float[,] Run(int maxTime);
 
-    internal int Time { get; }
 
     /// <summary>
     /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.
     /// </summary>
-    void RegisterPotentialActivation(Neuron neuron);
+    public void RegisterPotentialActivation(Neuron neuron);
     /// <summary>
     /// Sets the specified axon to emit charge at the specified time.
     /// </summary>
-    void AddEmitAction(int time, Axon axon);
+    public void AddEmitAction(int time, Axon axon);
 
-    event OnTickDelegate OnTick;
+    public event OnTickDelegate OnTick;
+    
+    internal int Time { get; }
 }
