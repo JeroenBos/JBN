@@ -1,5 +1,8 @@
 namespace JBSnorro.NN.Internals;
-
+public interface INetworkFactory
+{
+    public static abstract (INeuronType[] nodeTypes, int inputCount, int outputCount, IAxonType?[,] connections, INetworkInitializer initializer) Create();
+}
 internal sealed class Network : INetwork
 {
     private readonly IAxonType[] axonTypes;
@@ -27,7 +30,7 @@ internal sealed class Network : INetwork
                    int outputCount,
                    IAxonType?[,] connections,
                    INetworkInitializer initializer,
-                   int? maxTime)
+                   IReadOnlyClock clock)
     {
         Assert(nodeTypes is not null);
         int nodeCount = nodeTypes.Length;
@@ -36,10 +39,9 @@ internal sealed class Network : INetwork
         Assert(inputCount <= nodeCount);
         Assert(outputCount <= nodeCount);
         Assert(initializer is not null);
-        Assert(nodeTypes.All(t => t is not null));
-        Assert(maxTime is null || maxTime.Value > 0);
+        Assert(nodeTypes.All(type => type is not null));
 
-        this.Clock = IClock.Create(maxTime);
+        this.Clock = clock;
         this.nodeTypes = nodeTypes;
         this.axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
         this.nodes = new Neuron[nodeCount];

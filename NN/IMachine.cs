@@ -17,7 +17,7 @@ public interface IMachine
     public float[,] Run(int maxTime);
 
     /// <summary>
-    /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.
+    /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.`
     /// </summary>
     internal void RegisterPotentialActivation(Neuron neuron);
     /// <summary>
@@ -27,4 +27,17 @@ public interface IMachine
     internal void AddEmitAction(int timeOfDelivery, Axon axon);
 
     internal int Time { get; }
+}
+
+public interface IMachine<TNetworkFactory> where TNetworkFactory : INetworkFactory
+{
+    public static IMachine Create(int? maxTime)
+    {
+        var clock = IClock.Create(maxTime);
+        var (nodeTypes, inputCount, outputCount, connections, initializer) = TNetworkFactory.Create();
+        var network = INetwork.Create(nodeTypes, inputCount, outputCount, connections, initializer, clock);
+        var machine = IMachine.Create(network);
+        initializer.Activate(network.Axons, machine);
+        return machine;
+    }
 }

@@ -9,9 +9,9 @@ public interface INetwork
                                   int outputCount,
                                   IAxonType?[,] connections,
                                   INetworkInitializer initializer,
-                                  int? maxTime)
+                                  IReadOnlyClock clock)
     {
-        return new Network(nodeTypes, inputCount, outputCount, connections, initializer, maxTime);
+        return new Network(nodeTypes, inputCount, outputCount, connections, initializer, clock);
     }
 
     public IReadOnlyClock Clock { get; }

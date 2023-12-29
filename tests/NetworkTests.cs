@@ -16,7 +16,7 @@ public class NetworkTests
                         outputCount: 1,
                         connections,
                         initializer: INetworkInitializer.CreateRandom(seed: 0),
-                        maxTime: null);
+                        IClock.Create(maxTime: null));
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class NetworkTests
                                       outputCount: 1,
                                       connections,
                                       initializer: INetworkInitializer.CreateUniformActivator(),
-                                      maxTime: null);
+                                      IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
 
@@ -46,7 +46,7 @@ public class NetworkTests
                                       outputCount: 1,
                                       connections,
                                       initializer: INetworkInitializer.CreateUniformActivator(),
-                                      maxTime: null);
+                                      IClock.Create(maxTime: null));
 
 
         var machine = IMachine.Create(network);
@@ -63,7 +63,7 @@ public class NetworkTests
                                       outputCount: 1,
                                       connections,
                                       initializer: INetworkInitializer.CreateUniformActivator(),
-                                      maxTime: null);
+                                      IClock.Create(maxTime: null));
 
 
         var machine = IMachine.Create(network);
@@ -118,7 +118,7 @@ public class NetworkTests
                                       outputCount,
                                       connections,
                                       INetworkInitializer.CreateRandom(random),
-                                      maxTime: null);
+                                      IClock.Create(maxTime: null));
 
 
         var machine = IMachine.Create(network);
