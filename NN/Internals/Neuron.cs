@@ -14,8 +14,7 @@ internal sealed class Neuron
     internal const float threshold = 1;
 
     private readonly INeuronType type;
-    private readonly Axon[] axons;
-    private int initializedAxonCount;
+    private readonly List<Axon> axons;
     /// <summary>
     /// The time up until and including which the decay has been updated. Decay happens at the start of a timestep.
     /// </summary>
@@ -30,11 +29,10 @@ internal sealed class Neuron
     private int lastReceivedChargeTime = NEVER;
     internal float Charge { get; private set; }
 
-    public Neuron(INeuronType type, int axonCount, float initialCharge = 0)
+    public Neuron(INeuronType type, float initialCharge = 0)
     {
         this.type = type;
-        this.axons = new Axon[axonCount];
-        this.initializedAxonCount = 0;
+        this.axons = new List<Axon>();
         this.Charge = initialCharge;
         if (initialCharge != 0)
         {
@@ -45,8 +43,7 @@ internal sealed class Neuron
 
     internal void AddAxon(Axon axon)
     {
-        this.axons[initializedAxonCount] = axon;
-        this.initializedAxonCount++;
+        this.axons.Add(axon);
     }
 
 

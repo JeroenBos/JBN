@@ -17,6 +17,23 @@ public class NetworkTests
                         connections,
                         IClock.Create(maxTime: null));
     }
+    [Fact]
+    public void CreateNetworkViaFactory()
+    {
+        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, new IAxonInitialization[0,0], INetworkInitializer.CreateUniformActivator());
+        factory.Create();
+    }
+    record MockNetworkFactory(
+        IReadOnlyList<INeuronType> NeuronTypes,
+        int InputCount,
+        int OutputCount,
+        IAxonInitialization?[,] Connections,
+        INetworkInitializer Initializer
+    ) : INetworkFactory
+    {
+        IAxonInitialization? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => Connections[neuronFromIndex, neuronToIndex];
+    }
+
 
     [Fact]
     public void RunActivatedNetworkOfOne()
@@ -158,7 +175,7 @@ public class NeuronTypeTests
             new (int, float)[0]
         );
 
-        var neuron = new Neuron(type, 0, initialCharge: 1);
+        var neuron = new Neuron(type, initialCharge: 1);
         var charges = new float[4];
         for (int t = 0; t < charges.Length; t++)
         {

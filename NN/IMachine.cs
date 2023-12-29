@@ -28,16 +28,3 @@ public interface IMachine
 
     internal int Time { get; }
 }
-
-public interface IMachine<TNetworkFactory> where TNetworkFactory : INetworkFactory
-{
-    public static IMachine Create(int? maxTime)
-    {
-        var clock = IClock.Create(maxTime);
-        var (nodeTypes, inputCount, outputCount, connections, initializer) = TNetworkFactory.Create();
-        var network = INetwork.Create(nodeTypes, inputCount, outputCount, connections, clock);
-        var machine = IMachine.Create(network);
-        initializer.Activate(((Network)network).Inputs, machine);
-        return machine;
-    }
-}
