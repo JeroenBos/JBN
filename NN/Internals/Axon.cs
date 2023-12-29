@@ -1,4 +1,3 @@
-using JBSnorro.NN;
 namespace JBSnorro.NN.Internals;
 
 internal sealed class Axon
@@ -50,10 +49,10 @@ internal sealed class Axon
         int timeSinceLastActivation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position
         weight = type.GetUpdatedWeight(weight,
-                                                 timeSinceLastActivation,
-                                                 averageTimeBetweenActivations,
-                                                 activationCount,
-                                                 feedback);
+                                       timeSinceLastActivation,
+                                       averageTimeBetweenActivations,
+                                       activationCount,
+                                       feedback);
     }
 }
 
