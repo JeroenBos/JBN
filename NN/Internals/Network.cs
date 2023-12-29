@@ -79,7 +79,7 @@ internal sealed class Network : INetwork
         var inputs = (Axon[])this.Inputs;
         for (int i = 0; i < inputCount; i++)
         {
-            inputs[i] = new Axon(IAxonType.Input, nodes[i], length: Axon.InputLength, initialWeight: 1);
+            inputs[i] = new Axon(IAxonType.Input, nodes[i], IAxonInitialization.Input.Length, IAxonInitialization.Input.InitialWeight);
         }
     }
 
