@@ -5,9 +5,9 @@ internal sealed class Network : INetwork
     private readonly IAxonType[] axonTypes;
     private readonly INeuronType[] nodeTypes;
     private readonly Neuron[] nodes;
-    internal readonly Axon[] axons;  // excluding input axons
     private readonly int outputCount;
 
+    public IReadOnlyList<Axon> Axons { get; } // excluding input axons
     public IReadOnlyList<Axon> Inputs { get; }
     public INetworkInitializer Initializer { get; }
     public IReadOnlyClock Clock { get; }
@@ -61,7 +61,8 @@ internal sealed class Network : INetwork
             totalAxonCount += axonCount;
         }
 
-        axons = new Axon[totalAxonCount];
+        var axons = new Axon[totalAxonCount];
+        this.Axons = axons;
         int axonsIndex = 0;
         for (int i = 0; i < nodeCount; i++)
         {
@@ -99,7 +100,7 @@ internal sealed class Network : INetwork
     }
     public void Process(Feedback feedback, int time)
     {
-        foreach (var axon in axons)
+        foreach (var axon in Axons)
         {
             axon.ProcessFeedback(feedback, time);
         }

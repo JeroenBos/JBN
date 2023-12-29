@@ -20,6 +20,7 @@ public interface INetwork
     /// </summary>
     public float[] Output { get; }
     
+    internal IReadOnlyList<Axon> Axons { get; }
     internal void Initialize(IMachine machine);
     internal IClock MutableClock => (IClock)Clock;
     internal void Process(Feedback feedback, int time);
