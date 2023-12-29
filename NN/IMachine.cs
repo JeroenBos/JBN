@@ -37,7 +37,7 @@ public interface IMachine<TNetworkFactory> where TNetworkFactory : INetworkFacto
         var (nodeTypes, inputCount, outputCount, connections, initializer) = TNetworkFactory.Create();
         var network = INetwork.Create(nodeTypes, inputCount, outputCount, connections, clock);
         var machine = IMachine.Create(network);
-        initializer.Activate(network.Axons, machine);
+        initializer.Activate(((Network)network).Inputs, machine);
         return machine;
     }
 }
