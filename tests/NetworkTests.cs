@@ -76,7 +76,7 @@ public class NetworkTests
         const int inputCount = 5;
         const int outputCount = 5;
         const int maxTime = 15;
-        const float initializationChange = 1f;
+        const float initializationChance = 1f;
         const float connectionChance = 0.5f;
 
         var connections = new IAxonType?[neuronCount, neuronCount];
@@ -107,7 +107,7 @@ public class NetworkTests
         var randomInitialization = new bool[inputCount];
         for (int i = 0; i < inputCount; i++)
         {
-            randomInitialization[i] = random.NextSingle() < initializationChange;
+            randomInitialization[i] = random.NextSingle() < initializationChance;
         }
 
         var network = INetwork.Create(neuronTypes,
