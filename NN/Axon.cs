@@ -2,7 +2,7 @@ using JBSnorro.NN.Internals;
 
 namespace JBSnorro.NN;
 
-public sealed class Axon
+internal sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this triggers them at t=0, and allows throwing when dt==0
     public Axon(AxonType type, Neuron endpoint, int length, float initialWeight)
@@ -24,7 +24,7 @@ public sealed class Axon
     private int activationCount = 0;
     private float averageTimeBetweenActivations = float.NaN;
     internal float Weight => weight;
-    internal void Activate(int time, AddEmitDelegate addEmit)
+    internal void Activate(int time, IMachine machine)
     {
         this.activationCount++;
 
@@ -39,7 +39,7 @@ public sealed class Axon
         {
             averageTimeBetweenActivations = (averageTimeBetweenActivations * (activationCount - 1) + timeBetweenActivations) / activationCount;
         }
-        addEmit(this.timeOfDelivery, this);
+        machine.AddEmitAction(this.timeOfDelivery, this);
     }
     internal void Emit(Machine machine)
     {
@@ -58,4 +58,3 @@ public sealed class Axon
     }
 }
 
-public delegate void AddEmitDelegate(int time, Axon axon);
