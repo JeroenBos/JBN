@@ -10,7 +10,7 @@ internal sealed class Network : INetwork
 
     public IReadOnlyList<Axon> Inputs { get; }
     public INetworkInitializer Initializer { get; }
-    public IClock Clock { get; }
+    public IReadOnlyClock Clock { get; }
     public float[] Output
     {
         get
@@ -104,5 +104,4 @@ internal sealed class Network : INetwork
             axon.ProcessFeedback(feedback, time);
         }
     }
-    IClock INetwork.MutableClock => this.Clock;
 }
