@@ -2,7 +2,7 @@ namespace JBSnorro.NN.Internals;
 
 internal sealed class Network : INetwork
 {
-    private readonly AxonType[] axonTypes;
+    private readonly IAxonType[] axonTypes;
     private readonly INeuronType[] nodeTypes;
     private readonly Neuron[] nodes;
     internal readonly Axon[] axons;  // excluding input axons
@@ -25,7 +25,7 @@ internal sealed class Network : INetwork
     public Network(INeuronType[] nodeTypes,
                    int inputCount,
                    int outputCount,
-                   AxonType?[,] connections,
+                   IAxonType?[,] connections,
                    INetworkInitializer initializer,
                    int? maxTime)
     {
@@ -79,7 +79,7 @@ internal sealed class Network : INetwork
 
         for (int i = 0; i < inputCount; i++)
         {
-            inputs[i] = new Axon(AxonType.Input, nodes[i], length: Axon.InputLength, initialWeight: 1);
+            inputs[i] = new Axon(IAxonType.Input, nodes[i], length: Axon.InputLength, initialWeight: 1);
         }
         this.Initializer = initializer;
     }

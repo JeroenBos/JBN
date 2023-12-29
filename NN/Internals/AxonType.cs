@@ -1,8 +1,7 @@
-namespace JBSnorro.NN;
+﻿namespace JBSnorro.NN.Internals;
 
-public sealed class AxonType
+internal sealed class AxonType : IAxonType
 {
-    public static AxonType Input { get; } = new(type: 0, length: 1, initialWeight: 1);
 
     private readonly byte type;
     private readonly Func<int, int, int> getLength;
@@ -24,11 +23,11 @@ public sealed class AxonType
     }
     public int GetLength(int i, int j)
     {
-        return this.getLength(i, j);
+        return getLength(i, j);
     }
     public float GetInitialWeight(int i, int j)
     {
-        return this.getInitialWeight(this.type, i, j);
+        return getInitialWeight(type, i, j);
     }
     public float GetUpdatedWeight(float currentWeight,
                                   int timeSinceLastActivation,
@@ -37,7 +36,7 @@ public sealed class AxonType
                                   Feedback feedback)
     {
         return getUpdatedWeight(currentWeight,
-                                this.type,
+                                type,
                                 timeSinceLastActivation,
                                 averageTimeBetweenActivations,
                                 activationCount,

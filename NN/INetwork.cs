@@ -7,7 +7,7 @@ public interface INetwork
     public static INetwork Create(INeuronType[] nodeTypes,
                                   int inputCount,
                                   int outputCount,
-                                  AxonType?[,] connections,
+                                  IAxonType?[,] connections,
                                   INetworkInitializer initializer,
                                   int? maxTime)
     {

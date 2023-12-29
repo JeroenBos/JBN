@@ -4,7 +4,7 @@ namespace JBSnorro.NN.Internals;
 internal sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this triggers them at t=0, and allows throwing when dt==0
-    public Axon(AxonType type, Neuron endpoint, int length, float initialWeight)
+    public Axon(IAxonType type, Neuron endpoint, int length, float initialWeight)
     {
         if (length <= 0 || length > MAX_LENGTH)
             throw new ArgumentOutOfRangeException(nameof(length));
@@ -15,7 +15,7 @@ internal sealed class Axon
         this.endpoint = endpoint;
     }
 
-    private readonly AxonType type;
+    private readonly IAxonType type;
     private readonly int length;
     private readonly Neuron endpoint;
     private float weight;

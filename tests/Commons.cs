@@ -47,8 +47,8 @@ static class NeuronTypes
 
 static class AxonTypes
 {
-    public static AxonType A { get; } = new AxonType(type: 1, length: 1, initialWeight: 1);
-    public static AxonType LengthTwo { get; } = new AxonType(type: 2, length: 2, initialWeight: 1);
+    public static IAxonType A { get; } = new AxonType(type: 1, length: 1, initialWeight: 1);
+    public static IAxonType LengthTwo { get; } = new AxonType(type: 2, length: 2, initialWeight: 1);
 }
 
 class Machines
@@ -56,7 +56,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, 0, new AxonType[0, 0], INetworkInitializer.CreateRandom(seed: 0), null));
+        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, 0, new IAxonType[0, 0], INetworkInitializer.CreateRandom(seed: 0), null));
         AtTime0.Run(0);
     }
 }

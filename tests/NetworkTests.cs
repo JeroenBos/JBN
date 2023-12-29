@@ -1,4 +1,5 @@
 using JBSnorro.NN;
+using JBSnorro.NN.Internals;
 using Assert = Xunit.Assert;
 using VariableNeuronType = JBSnorro.NN.Internals.VariableNeuronType;
 
@@ -9,7 +10,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetwork()
     {
-        var connections = new AxonType?[1, 1];
+        var connections = new IAxonType?[1, 1];
         INetwork.Create(NeuronTypes.OnlyOne,
                         inputCount: 1,
                         outputCount: 1,
@@ -21,7 +22,7 @@ public class NetworkTests
     [Fact]
     public void RunActivatedNetworkOfOne()
     {
-        var connections = new AxonType?[1, 1] { { null } };
+        var connections = new IAxonType?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       inputCount: 1,
                                       outputCount: 1,
@@ -39,7 +40,7 @@ public class NetworkTests
     [Fact]
     public void TestNeuronDeactivatesAfterActivation()
     {
-        var connections = new AxonType?[1, 1] { { null } };
+        var connections = new IAxonType?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       inputCount: 1,
                                       outputCount: 1,
@@ -56,7 +57,7 @@ public class NetworkTests
     [Fact]
     public void TestNeuronCanActivateSelf()
     {
-        var connections = new AxonType?[1, 1] { { AxonTypes.LengthTwo } };
+        var connections = new IAxonType?[1, 1] { { AxonTypes.LengthTwo } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       inputCount: 1,
                                       outputCount: 1,
@@ -81,7 +82,7 @@ public class NetworkTests
         const float initializationChange = 1f;
         const float connectionChance = 0.5f;
 
-        var connections = new AxonType?[neuronCount, neuronCount];
+        var connections = new IAxonType?[neuronCount, neuronCount];
 
         var getLength = AxonType.CreateDefault2DGetLength(neuronCount);
         var getInitialWeight = AxonType.CreateRandomWeightInitializer(random);

@@ -57,7 +57,7 @@ internal sealed class Neuron
             this.Charge *= this.type.GetDecay(decayUpdatedTime - lastReceivedChargeTime, decayUpdatedTime - lastActivatedTime);
         }
     }
-    internal void Receive(AxonType axonType, float weight, Machine machine)
+    internal void Receive(IAxonType axonType, float weight, Machine machine)
     {
         // potentially, weight could be modified by the axon type
         Receive(weight, machine);
