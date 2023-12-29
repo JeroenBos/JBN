@@ -1,6 +1,5 @@
-using JBSnorro.NN.Internals;
-
-namespace JBSnorro.NN;
+using JBSnorro.NN;
+namespace JBSnorro.NN.Internals;
 
 internal sealed class Axon
 {
@@ -12,7 +11,7 @@ internal sealed class Axon
 
         this.type = type;
         this.length = length;
-        this.weight = initialWeight;
+        weight = initialWeight;
         this.endpoint = endpoint;
     }
 
@@ -26,11 +25,11 @@ internal sealed class Axon
     internal float Weight => weight;
     internal void Activate(int time, IMachine machine)
     {
-        this.activationCount++;
+        activationCount++;
 
-        int newTimeOfDelivery = time + this.length;
-        int timeBetweenActivations = newTimeOfDelivery - this.timeOfDelivery;
-        this.timeOfDelivery = newTimeOfDelivery;
+        int newTimeOfDelivery = time + length;
+        int timeBetweenActivations = newTimeOfDelivery - timeOfDelivery;
+        timeOfDelivery = newTimeOfDelivery;
         if (float.IsNaN(averageTimeBetweenActivations))
         {
             averageTimeBetweenActivations = time;
@@ -39,21 +38,21 @@ internal sealed class Axon
         {
             averageTimeBetweenActivations = (averageTimeBetweenActivations * (activationCount - 1) + timeBetweenActivations) / activationCount;
         }
-        machine.AddEmitAction(this.timeOfDelivery, this);
+        machine.AddEmitAction(timeOfDelivery, this);
     }
     internal void Emit(Machine machine)
     {
-        this.endpoint.Receive(this.type, this.weight, machine);
+        endpoint.Receive(type, weight, machine);
         // leave timeOfDelivery for feedback
     }
     internal void ProcessFeedback(Feedback feedback, int time)
     {
-        int timeSinceLastActivation = time - this.timeOfDelivery - this.length;
+        int timeSinceLastActivation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position
-        this.weight = this.type.GetUpdatedWeight(this.weight,
+        weight = type.GetUpdatedWeight(weight,
                                                  timeSinceLastActivation,
-                                                 this.averageTimeBetweenActivations,
-                                                 this.activationCount,
+                                                 averageTimeBetweenActivations,
+                                                 activationCount,
                                                  feedback);
     }
 }
