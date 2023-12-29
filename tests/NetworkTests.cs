@@ -10,7 +10,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetwork()
     {
-        var connections = new IAxonType?[1, 1];
+        var connections = new IAxonInitialization?[1, 1];
         INetwork.Create(NeuronTypes.OnlyOne,
                         inputCount: 1,
                         outputCount: 1,
@@ -21,7 +21,7 @@ public class NetworkTests
     [Fact]
     public void RunActivatedNetworkOfOne()
     {
-        var connections = new IAxonType?[1, 1] { { null } };
+        var connections = new IAxonInitialization?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       inputCount: 1,
                                       outputCount: 1,
@@ -39,7 +39,7 @@ public class NetworkTests
     [Fact]
     public void TestNeuronDeactivatesAfterActivation()
     {
-        var connections = new IAxonType?[1, 1] { { null } };
+        var connections = new IAxonInitialization?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       inputCount: 1,
                                       outputCount: 1,
@@ -55,7 +55,7 @@ public class NetworkTests
     [Fact]
     public void TestNeuronCanActivateSelf()
     {
-        var connections = new IAxonType?[1, 1] { { AxonTypes.LengthTwo } };
+        var connections = new IAxonInitialization?[1, 1] { { MockAxonType.LengthTwo } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       inputCount: 1,
                                       outputCount: 1,
@@ -79,20 +79,8 @@ public class NetworkTests
         const float initializationChance = 1f;
         const float connectionChance = 0.5f;
 
-        var connections = new IAxonType?[neuronCount, neuronCount];
+        var connections = MockAxonType.CreateRandom(neuronCount, connectionChance, random);
 
-        var getLength = AxonType.CreateDefault2DGetLength(neuronCount);
-        var getInitialWeight = AxonType.CreateRandomWeightInitializer(random);
-        for (int i = 0; i < neuronCount; i++)
-        {
-            for (int j = 0; j < neuronCount; j++)
-            {
-                if (random.NextSingle() < connectionChance)
-                {
-                    connections[i, j] = new AxonType(type: 255, getLength, getInitialWeight);
-                }
-            }
-        }
         var neuronTypes = new INeuronType[neuronCount];
         for (int i = 0; i < neuronCount; i++)
         {

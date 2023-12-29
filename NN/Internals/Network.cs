@@ -1,11 +1,10 @@
 namespace JBSnorro.NN.Internals;
 public interface INetworkFactory
 {
-    public static abstract (INeuronType[] nodeTypes, int inputCount, int outputCount, IAxonType?[,] connections, INetworkInitializer initializer) Create();
+    public static abstract (INeuronType[] nodeTypes, int inputCount, int outputCount, IAxonInitialization?[,] connections, INetworkInitializer initializer) Create();
 }
 internal sealed class Network : INetwork
 {
-    private readonly IAxonType[] axonTypes;
     private readonly INeuronType[] nodeTypes;
     private readonly Neuron[] nodes;
     private readonly int outputCount;
@@ -27,7 +26,7 @@ internal sealed class Network : INetwork
     public Network(INeuronType[] nodeTypes,
                    int inputCount,
                    int outputCount,
-                   IAxonType?[,] connections,
+                   IAxonInitialization?[,] connections,
                    IReadOnlyClock clock)
     {
         Assert(nodeTypes is not null);
@@ -40,10 +39,9 @@ internal sealed class Network : INetwork
 
         this.Clock = clock;
         this.nodeTypes = nodeTypes;
-        this.axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
         this.nodes = new Neuron[nodeCount];
-        this.outputCount = outputCount;
         this.Inputs = new Axon[inputCount];
+        this.outputCount = outputCount;
 
         int totalAxonCount = 0;
         for (int i = 0; i < nodeCount; i++)
@@ -67,10 +65,10 @@ internal sealed class Network : INetwork
         {
             for (int j = 0; j < nodeCount; j++)
             {
-                var connectionType = connections[i, j];
-                if (connectionType != null)
+                var axonInitialization = connections[i, j];
+                if (axonInitialization != null)
                 {
-                    var axon = new Axon(connectionType, nodes[j], connectionType.GetLength(i, j), connectionType.GetInitialWeight(i, j));
+                    var axon = new Axon(axonInitialization.AxonType, nodes[j], axonInitialization.Length, axonInitialization.InitialWeight);
                     nodes[i].AddAxon(axon);
                     axons[axonsIndex++] = axon;
                 }

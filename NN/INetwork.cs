@@ -7,7 +7,7 @@ public interface INetwork
     public static INetwork Create(INeuronType[] nodeTypes,
                                   int inputCount,
                                   int outputCount,
-                                  IAxonType?[,] connections,
+                                  IAxonInitialization?[,] connections,
                                   IReadOnlyClock clock)
     {
         // if you use this method for creating a Network you need to initialize the input axons yourself
