@@ -1,10 +1,15 @@
 ﻿namespace JBSnorro.NN.Internals;
 
-internal sealed class RandomNetworkInitializer : INetworkInitializer
+// nomenclature: a network primer is a network feeder that only feeds before the network has run
+
+/// <summary>
+/// Activates the input axons randomly at the start.
+/// </summary>
+internal sealed class RandomNetworkPrimer : INetworkFeeder
 {
     public Random Random { get; }
 
-    public RandomNetworkInitializer(Random random)
+    public RandomNetworkPrimer(Random random)
     {
         this.Random = random;
     }
@@ -16,22 +21,22 @@ internal sealed class RandomNetworkInitializer : INetworkInitializer
             bool activate = Random.Next(2) == 0;
             if (activate)
             {
-                machine.AddEmitAction(INetworkInitializer.INITIALIZATION_TIME, axon);
+                machine.AddEmitAction(INetworkFeeder.INITIALIZATION_TIME, axon);
             }
         }
     }
 }
 
 /// <summary>
-/// Activates all input axons.
+/// Activates all input axons at the start.
 /// </summary>
-internal sealed class UniformNetworkInitializer : INetworkInitializer
+internal sealed class UniformNetworkPrimer : INetworkFeeder
 {
     public void Activate(IReadOnlyList<Axon> axons, IMachine machine)
     {
         foreach (var axon in axons)
         {
-            machine.AddEmitAction(INetworkInitializer.INITIALIZATION_TIME, axon);
+            machine.AddEmitAction(INetworkFeeder.INITIALIZATION_TIME, axon);
         }
     }
 }

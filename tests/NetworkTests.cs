@@ -20,7 +20,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetworkViaFactory()
     {
-        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, new IAxonInitialization[0,0], INetworkInitializer.CreateUniformActivator());
+        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, new IAxonInitialization[0,0], INetworkFeeder.CreateUniformActivator());
         factory.Create();
     }
     record MockNetworkFactory(
@@ -28,7 +28,7 @@ public class NetworkTests
         int InputCount,
         int OutputCount,
         IAxonInitialization?[,] Connections,
-        INetworkInitializer Initializer
+        INetworkFeeder InputPrimer
     ) : INetworkFactory
     {
         IAxonInitialization? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => Connections[neuronFromIndex, neuronToIndex];
@@ -46,7 +46,7 @@ public class NetworkTests
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        INetworkInitializer.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
+        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 1 } });
@@ -64,7 +64,7 @@ public class NetworkTests
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        INetworkInitializer.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
+        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(2);
         Assert.Equal(output, new float[,] { { 1 }, { 0 } });
@@ -80,7 +80,7 @@ public class NetworkTests
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        INetworkInitializer.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
+        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(3);
         Assert.Equal(output, new float[,] { { 1 }, { 0 }, { 1 } });
@@ -122,7 +122,7 @@ public class NetworkTests
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        INetworkInitializer.CreateRandom(random).Activate(((Network)network).Inputs, machine);
+        INetworkFeeder.CreateRandom(random).Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(maxTime);
         for (int t = 0; t < maxTime; t++)
