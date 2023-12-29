@@ -2,7 +2,7 @@ using JBSnorro.NN.Internals;
 
 namespace JBSnorro.NN;
 
-public sealed class Neuron
+internal sealed class Neuron
 {
     private static readonly bool MachineTriggersDecay = true;  // certain operations are redundant if machine calls network.Decay every time step
 
