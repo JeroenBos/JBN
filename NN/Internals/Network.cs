@@ -29,6 +29,7 @@ internal sealed class Network : INetwork
                    INetworkInitializer initializer,
                    int? maxTime)
     {
+        Assert(nodeTypes is not null);
         int nodeCount = nodeTypes.Length;
         Assert(connections.GetLength(0) == nodeCount);
         Assert(connections.GetLength(1) == nodeCount);
@@ -40,11 +41,10 @@ internal sealed class Network : INetwork
 
         this.Clock = IClock.Create(maxTime);
         this.nodeTypes = nodeTypes;
-        axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
-        nodes = new Neuron[nodeCount];
-        var inputs = new Axon[inputCount];
-        Inputs = inputs;
+        this.axonTypes = connections.Unique().Where(c => c != null).ToArray()!;
+        this.nodes = new Neuron[nodeCount];
         this.outputCount = outputCount;
+        this.Inputs = new Axon[inputCount];
 
         int totalAxonCount = 0;
         for (int i = 0; i < nodeCount; i++)
@@ -77,6 +77,8 @@ internal sealed class Network : INetwork
             }
         }
 
+
+        var inputs = (Axon[])this.Inputs;
         for (int i = 0; i < inputCount; i++)
         {
             inputs[i] = new Axon(IAxonType.Input, nodes[i], length: Axon.InputLength, initialWeight: 1);
