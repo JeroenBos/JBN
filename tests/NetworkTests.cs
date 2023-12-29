@@ -1,6 +1,6 @@
-using Assert = Xunit.Assert;
 using JBSnorro.NN;
-using VariableNeuronType = global::JBSnorro.NN.Internals.VariableNeuronType;
+using Assert = Xunit.Assert;
+using VariableNeuronType = JBSnorro.NN.Internals.VariableNeuronType;
 
 namespace Tests.JBSnorro.NN;
 

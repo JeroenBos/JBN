@@ -5,7 +5,8 @@
     <Nullable>enable</Nullable>
 	<ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
-	<NoWarn>CS7022</NoWarn> <!-- I can't find the property that prevents generating this file -->
+	<NoWarn>CS7022</NoWarn>
+	<RootNamespace>Tests.JBSnorro.NN</RootNamespace> <!-- I can't find the property that prevents generating this file -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include = "..\JBN.csproj" />
+    <ProjectReference Include="..\JBN.csproj" />
   </ItemGroup>
 </Project>

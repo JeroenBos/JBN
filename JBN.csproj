@@ -10,6 +10,7 @@
 
   <PropertyGroup>
     <DefaultItemExcludes>$(DefaultItemExcludes);tests\**</DefaultItemExcludes>
+    <RootNamespace>JBSnorro.NN</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

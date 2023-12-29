@@ -1,5 +1,5 @@
-using JBSnorro.NN.Internals;
 using JBSnorro.NN;
+using JBSnorro.NN.Internals;
 
 namespace Tests.JBSnorro.NN;
 
