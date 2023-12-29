@@ -4,16 +4,29 @@ namespace JBSnorro.NN;
 
 internal sealed class Neuron
 {
-    private static readonly bool MachineTriggersDecay = true;  // certain operations are redundant if machine calls network.Decay every time step
-
+    /// <summary>
+    /// Certain operations are redundant if machine calls network.Decay every time step
+    /// </summary>
+    private static readonly bool MachineTriggersDecay = true;
+    /// <summary>
+    /// The threshold of charge over which a neuron fires.
+    /// </summary>
     internal const float threshold = 1;
+
     private readonly INeuronType type;
     private readonly Axon[] axons;
     private int initializedAxonCount;
-    /// <summary> The time up until and including which the decay has been updated. Decay happens at the start of a timestep. </summary>
+    /// <summary>
+    /// The time up until and including which the decay has been updated. Decay happens at the start of a timestep.
+    /// </summary>
     private int decayUpdatedTime;
-    /// <summary> The time this neuron was activated last. Activation happens at the end of a timestep. </summary>
+    /// <summary>
+    /// The time this neuron was activated last. Activation happens at the end of a timestep.
+    /// </summary>
     private int lastActivatedTime = NEVER;
+    /// <summary>
+    /// The last timestep this neuron receipt charge.
+    /// </summary>
     private int lastReceivedChargeTime = NEVER;
     internal float Charge { get; private set; }
 
