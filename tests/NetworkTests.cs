@@ -83,7 +83,7 @@ public class NetworkTests
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(3);
-        Assert.Equal(output, new float[,] { { 1 }, { 0 }, { 1 } });
+        Assert.Equal(actual: output, expected: new float[,] { { 1 }, { 0 }, { 1 } });
     }
     [Fact]
     public void StressTest()

@@ -3,7 +3,7 @@
 internal sealed class LimitedClock : IClock
 {
     public int MaxTime { get; }
-    public int Time { get; private set; }
+    public int Time { get; private set; } = IReadOnlyClock.UNSTARTED;
 
 
     public LimitedClock(int maxTime)
@@ -24,10 +24,11 @@ internal sealed class LimitedClock : IClock
     }
 
     int? IReadOnlyClock.MaxTime => this.MaxTime;
+
 }
 internal sealed class UnlimitedClock : IClock
 {
-    public int Time { get; private set; }
+    public int Time { get; private set; } = IReadOnlyClock.UNSTARTED;
 
     public void Increment()
     {
@@ -39,24 +40,41 @@ internal sealed class UnlimitedClock : IClock
 
 public interface IReadOnlyClock
 {
+    /// <summary>
+    /// The time of the clock before it has been started.
+    /// </summary>
+    public const int UNSTARTED = -1;
+
     public int Time { get; }
     public int? MaxTime { get; }
 }
 
-public interface IClock : IReadOnlyClock
+internal interface IClock : IReadOnlyClock
 {
     public static IClock Create(int? maxTime)
     {
         return maxTime is null ? new UnlimitedClock() : new LimitedClock(maxTime.Value);
     }
+
+
     public void Increment();
+    public void Start()
+    {
+        if (this.Time != IReadOnlyClock.UNSTARTED)
+        {
+            throw new InvalidOperationException("Clock has already been started");
+        }
+
+        // go from UNSTARTED to 0:
+        this.Increment();
+    }
 
 
     internal IEnumerable<int> Ticks
     {
         get
         {
-            for (; this.MaxTime is null || Time < MaxTime.Value; this.Increment())
+            for (this.Start(); this.MaxTime is null || Time < MaxTime.Value; this.Increment())
             {
                 yield return Time;
             }

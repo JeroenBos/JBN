@@ -44,13 +44,12 @@ internal sealed class Machine : IMachine
     /// </summary>
     public float[,] Run(int maxTime)
     {
-        if (clock.Time != 0) throw new InvalidOperationException("This machine has already run");
-        if (emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
+        if (clock.Time != IReadOnlyClock.UNSTARTED) throw new InvalidOperationException("This machine has already run");
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
 
         float[,] output = Extensions.Initialize2DArray(maxTime, network.Output.Length, float.NaN);
         // assumes the input axioms have been triggered
-        foreach (var time in clock.Ticks)
+        foreach (var time in clock.Ticks.TakeWhile(time => time < maxTime))
         {
             var e = new OnTickEventArgs { Time = time };
 
@@ -66,7 +65,6 @@ internal sealed class Machine : IMachine
             {
                 break;
             }
-
         }
         return output;
     }
@@ -99,9 +97,7 @@ internal sealed class Machine : IMachine
         // optimization to reuse list:
         emittingAxons.Clear();
         emits.Add(emittingAxons);
-        // emits[0] is removed after the neurons have been updated
-
-        
+        // emits[0] is popped after the neurons have been updated
     }
     private void UpdateNeurons(OnTickEventArgs e)
     {
@@ -144,18 +140,15 @@ internal sealed class Machine : IMachine
 
     public void AddEmitAction(int deliveryTime, Axon axon)
     {
-        if (this.Clock.Time == -1)
-        {
-            // when the machine hasn't run yet there is an extra entry in this.emits at the start
-            deliveryTime++;
-        }
+        if (deliveryTime < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime));
         if (deliveryTime >= this.Clock.MaxTime)
         {
             return;
         }
 
-        int dt = deliveryTime - this.Clock.Time;
-        if (dt == 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery instantaneous");
+        int dt = deliveryTime - (this.Clock.Time == IReadOnlyClock.UNSTARTED ? 0 : this.Clock.Time);
+
+        if (dt == 0 && this.Clock.Time != IReadOnlyClock.UNSTARTED) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery instantaneous");
         if (dt < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery in the past");
 
         while (dt >= emits.Count)

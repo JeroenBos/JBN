@@ -16,9 +16,9 @@ internal sealed class Neuron
     private readonly INeuronType type;
     private readonly List<Axon> axons;
     /// <summary>
-    /// The time up until and including which the decay has been updated. Decay happens at the start of a timestep.
+    /// The time up until and including which the decay has been updated. Decay happens at the end of a timestep.
     /// </summary>
-    private int decayUpdatedTime;
+    private int decayUpdatedTime = -1;
     /// <summary>
     /// The time this neuron was activated last. Activation happens at the end of a timestep.
     /// </summary>
@@ -37,7 +37,6 @@ internal sealed class Neuron
         if (initialCharge != 0)
         {
             this.lastReceivedChargeTime = 0;
-            // this, in combination with decay being skipped at t=0, results in decay working as expected
         }
     }
 
@@ -49,10 +48,13 @@ internal sealed class Neuron
 
     internal void Decay(int time)
     {
-        for (; decayUpdatedTime <= time; decayUpdatedTime++)
+        // because decay is at the end of a time step, we decay the current time also
+        // +1 because the decayUpdatedTime has already been updated
+        for (int decayUpdatingTime = this.decayUpdatedTime + 1; decayUpdatingTime <= time; decayUpdatingTime++)
         {
-            this.Charge *= this.type.GetDecay(decayUpdatedTime - lastReceivedChargeTime, decayUpdatedTime - lastActivatedTime);
+            this.Charge *= this.type.GetDecay(decayUpdatingTime - lastReceivedChargeTime, decayUpdatingTime - lastActivatedTime);
         }
+        this.decayUpdatedTime = time;
     }
     internal void Receive(IAxonType axonType, float weight, IMachine machine)
     {
