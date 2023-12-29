@@ -28,8 +28,6 @@ internal sealed class Machine : IMachine
         if (t != -1) throw new InvalidOperationException("This machine has already run");
         if (emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
 
-        this.network.Initialize(this);
-
         this.maxTime = maxTime;
         emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
         emits.Add(new List<Axon>()); // so we need to skip this.emits[0]

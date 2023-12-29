@@ -8,10 +8,10 @@ public interface INetwork
                                   int inputCount,
                                   int outputCount,
                                   IAxonType?[,] connections,
-                                  INetworkInitializer initializer,
                                   IReadOnlyClock clock)
     {
-        return new Network(nodeTypes, inputCount, outputCount, connections, initializer, clock);
+        // if you use this method for creating a Network you need to initialize the input axons yourself
+        return new Network(nodeTypes, inputCount, outputCount, connections, clock);
     }
 
     public IReadOnlyClock Clock { get; }
@@ -21,7 +21,6 @@ public interface INetwork
     public float[] Output { get; }
     
     internal IReadOnlyList<Axon> Axons { get; }
-    internal void Initialize(IMachine machine);
     internal IClock MutableClock => (IClock)Clock;
     internal void Process(Feedback feedback, int time);
     internal void Decay(int time);

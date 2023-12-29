@@ -15,7 +15,6 @@ public class NetworkTests
                         inputCount: 1,
                         outputCount: 1,
                         connections,
-                        initializer: INetworkInitializer.CreateRandom(seed: 0),
                         IClock.Create(maxTime: null));
     }
 
@@ -27,10 +26,10 @@ public class NetworkTests
                                       inputCount: 1,
                                       outputCount: 1,
                                       connections,
-                                      initializer: INetworkInitializer.CreateUniformActivator(),
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
+        INetworkInitializer.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 1 } });
@@ -45,11 +44,10 @@ public class NetworkTests
                                       inputCount: 1,
                                       outputCount: 1,
                                       connections,
-                                      initializer: INetworkInitializer.CreateUniformActivator(),
                                       IClock.Create(maxTime: null));
 
-
         var machine = IMachine.Create(network);
+        INetworkInitializer.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(2);
         Assert.Equal(output, new float[,] { { 1 }, { 0 } });
@@ -62,11 +60,10 @@ public class NetworkTests
                                       inputCount: 1,
                                       outputCount: 1,
                                       connections,
-                                      initializer: INetworkInitializer.CreateUniformActivator(),
                                       IClock.Create(maxTime: null));
 
-
         var machine = IMachine.Create(network);
+        INetworkInitializer.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(3);
         Assert.Equal(output, new float[,] { { 1 }, { 0 }, { 1 } });
@@ -117,11 +114,10 @@ public class NetworkTests
                                       inputCount,
                                       outputCount,
                                       connections,
-                                      INetworkInitializer.CreateRandom(random),
                                       IClock.Create(maxTime: null));
 
-
         var machine = IMachine.Create(network);
+        INetworkInitializer.CreateRandom(random).Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(maxTime);
         for (int t = 0; t < maxTime; t++)

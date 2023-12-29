@@ -12,7 +12,6 @@ internal sealed class Network : INetwork
 
     public IReadOnlyList<Axon> Axons { get; } // excluding input axons
     public IReadOnlyList<Axon> Inputs { get; }
-    public INetworkInitializer Initializer { get; }
     public IReadOnlyClock Clock { get; }
     public float[] Output
     {
@@ -29,7 +28,6 @@ internal sealed class Network : INetwork
                    int inputCount,
                    int outputCount,
                    IAxonType?[,] connections,
-                   INetworkInitializer initializer,
                    IReadOnlyClock clock)
     {
         Assert(nodeTypes is not null);
@@ -38,7 +36,6 @@ internal sealed class Network : INetwork
         Assert(connections.GetLength(1) == nodeCount);
         Assert(inputCount <= nodeCount);
         Assert(outputCount <= nodeCount);
-        Assert(initializer is not null);
         Assert(nodeTypes.All(type => type is not null));
 
         this.Clock = clock;
@@ -86,13 +83,8 @@ internal sealed class Network : INetwork
         {
             inputs[i] = new Axon(IAxonType.Input, nodes[i], length: Axon.InputLength, initialWeight: 1);
         }
-        this.Initializer = initializer;
     }
 
-    public void Initialize(IMachine machine)
-    {
-        this.Initializer.Activate(this.Inputs, machine);
-    }
     public void Decay(int time)
     {
         foreach (var node in nodes)

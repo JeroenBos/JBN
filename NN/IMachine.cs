@@ -35,7 +35,7 @@ public interface IMachine<TNetworkFactory> where TNetworkFactory : INetworkFacto
     {
         var clock = IClock.Create(maxTime);
         var (nodeTypes, inputCount, outputCount, connections, initializer) = TNetworkFactory.Create();
-        var network = INetwork.Create(nodeTypes, inputCount, outputCount, connections, initializer, clock);
+        var network = INetwork.Create(nodeTypes, inputCount, outputCount, connections, clock);
         var machine = IMachine.Create(network);
         initializer.Activate(network.Axons, machine);
         return machine;
