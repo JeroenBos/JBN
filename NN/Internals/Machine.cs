@@ -5,51 +5,81 @@ internal sealed class Machine : IMachine
     private readonly INetwork network;
     private readonly GetFeedbackDelegate getFeedback;
     private readonly List<Neuron> potentiallyActivatedDuringStep;
+    /// <summary>
+    /// A list of axons to fire per time step.
+    /// If the time now is t_0, then <see cref="emits"/>[t_0] + δt represents all axons that will deliver δt timesteps in the future.
+    /// </summary>
+    /// <remarks>
+    /// During a time step the first entry is <see langword="null"/> to bring to light bugs, as it's not allowed for an axon to trigger a neuron instantly.
+    /// Before the machine has run, all initial input stimuli are just in the first entry: all those are delivered on the first tick. 
+    /// The point is that there is no need for a special extra list at the beginning for the pre-run input.
+    /// </remarks>
     private readonly List<List<Axon>> emits;
+    private readonly IClock clock;
 
-    private int maxTime = -1;
-    private int t = -1;
-
-    public event OnTickDelegate? OnTick;
-
-    internal int Time => t;
+    /// <summary>
+    /// Triggered at the end of a time step, with the event args containing what happened in this time step
+    /// </summary>
+    public event OnTickDelegate? OnTicked;
 
     public Machine(INetwork network) : this(network, _ => Feedback.Empty) { }
     public Machine(INetwork network, GetFeedbackDelegate getFeedback)
     {
         this.network = network;
+        this.clock = network.MutableClock;
         this.getFeedback = getFeedback;
         this.potentiallyActivatedDuringStep = new List<Neuron>();
         this.emits = new List<List<Axon>> { new() };
     }
 
+    /// <summary>
+    /// Order of events:
+    /// - time ticks (starts at -1 so the first time observed is 0)
+    /// - if time is maxTime -> abort (meaning maxTime is exclusive)
+    /// - axons firings are delivered
+    /// - output is measured
+    /// - neurons update:
+    ///   - those reached threshold fire and go into refractory state
+    ///   - others' charge decay
+    /// </summary>
     public float[,] Run(int maxTime)
     {
-        if (t != -1) throw new InvalidOperationException("This machine has already run");
+        if (clock.Time != 0) throw new InvalidOperationException("This machine has already run");
         if (emits[0].Count != 0) throw new Exception("this.emits[0].Count == 0");
-
-        this.maxTime = maxTime;
-        emits.RemoveAt(0);  // if t starts at -1, input neurons with length 1 add to this.emits[1]
-        emits.Add(new List<Axon>()); // so we need to skip this.emits[0]
+        if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
 
         float[,] output = Extensions.Initialize2DArray(maxTime, network.Output.Length, float.NaN);
         // assumes the input axioms have been triggered
-        for (t = 0; t < maxTime; t++)
+        foreach (var time in clock.Ticks)
         {
-            Tick();
+            var e = new OnTickEventArgs { Time = time };
 
-            var latestOutput = CopyOutput(output);
+            this.DeliverFiredAxons(e);
+
+            var latestOutput = CopyOutputTo(output);
             bool stop = ProcessFeedback(latestOutput);
-            if (stop)
-                break;
 
-            network.Decay(t + 1);
+            this.UpdateNeurons(e);
+            this.InvokeOnTicked(e, stop);
+
+            if (stop)
+            {
+                break;
+            }
+
         }
         return output;
     }
-    private void Tick()
+    private void InvokeOnTicked(OnTickEventArgs e, bool feedbackStops)
+    {
+        bool stopping = feedbackStops && this.Clock.Time + 1 != this.Clock.MaxTime;
+        this.OnTicked?.Invoke(this, e); // ActivationCount: activationCount));
+    }
+    private void DeliverFiredAxons(OnTickEventArgs e)
     {
         var emittingAxons = emits[0];
+        emits[0] = null!; // to be alerted (through a NullRefException) when there's a bug
+
         float positiveCumulativeOomph = 0;
         float negativeCumulativeOomph = 0;
         foreach (Axon axon in emittingAxons)
@@ -61,6 +91,22 @@ internal sealed class Machine : IMachine
                 positiveCumulativeOomph += w;
             axon.Emit(this);
         }
+
+        e.EmittingAxonCount = emittingAxons.Count;
+        e.PositiveCumulativeOomph = positiveCumulativeOomph;
+        e.NegativeCumulativeOomph = negativeCumulativeOomph;
+
+        // optimization to reuse list:
+        emittingAxons.Clear();
+        emits.Add(emittingAxons);
+        // emits[0] is removed after the neurons have been updated
+
+        
+    }
+    private void UpdateNeurons(OnTickEventArgs e)
+    {
+        // For PERF this method could skip neuron.Activate and network.Decay and clean if `stop == true` (from processing feedback)
+        // However, the current implementation will allow for continuation of the machine, if desired
         int activationCount = 0;
         foreach (Neuron neuron in potentiallyActivatedDuringStep)
         {
@@ -70,57 +116,47 @@ internal sealed class Machine : IMachine
                 neuron.Activate(this);
             }
         }
+        e.ActivationCount = activationCount;
 
-        this.OnTick?.Invoke(this, new OnTickEventArgs(Time: Time, EmittingAxonCount: emittingAxons.Count, PositiveCumulativeOomph: positiveCumulativeOomph, NegativeCumulativeOomph: negativeCumulativeOomph, ActivationCount: activationCount));
+        // end of time step:
+        network.Decay();
 
         // clean up
-        emittingAxons.Clear();
-        emits.RemoveAt(0);
-        emits.Add(emittingAxons);
         potentiallyActivatedDuringStep.Clear();
-
-        // so what kind of events are there and how do they relate to the integer nature of time?
-        // - decay of a neuron
-        //   - must be after charge has been outputted
-        //   - if it receive charge on time T, let's say also the decay of time T still happens
-        //   so decay or a neuron happens just after time T (except at t=0)
-        // - activation of a neuron
-        //   - happens at the end
-        //   - must happen after all axons this time step have fired. if it peeks over the threshold
-        //     and dips below again, it will not activate.
-        // - registering output
-        //   happens at the end (order w.r.t. activation is not relevant)
-        // - clear neuron charge
-        //   happens at the end after registering output
-        // the input axons are fired at time -1, and with length 1 arrive at their nodes in time 0
-        // therefore, any initial charge (if any/implemented) should not decay just after time 0
-        // - receiving charge
-        //   happens in the middle of a timestep
-
+        emits.RemoveAt(0);
     }
-    private float[] CopyOutput(float[,] totalOutput)
+    private float[] CopyOutputTo(float[,] totalOutput)
     {
         // PERF: use ReadOnlySpan2D<T>
         var latestOutput = network.Output;
         for (int i = 0; i < latestOutput.Length; i++)
         {
-            totalOutput[this.t, i] = latestOutput[i];
+            totalOutput[this.Clock.Time, i] = latestOutput[i];
         }
         return latestOutput;
     }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
         var feedback = getFeedback(latestOutput);
-        network.Process(feedback, Time);
+        network.Process(feedback);
         return feedback.Stop;
     }
 
-    public void AddEmitAction(int time, Axon axon)
+    public void AddEmitAction(int deliveryTime, Axon axon)
     {
-        if (time >= maxTime && maxTime != -1)
+        if (this.Clock.Time == -1)
+        {
+            // when the machine hasn't run yet there is an extra entry in this.emits at the start
+            deliveryTime++;
+        }
+        if (deliveryTime >= this.Clock.MaxTime)
+        {
             return;
-        int dt = time - this.t;
-        if (dt <= 0) throw new ArgumentOutOfRangeException(nameof(time), "dt <= 0");
+        }
+
+        int dt = deliveryTime - this.Clock.Time;
+        if (dt == 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery instantaneous");
+        if (dt < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery in the past");
 
         while (dt >= emits.Count)
         {
@@ -132,5 +168,5 @@ internal sealed class Machine : IMachine
     {
         potentiallyActivatedDuringStep.Add(neuron);
     }
-    int IMachine.Time => Time;
+    public IReadOnlyClock Clock => network.Clock;
 }

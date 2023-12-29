@@ -60,18 +60,24 @@ internal sealed class Network : INetwork
         }
     }
 
-    public void Decay(int time)
+    public void Decay()
     {
+        if (this.Clock.Time == 0)
+        {
+            // this is merely to preserve behavior while refactoring. May be removed later, or can serve as an optimization, who knows.
+            return;
+        }
+
         foreach (var node in nodes)
         {
-            node.Decay(time);
+            node.Decay(this.Clock.Time);
         }
     }
-    public void Process(Feedback feedback, int time)
+    public void Process(Feedback feedback)
     {
         foreach (var axon in Axons)
         {
-            axon.ProcessFeedback(feedback, time);
+            axon.ProcessFeedback(feedback, this.Clock.Time);
         }
     }
 }

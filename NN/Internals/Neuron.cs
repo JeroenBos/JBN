@@ -54,36 +54,36 @@ internal sealed class Neuron
             this.Charge *= this.type.GetDecay(decayUpdatedTime - lastReceivedChargeTime, decayUpdatedTime - lastActivatedTime);
         }
     }
-    internal void Receive(IAxonType axonType, float weight, Machine machine)
+    internal void Receive(IAxonType axonType, float weight, IMachine machine)
     {
         // potentially, weight could be modified by the axon type
         Receive(weight, machine);
     }
-    internal void Receive(float charge, Machine machine)
+    internal void Receive(float charge, IMachine machine)
     {
         if (!MachineTriggersDecay)
         {
-            Decay(machine.Time);
+            Decay(machine.Clock.Time);
         }
         bool alreadyRegistered = this.Charge >= threshold;
         this.Charge += charge;
-        this.lastReceivedChargeTime = machine.Time;
+        this.lastReceivedChargeTime = machine.Clock.Time;
         if (this.Charge >= threshold && !alreadyRegistered)
         {
             machine.RegisterPotentialActivation(this);
         }
     }
-    internal void Activate(Machine machine)
+    internal void Activate(IMachine machine)
     {
         if (!MachineTriggersDecay && this.lastActivatedTime > this.decayUpdatedTime)
         {
-            this.Decay(machine.Time);
+            this.Decay(machine.Clock.Time);
         }
 
-        this.lastActivatedTime = machine.Time;
+        this.lastActivatedTime = machine.Clock.Time;
         foreach (var axon in this.axons)
         {
-            axon.Activate(machine.Time, machine);
+            axon.Activate(machine.Clock.Time, machine);
         }
     }
 }

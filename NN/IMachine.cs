@@ -13,8 +13,9 @@ public interface IMachine
         return new Machine(network, getFeedback);
     }
 
-    public event OnTickDelegate OnTick;
+    public event OnTickDelegate OnTicked;
     public float[,] Run(int maxTime);
+    public IReadOnlyClock Clock { get; }
 
     /// <summary>
     /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.`
@@ -25,6 +26,4 @@ public interface IMachine
     /// </summary>
     /// <param name="timeOfDelivery">The time the emit is to be delivered at the end of its axon. </param>
     internal void AddEmitAction(int timeOfDelivery, Axon axon);
-
-    internal int Time { get; }
 }

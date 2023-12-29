@@ -50,4 +50,16 @@ public interface IClock : IReadOnlyClock
         return maxTime is null ? new UnlimitedClock() : new LimitedClock(maxTime.Value);
     }
     public void Increment();
+
+
+    internal IEnumerable<int> Ticks
+    {
+        get
+        {
+            for (; this.MaxTime is null || Time < MaxTime.Value; this.Increment())
+            {
+                yield return Time;
+            }
+        }
+    }
 }
