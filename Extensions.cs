@@ -1,5 +1,6 @@
 global using static Contracts;
 global using static Helpers;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -55,6 +56,7 @@ public static class Extensions
 
 class Contracts
 {
+    [Conditional("DEBUG")]
     public static void Assert([DoesNotReturnIf(false)] bool condition, [CallerArgumentExpression("condition")] string message = "")
     {
         if (!condition)
