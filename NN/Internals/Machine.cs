@@ -77,21 +77,12 @@ internal sealed class Machine : IMachine
         var emittingAxons = emits[0];
         emits[0] = null!; // to be alerted (through a NullRefException) when there's a bug
 
-        float positiveCumulativeOomph = 0;
-        float negativeCumulativeOomph = 0;
         foreach (Axon axon in emittingAxons)
         {
-            float w = axon.Weight;
-            if (w < 0)
-                negativeCumulativeOomph -= w;
-            else
-                positiveCumulativeOomph += w;
             axon.Emit(this);
         }
 
         e.EmittingAxonCount = emittingAxons.Count;
-        e.PositiveCumulativeOomph = positiveCumulativeOomph;
-        e.NegativeCumulativeOomph = negativeCumulativeOomph;
 
         // optimization to reuse list:
         emittingAxons.Clear();

@@ -53,11 +53,6 @@ internal sealed class Neuron
         }
         this.decayUpdatedTime = time;
     }
-    internal void Receive(IAxonType axonType, float weight, IMachine machine)
-    {
-        // potentially, weight could be modified by the axon type
-        Receive(weight, machine);
-    }
     internal void Receive(float charge, IMachine machine)
     {
         bool alreadyRegistered = this.Charge >= threshold;
