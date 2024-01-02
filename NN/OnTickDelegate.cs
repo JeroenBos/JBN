@@ -19,4 +19,3 @@ public sealed class OnTickEventArgs
         Console.WriteLine($"t={e.Time:d2}, emits: {e.EmittingAxonCount}(Σ={e.PositiveCumulativeOomph:n2}/-{e.NegativeCumulativeOomph:n2}), acts: {e.ActivationCount}");
     }
 }
-
