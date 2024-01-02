@@ -108,7 +108,7 @@ internal sealed class Machine : IMachine
             if (neuron.Charge >= Neuron.threshold)
             {
                 activationCount++;
-                neuron.Activate(this);
+                neuron.Excite(this);
             }
         }
         e.ActivationCount = activationCount;

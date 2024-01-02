@@ -22,7 +22,7 @@ internal sealed class Axon
     private int activationCount = 0;
     private float averageTimeBetweenActivations = float.NaN;
     internal float Weight => weight;
-    internal void Activate(int time, IMachine machine)
+    internal void Excite(int time, IMachine machine)
     {
         activationCount++;
 
@@ -44,7 +44,7 @@ internal sealed class Axon
         endpoint.Receive(type, weight, machine);
         // leave timeOfDelivery for feedback
     }
-    internal void ProcessFeedback(Feedback feedback, int time)
+    internal void Process(Feedback feedback, int time)
     {
         int timeSinceLastActivation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position

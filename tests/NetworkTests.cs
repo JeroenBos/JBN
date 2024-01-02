@@ -201,7 +201,7 @@ public class NeuronTypeTests
         var neuron = new Neuron(type, 0);
         // simulate without triggering Decay
         neuron.Receive(1, Machines.AtTime0);
-        neuron.Activate(Machines.AtTime0);
+        neuron.Excite(Machines.AtTime0);
 
         var charges = new float[4];
         for (int t = 0; t < charges.Length; t++)

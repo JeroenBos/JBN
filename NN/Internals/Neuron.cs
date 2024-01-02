@@ -68,13 +68,13 @@ internal sealed class Neuron
             machine.RegisterPotentialActivation(this);
         }
     }
-    internal void Activate(IMachine machine)
+    internal void Excite(IMachine machine)
     {
 
         this.lastActivatedTime = machine.Clock.Time;
         foreach (var axon in this.axons)
         {
-            axon.Activate(machine.Clock.Time, machine);
+            axon.Excite(machine.Clock.Time, machine);
         }
     }
 }

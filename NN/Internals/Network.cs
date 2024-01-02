@@ -73,7 +73,7 @@ internal sealed class Network : INetwork
     {
         foreach (var axon in Axons)
         {
-            axon.ProcessFeedback(feedback, this.Clock.Time);
+            axon.Process(feedback, this.Clock.Time);
         }
     }
 }
