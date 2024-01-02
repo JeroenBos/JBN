@@ -14,9 +14,39 @@ public interface IMachine
     }
 
     public event OnTickDelegate OnTicked;
-    public float[,] Run(int maxTime);
+    public float[] Run(int maxTime);
+    /// <summary>
+    /// Calls <see cref="Run(int)"/> and collects all the outputs for each timestep in a list.
+    /// </summary>
+    /// <returns>the list of collected ouputs.</returns>
+    public IReadOnlyList<float[]> RunCollect(int maxTime)
+    {
+        var result = new List<float[]>(capacity: maxTime);
+        this.OnTicked += OnTicked;
+
+        try
+        {
+            Run(maxTime);
+        }
+        finally
+        {
+            this.OnTicked -= OnTicked;
+        }
+        return result;
+
+
+        void OnTicked(IMachine sender, OnTickEventArgs e)
+        {
+            result.Add(e.Output.ToArray());
+        }
+    }
+
     public IReadOnlyClock Clock { get; }
 
+    /// <summary>
+    /// Gets the current charges of the output neurons of the network.
+    /// </summary>
+    internal float[] Output { get; }
     /// <summary>
     /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.`
     /// </summary>

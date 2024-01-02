@@ -10,5 +10,5 @@ public interface INeuronType
         return new VariableNeuronType(noActivation, activation);
     }
 
-    float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation);
+    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation);
 }

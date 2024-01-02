@@ -20,7 +20,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetworkViaFactory()
     {
-        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, new IAxonInitialization[0,0], INetworkFeeder.CreateUniformActivator());
+        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, new IAxonInitialization[0, 0], INetworkFeeder.CreateUniformActivator());
         factory.Create();
     }
     record MockNetworkFactory(
@@ -49,7 +49,8 @@ public class NetworkTests
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(1);
-        Assert.Equal(output, new float[,] { { 1 } });
+
+        Assert.Equal(output, new float[] { 1 });
     }
 
 
@@ -66,8 +67,9 @@ public class NetworkTests
         var machine = IMachine.Create(network);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
-        var output = machine.Run(2);
-        Assert.Equal(output, new float[,] { { 1 }, { 0 } });
+        var output = machine.RunCollect(2);
+
+        Assert.Equal(output, new float[][] { new float[] { 1 }, new float[] { 0 } });
     }
     [Fact]
     public void TestNeuronCanActivateSelf()
@@ -82,8 +84,8 @@ public class NetworkTests
         var machine = IMachine.Create(network);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
-        var output = machine.Run(3);
-        Assert.Equal(actual: output, expected: new float[,] { { 1 }, { 0 }, { 1 } });
+        var output = machine.RunCollect(3);
+        Assert.Equal(actual: output, expected: new float[][] { new float[] { 1 }, new float[] { 0 }, new float[] { 1 } });
     }
     [Fact]
     public void StressTest()
@@ -124,13 +126,13 @@ public class NetworkTests
         var machine = IMachine.Create(network);
         INetworkFeeder.CreateRandom(random).Activate(((Network)network).Inputs, machine);
 
-        var output = machine.Run(maxTime);
+        var output = machine.RunCollect(maxTime);
         for (int t = 0; t < maxTime; t++)
         {
             Console.Write("[");
             for (int i = 0; i < outputCount; i++)
             {
-                Console.Write(output[t, i].ToString("n2"));
+                Console.Write(output[t][i].ToString("n2"));
                 if (i != outputCount - 1)
                     Console.Write(", ");
 
@@ -158,7 +160,7 @@ public class NeuronTypeTests
     public void TestCumulativeDecaySequence()
     {
         var neuron = (VariableNeuronType)INeuronType.CreateVariable(
-            new[] { (3, 0.5f) }, 
+            new[] { (3, 0.5f) },
             new (int, float)[0]
         );
 
@@ -199,7 +201,7 @@ public class NeuronTypeTests
         var neuron = new Neuron(type, 0);
         // simulate without triggering Decay
         neuron.Receive(1, Machines.AtTime0);
-        neuron.Activate(Machines.AtTime0);
+        neuron.Excite(Machines.AtTime0);
 
         var charges = new float[4];
         for (int t = 0; t < charges.Length; t++)

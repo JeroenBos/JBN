@@ -42,21 +42,20 @@ internal sealed class Machine : IMachine
     ///   - those reached threshold fire and go into refractory state
     ///   - others' charge decay
     /// </summary>
-    public float[,] Run(int maxTime)
+    public float[] Run(int maxTime)
     {
         if (clock.Time != IReadOnlyClock.UNSTARTED) throw new InvalidOperationException("This machine has already run");
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
 
-        float[,] output = Extensions.Initialize2DArray(maxTime, network.Output.Length, float.NaN);
-        // assumes the input axioms have been triggered
+        float[] output = network.Output;
         foreach (var time in clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs { Time = time };
+            var e = new OnTickEventArgs { Time = time, Output = output };
 
             this.DeliverFiredAxons(e);
 
-            var latestOutput = CopyOutputTo(output);
-            bool stop = ProcessFeedback(latestOutput);
+            e.Output = output = network.Output;
+            bool stop = ProcessFeedback(output);
 
             this.UpdateNeurons(e);
             this.InvokeOnTicked(e, stop);
@@ -101,15 +100,13 @@ internal sealed class Machine : IMachine
     }
     private void UpdateNeurons(OnTickEventArgs e)
     {
-        // For PERF this method could skip neuron.Activate and network.Decay and clean if `stop == true` (from processing feedback)
-        // However, the current implementation will allow for continuation of the machine, if desired
         int activationCount = 0;
         foreach (Neuron neuron in potentiallyActivatedDuringStep)
         {
             if (neuron.Charge >= Neuron.threshold)
             {
                 activationCount++;
-                neuron.Activate(this);
+                neuron.Excite(this);
             }
         }
         e.ActivationCount = activationCount;
@@ -120,16 +117,6 @@ internal sealed class Machine : IMachine
         // clean up
         potentiallyActivatedDuringStep.Clear();
         emits.RemoveAt(0);
-    }
-    private float[] CopyOutputTo(float[,] totalOutput)
-    {
-        // PERF: use ReadOnlySpan2D<T>
-        var latestOutput = network.Output;
-        for (int i = 0; i < latestOutput.Length; i++)
-        {
-            totalOutput[this.Clock.Time, i] = latestOutput[i];
-        }
-        return latestOutput;
     }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
@@ -162,4 +149,5 @@ internal sealed class Machine : IMachine
         potentiallyActivatedDuringStep.Add(neuron);
     }
     public IReadOnlyClock Clock => network.Clock;
+    public float[] Output => network.Output;
 }
