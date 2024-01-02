@@ -5,10 +5,6 @@ namespace JBSnorro.NN;
 internal sealed class Neuron
 {
     /// <summary>
-    /// Certain operations are redundant if machine calls network.Decay every time step
-    /// </summary>
-    private static readonly bool MachineTriggersDecay = true;
-    /// <summary>
     /// The threshold of charge over which a neuron fires.
     /// </summary>
     internal const float threshold = 1;
@@ -64,10 +60,6 @@ internal sealed class Neuron
     }
     internal void Receive(float charge, IMachine machine)
     {
-        if (!MachineTriggersDecay)
-        {
-            Decay(machine.Clock.Time);
-        }
         bool alreadyRegistered = this.Charge >= threshold;
         this.Charge += charge;
         this.lastReceivedChargeTime = machine.Clock.Time;
@@ -78,10 +70,6 @@ internal sealed class Neuron
     }
     internal void Activate(IMachine machine)
     {
-        if (!MachineTriggersDecay && this.lastActivatedTime > this.decayUpdatedTime)
-        {
-            this.Decay(machine.Clock.Time);
-        }
 
         this.lastActivatedTime = machine.Clock.Time;
         foreach (var axon in this.axons)
