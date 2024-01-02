@@ -70,11 +70,11 @@ internal sealed class Neuron
     }
     internal void Excite(IMachine machine)
     {
-
         this.lastActivatedTime = machine.Clock.Time;
         foreach (var axon in this.axons)
         {
-            axon.Excite(machine.Clock.Time, machine);
+            int timeOfDelivery = axon.Excite(machine.Clock.Time);
+            machine.AddEmitAction(timeOfDelivery, axon);
         }
     }
 }

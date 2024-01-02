@@ -100,8 +100,6 @@ internal sealed class Machine : IMachine
     }
     private void UpdateNeurons(OnTickEventArgs e)
     {
-        // For PERF this method could skip neuron.Activate and network.Decay and clean if `stop == true` (from processing feedback)
-        // However, the current implementation will allow for continuation of the machine, if desired
         int activationCount = 0;
         foreach (Neuron neuron in potentiallyActivatedDuringStep)
         {
