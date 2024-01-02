@@ -10,24 +10,24 @@ namespace JBSnorro.NN;
 public interface INetwork
 {
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
-    internal static INetwork Create(IReadOnlyList<INeuronType> nodeTypes,
+    internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
                                   int inputCount,
                                   int outputCount,
                                   IAxonInitialization?[,] connections,
                                   IReadOnlyClock clock)
     {
-        Assert(connections.GetLength(0) == nodeTypes.Count);
-        Assert(connections.GetLength(1) == nodeTypes.Count);
-        return Create(nodeTypes, inputCount, outputCount, (i, j) => connections[i, j], clock);
+        Assert(connections.GetLength(0) == neuronTypes.Count);
+        Assert(connections.GetLength(1) == neuronTypes.Count);
+        return Create(neuronTypes, inputCount, outputCount, (i, j) => connections[i, j], clock);
     }
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
-    internal static INetwork Create(IReadOnlyList<INeuronType> nodeTypes,
+    internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
                                   int inputCount,
                                   int outputCount,
                                   GetAxonConnectionDelegate getConnections,
                                   IReadOnlyClock clock)
     {
-        return new Network(nodeTypes, inputCount, outputCount, getConnections, clock);
+        return new Network(neuronTypes, inputCount, outputCount, getConnections, clock);
     }
 
     public IReadOnlyClock Clock { get; }
