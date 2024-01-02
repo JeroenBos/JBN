@@ -56,19 +56,13 @@ internal sealed class Network : INetwork
         var inputs = (Axon[])this.Inputs;
         for (int i = 0; i < inputCount; i++)
         {
-            inputs[i] = new Axon(IAxonType.Input, nodes[i], IAxonInitialization.Input.Length, IAxonInitialization.Input.InitialWeight);
+            inputs[i] = new Axon(IAxonType.Input, this.nodes[i], IAxonInitialization.Input.Length, IAxonInitialization.Input.InitialWeight);
         }
     }
 
     public void Decay()
     {
-        if (this.Clock.Time == 0)
-        {
-            // this is merely to preserve behavior while refactoring. May be removed later, or can serve as an optimization, who knows.
-            return;
-        }
-
-        foreach (var node in nodes)
+        foreach (var node in this.nodes)
         {
             node.Decay(this.Clock.Time);
         }

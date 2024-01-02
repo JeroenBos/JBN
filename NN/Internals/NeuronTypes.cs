@@ -7,15 +7,11 @@ internal sealed class RetentionOfOneNeuronType : INeuronType
     /// <summary> Gets the decay of the charge given the times since last receipt of charge and last activation. </summary>
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
-        if (!IsNever(timeSinceLastChargeReceipt) && timeSinceLastChargeReceipt < 0)
-            throw new ArgumentOutOfRangeException(nameof(timeSinceLastChargeReceipt));
+        Assert(IsNever(timeSinceLastChargeReceipt) || timeSinceLastChargeReceipt >= 0, $"{nameof(timeSinceLastChargeReceipt)} out of range");
+        Assert(IsNever(timeSinceLastActivation) || timeSinceLastActivation >= 0, $"{nameof(timeSinceLastActivation)} out of range");
 
-        if (!IsNever(timeSinceLastActivation) && timeSinceLastActivation < 0)
-            throw new ArgumentOutOfRangeException(nameof(timeSinceLastActivation));
-
-        if (timeSinceLastActivation == 1)
-            return 0;
-        return 1;
+        // return 0 means charge immediately decays, but it still had the chance to elicit an excitation
+        return 0;
     }
 }
 

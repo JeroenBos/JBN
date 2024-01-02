@@ -1,3 +1,3 @@
 using Tests.JBSnorro.NN;
 
-new NetworkTests().StressTest();
+new NetworkTests().TestNeuronCanActivateSelf();
