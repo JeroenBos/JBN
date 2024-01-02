@@ -6,8 +6,6 @@ public sealed class OnTickEventArgs
 {
     public int Time { get; internal init; }
     public int EmittingAxonCount { get; internal set; }
-    public float PositiveCumulativeOomph { get; internal set; }
-    public float NegativeCumulativeOomph { get; internal set; }
     public int ActivationCount { get; internal set; }
     /// <summary>
     /// Gets the current charges of the output neurons. A reference to this should not be stored, as the underlying structure is reused.
@@ -16,6 +14,6 @@ public sealed class OnTickEventArgs
 
     public static void WriteTickDataToConsole(IMachine sender, OnTickEventArgs e)
     {
-        Console.WriteLine($"t={e.Time:d2}, emits: {e.EmittingAxonCount}(Σ={e.PositiveCumulativeOomph:n2}/-{e.NegativeCumulativeOomph:n2}), acts: {e.ActivationCount}");
+        Console.WriteLine($"t={e.Time:d2}, emits: {e.EmittingAxonCount}, acts: {e.ActivationCount}");
     }
 }

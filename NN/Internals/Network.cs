@@ -21,29 +21,28 @@ internal sealed class Network : INetwork
         }
     }
 
+    /// <param name="neuronTypes">One type per neuron.</param>
     public Network(IReadOnlyList<INeuronType> neuronTypes,
-                   int inputCount,
                    int outputCount,
                    GetAxonConnectionDelegate getConnection,
                    IReadOnlyClock clock)
     {
+        int neuronCount = neuronTypes.Count;
         Assert(neuronTypes is not null);
         Assert(neuronTypes.All(type => type is not null));
-        Assert(inputCount <= neuronTypes.Count);
-        Assert(outputCount <= neuronTypes.Count);
+        Assert(outputCount <= neuronCount);
         Assert(getConnection is not null);
 
         this.Clock = clock;
         this.neuronTypes = neuronTypes;
         this.neurons = neuronTypes.Select(type => new Neuron(type, 0)).ToArray();
-        this.Inputs = new Axon[inputCount];
         this._output = new float[outputCount];
         this.Axons = new List<Axon>();
 
         var axons = (List<Axon>)this.Axons;
-        for (int i = 0; i < neuronTypes.Count; i++)
+        for (int i = 0; i < neuronCount; i++)
         {
-            for (int j = 0; j < neuronTypes.Count; j++)
+            for (int j = 0; j < neuronCount; j++)
             {
                 var axonInitialization = getConnection(i, j);
                 if (axonInitialization != null)
@@ -55,11 +54,16 @@ internal sealed class Network : INetwork
             }
         }
 
-        var inputs = (Axon[])this.Inputs;
-        for (int i = 0; i < inputCount; i++)
+        var inputs = new List<Axon>();
+        for (int i = 0; i < neuronCount; i++)
         {
-            inputs[i] = new Axon(IAxonType.Input, this.neurons[i], IAxonInitialization.Input.Length, IAxonInitialization.Input.InitialWeight);
+            var axonInitialization = getConnection(-1, i);
+            if (axonInitialization != null)
+            {
+                inputs.Add(new Axon(IAxonType.Input, this.neurons[i], axonInitialization.Length, axonInitialization.InitialWeight));
+            }
         }
+        this.Inputs = inputs.ToArray();
     }
 
     public void Decay()
