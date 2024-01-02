@@ -42,20 +42,20 @@ internal sealed class Machine : IMachine
     ///   - those reached threshold fire and go into refractory state
     ///   - others' charge decay
     /// </summary>
-    public float[,] Run(int maxTime)
+    public float[] Run(int maxTime)
     {
         if (clock.Time != IReadOnlyClock.UNSTARTED) throw new InvalidOperationException("This machine has already run");
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
 
-        float[,] output = Extensions.Initialize2DArray(maxTime, network.Output.Length, float.NaN);
-        // assumes the input axioms have been triggered
+        float[] output = network.Output;
         foreach (var time in clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs { Time = time };
+            var e = new OnTickEventArgs { Time = time, Output = output };
 
             this.DeliverFiredAxons(e);
 
-            bool stop = ProcessFeedback(network.Output);
+            e.Output = output = network.Output;
+            bool stop = ProcessFeedback(output);
 
             this.UpdateNeurons(e);
             this.InvokeOnTicked(e, stop);

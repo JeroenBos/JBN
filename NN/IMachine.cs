@@ -14,7 +14,29 @@ public interface IMachine
     }
 
     public event OnTickDelegate OnTicked;
-    public float[,] Run(int maxTime);
+    public float[] Run(int maxTime);
+    public IReadOnlyList<float[]> RunCollect(int maxTime)
+    {
+        var result = new List<float[]>(capacity: maxTime);
+        this.OnTicked += OnTicked;
+
+        try
+        {
+            Run(maxTime);
+        }
+        finally
+        {
+            this.OnTicked -= OnTicked;
+        }
+        return result;
+
+
+        void OnTicked(IMachine sender, OnTickEventArgs e)
+        {
+            result.Add(e.Output.ToArray());
+        }
+    }
+
     public IReadOnlyClock Clock { get; }
 
     /// <summary>
