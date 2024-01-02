@@ -1,4 +1,6 @@
-﻿namespace JBSnorro.NN.Internals;
+﻿using JBSnorro.NN.Internals;
+
+namespace JBSnorro.NN;
 
 public interface INetworkFactory
 {
