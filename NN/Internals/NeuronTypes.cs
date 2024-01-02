@@ -7,15 +7,11 @@ internal sealed class RetentionOfOneNeuronType : INeuronType
     /// <summary> Gets the decay of the charge given the times since last receipt of charge and last activation. </summary>
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
-        if (!IsNever(timeSinceLastChargeReceipt) && timeSinceLastChargeReceipt < 0)
-            throw new ArgumentOutOfRangeException(nameof(timeSinceLastChargeReceipt));
+        Assert(IsNever(timeSinceLastChargeReceipt) || timeSinceLastChargeReceipt >= 0, $"{nameof(timeSinceLastChargeReceipt)} out of range");
+        Assert(IsNever(timeSinceLastActivation) || timeSinceLastActivation >= 0, $"{nameof(timeSinceLastActivation)} out of range");
 
-        if (!IsNever(timeSinceLastActivation) && timeSinceLastActivation < 0)
-            throw new ArgumentOutOfRangeException(nameof(timeSinceLastActivation));
-
-        if (timeSinceLastActivation == 1)
-            return 0;
-        return 1;
+        // return 0 means charge immediately decays, but it still had the chance to elicit an excitation
+        return 0;
     }
 }
 
@@ -26,10 +22,12 @@ internal sealed class VariableNeuronType : INeuronType
     private readonly (int maxDt, float decay)[] noActivation;
     private readonly (int maxDt, float decay)[] activation;
 
-    /// <summary> 
-    /// The maxDT should be thought of as number of time steps until and inclusing which the associated decay rate applies. 
-    /// For example, a maxDt of 2 will apply 
+    /// <summary>
+    /// Creates a <see cref="INeuronType"/> where the activations are variable.
     /// </summary>
+    /// <param name="noActivation">
+    /// The maxDt should be thought of as number of time steps until and inclusing which the associated decay rate applies. 
+    /// </param>
     public VariableNeuronType((int maxDt, float decay)[] noActivation, (int maxDt, float decay)[] activation)
     {
         verify(noActivation);
@@ -49,6 +47,7 @@ internal sealed class VariableNeuronType : INeuronType
                 throw new ArgumentException("maxDts must be nonnegative", paramName);
         }
     }
+
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
     {
         // we can assume we're at the end of a time step
@@ -136,11 +135,10 @@ internal sealed class VariableNeuronType : INeuronType
     }
     internal IEnumerable<float> GetActivationCumulativeDecaySequence()
     {
-        return GetActivationDecaySequence().Scan(floatMultiplication, 1);
+        return GetActivationDecaySequence().Scan((a, b) => a * b, 1);
     }
     internal IEnumerable<float> GetNoActivationCumulativeDecaySequence()
     {
-        return GetNoActivationDecaySequence().Scan(floatMultiplication, 1);
+        return GetNoActivationDecaySequence().Scan((a, b) => a * b, 1);
     }
-    static float floatMultiplication(float a, float b) => a * b;
 }

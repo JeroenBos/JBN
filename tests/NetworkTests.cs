@@ -1,6 +1,7 @@
-using Assert = Xunit.Assert;
 using JBSnorro.NN;
-using VariableNeuronType = global::JBSnorro.NN.Internals.VariableNeuronType;
+using JBSnorro.NN.Internals;
+using Assert = Xunit.Assert;
+using VariableNeuronType = JBSnorro.NN.Internals.VariableNeuronType;
 
 namespace Tests.JBSnorro.NN;
 
@@ -9,40 +10,43 @@ public class NetworkTests
     [Fact]
     public void CreateNetwork()
     {
-        var connections = new AxonType?[1, 1];
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
+        var connections = new IAxonInitialization?[1, 1];
+        INetwork.Create(NeuronTypes.OnlyOne,
+                        inputCount: 1,
+                        outputCount: 1,
+                        connections,
+                        IClock.Create(maxTime: null));
     }
-
     [Fact]
-    public void RunUnactivatedNetwork()
+    public void CreateNetworkViaFactory()
     {
-        var connections = new AxonType?[1, 1];
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
-
-        var machine = IMachine.Create(network);
-        var output = machine.Run(1);
-        Assert.Equal(output, new float[,] { { 0 } });
+        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, new IAxonInitialization[0,0], INetworkFeeder.CreateUniformActivator());
+        factory.Create();
+    }
+    record MockNetworkFactory(
+        IReadOnlyList<INeuronType> NeuronTypes,
+        int InputCount,
+        int OutputCount,
+        IAxonInitialization?[,] Connections,
+        INetworkFeeder InputPrimer
+    ) : INetworkFactory
+    {
+        IAxonInitialization? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => Connections[neuronFromIndex, neuronToIndex];
     }
 
 
     [Fact]
     public void RunActivatedNetworkOfOne()
     {
-        var connections = new AxonType?[1, 1] { { null } };
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
-
+        var connections = new IAxonInitialization?[1, 1] { { null } };
+        var network = INetwork.Create(NeuronTypes.OnlyOne,
+                                      inputCount: 1,
+                                      outputCount: 1,
+                                      connections,
+                                      IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        network.Input[0].Activate(machine);
+        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(1);
         Assert.Equal(output, new float[,] { { 1 } });
@@ -52,15 +56,15 @@ public class NetworkTests
     [Fact]
     public void TestNeuronDeactivatesAfterActivation()
     {
-        var connections = new AxonType?[1, 1] { { null } };
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
-
+        var connections = new IAxonInitialization?[1, 1] { { null } };
+        var network = INetwork.Create(NeuronTypes.OnlyOne,
+                                      inputCount: 1,
+                                      outputCount: 1,
+                                      connections,
+                                      IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        network.Input[0].Activate(machine);
+        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(2);
         Assert.Equal(output, new float[,] { { 1 }, { 0 } });
@@ -68,18 +72,18 @@ public class NetworkTests
     [Fact]
     public void TestNeuronCanActivateSelf()
     {
-        var connections = new AxonType?[1, 1] { { AxonTypes.LengthTwo } };
-        var network = new Network(NeuronTypes.OnlyOne,
-                                  inputCount: 1,
-                                  outputCount: 1,
-                                  connections);
-
+        var connections = new IAxonInitialization?[1, 1] { { MockAxonType.LengthTwo } };
+        var network = INetwork.Create(NeuronTypes.OnlyOne,
+                                      inputCount: 1,
+                                      outputCount: 1,
+                                      connections,
+                                      IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        network.Input[0].Activate(machine);
+        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(3);
-        Assert.Equal(output, new float[,] { { 1 }, { 0 }, { 1 } });
+        Assert.Equal(actual: output, expected: new float[,] { { 1 }, { 0 }, { 1 } });
     }
     [Fact]
     public void StressTest()
@@ -89,23 +93,11 @@ public class NetworkTests
         const int inputCount = 5;
         const int outputCount = 5;
         const int maxTime = 15;
-        const float initializationChange = 1f;
+        const float initializationChance = 1f;
         const float connectionChance = 0.5f;
 
-        var connections = new AxonType?[neuronCount, neuronCount];
+        var connections = MockAxonType.CreateRandom(neuronCount, connectionChance, random);
 
-        var getLength = AxonType.CreateDefault2DGetLength(neuronCount);
-        var getInitialWeight = AxonType.CreateRandomWeightInitializer(random);
-        for (int i = 0; i < neuronCount; i++)
-        {
-            for (int j = 0; j < neuronCount; j++)
-            {
-                if (random.NextSingle() < connectionChance)
-                {
-                    connections[i, j] = new AxonType(type: 255, getLength, getInitialWeight);
-                }
-            }
-        }
         var neuronTypes = new INeuronType[neuronCount];
         for (int i = 0; i < neuronCount; i++)
         {
@@ -120,23 +112,17 @@ public class NetworkTests
         var randomInitialization = new bool[inputCount];
         for (int i = 0; i < inputCount; i++)
         {
-            randomInitialization[i] = random.NextSingle() < initializationChange;
+            randomInitialization[i] = random.NextSingle() < initializationChance;
         }
 
-        var network = new Network(neuronTypes,
-                                  inputCount,
-                                  outputCount,
-                                  connections);
-
+        var network = INetwork.Create(neuronTypes,
+                                      inputCount,
+                                      outputCount,
+                                      connections,
+                                      IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network);
-        foreach (var (activate, input) in randomInitialization.Zip(network.Input))
-        {
-            if (activate)
-            {
-                network.Input[0].Activate(machine);
-            }
-        }
+        INetworkFeeder.CreateRandom(random).Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(maxTime);
         for (int t = 0; t < maxTime; t++)
@@ -189,7 +175,7 @@ public class NeuronTypeTests
             new (int, float)[0]
         );
 
-        var neuron = new Neuron(type, 0, initialCharge: 1);
+        var neuron = new Neuron(type, initialCharge: 1);
         var charges = new float[4];
         for (int t = 0; t < charges.Length; t++)
         {
@@ -227,12 +213,4 @@ public class NeuronTypeTests
         Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0.25f });
     }
 
-}
-
-internal static class Adapters
-{
-    public static void Activate(this Axon axon, IMachine machine)
-    {
-        axon.Activate(machine.Time, machine.AddEmitAction);
-    }
 }

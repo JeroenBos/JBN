@@ -44,3 +44,7 @@ Multidimensional fourier?
 
 a + Π_d^D Σ_n^N (a_nd cos(n x) + b_nd sin(n y))
 number of parameters = 1 + D X N 
+
+
+# Ideas:
+Axons should be bidirectional. It's different from having two axons between two vertices, because they don't share internal state and therefore cannot build up correlations (with feedback).
