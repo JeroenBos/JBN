@@ -11,7 +11,7 @@ public sealed class OnTickEventArgs
     public int ActivationCount { get; internal set; }
 
     /// <summary>
-    /// 
+    /// Gets the current charges of the output neurons. A reference to this should not be stored, as the underlying structure is reused.
     /// </summary>
     public required IReadOnlyList<float> Output { get; set; }
 
