@@ -11,10 +11,10 @@ public interface INetwork
 {
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
     internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
-                                  int inputCount,
-                                  int outputCount,
-                                  IAxonInitialization?[,] connections,
-                                  IReadOnlyClock clock)
+                                    int inputCount,
+                                    int outputCount,
+                                    IAxonInitialization?[,] connections,
+                                    IReadOnlyClock clock)
     {
         Assert(connections.GetLength(0) == neuronTypes.Count);
         Assert(connections.GetLength(1) == neuronTypes.Count);
@@ -22,10 +22,10 @@ public interface INetwork
     }
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
     internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
-                                  int inputCount,
-                                  int outputCount,
-                                  GetAxonConnectionDelegate getConnections,
-                                  IReadOnlyClock clock)
+                                    int inputCount,
+                                    int outputCount,
+                                    GetAxonConnectionDelegate getConnections,
+                                    IReadOnlyClock clock)
     {
         return new Network(neuronTypes, inputCount, outputCount, getConnections, clock);
     }
