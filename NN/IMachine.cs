@@ -15,6 +15,10 @@ public interface IMachine
 
     public event OnTickDelegate OnTicked;
     public float[] Run(int maxTime);
+    /// <summary>
+    /// Calls <see cref="Run(int)"/> and collects all the outputs for each timestep in a list.
+    /// </summary>
+    /// <returns>the list of collected ouputs.</returns>
     public IReadOnlyList<float[]> RunCollect(int maxTime)
     {
         var result = new List<float[]>(capacity: maxTime);
