@@ -48,7 +48,8 @@ internal sealed class Neuron
 
     internal void Decay(int time)
     {
-        // because decay is at the end of a time step, we decay the current time also
+        // Decay is at the end of a time step, and so we decay the current time also. The neuron's excitation, if any, has been elicited already.
+        // That means that if a neuron got charge this step, the type.GetDecay(..) is called with timeSinceLastChargeReceipt: 0
         // +1 because the decayUpdatedTime has already been updated
         for (int decayUpdatingTime = this.decayUpdatedTime + 1; decayUpdatingTime <= time; decayUpdatingTime++)
         {
