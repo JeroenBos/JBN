@@ -9,7 +9,6 @@ public sealed class OnTickEventArgs
     public float PositiveCumulativeOomph { get; internal set; }
     public float NegativeCumulativeOomph { get; internal set; }
     public int ActivationCount { get; internal set; }
-
     /// <summary>
     /// Gets the current charges of the output neurons. A reference to this should not be stored, as the underlying structure is reused.
     /// </summary>
