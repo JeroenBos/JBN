@@ -3,7 +3,7 @@ internal sealed class Network : INetwork
 {
     private readonly IReadOnlyList<INeuronType> neuronTypes;
     private readonly Neuron[] neurons;
-    private readonly int outputCount;
+    private readonly float[] _output;
 
     public IReadOnlyList<Axon> Axons { get; } // excluding input axons
     public IReadOnlyList<Axon> Inputs { get; }
@@ -12,10 +12,12 @@ internal sealed class Network : INetwork
     {
         get
         {
-            float[] result = new float[outputCount];
-            for (int i = 0; i < result.Length; i++)
-                result[i] = neurons[neurons.Length - outputCount + i].Charge;
-            return result;
+            var output = this._output;
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] = neurons[neurons.Length - output.Length + i].Charge;
+            }
+            return output;
         }
     }
 
@@ -35,7 +37,7 @@ internal sealed class Network : INetwork
         this.neuronTypes = neuronTypes;
         this.neurons = neuronTypes.Select(type => new Neuron(type, 0)).ToArray();
         this.Inputs = new Axon[inputCount];
-        this.outputCount = outputCount;
+        this._output = new float[outputCount];
         this.Axons = new List<Axon>();
 
         var axons = (List<Axon>)this.Axons;

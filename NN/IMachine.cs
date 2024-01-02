@@ -18,6 +18,10 @@ public interface IMachine
     public IReadOnlyClock Clock { get; }
 
     /// <summary>
+    /// Gets the current charges of the output neurons of the network.
+    /// </summary>
+    internal float[] Output { get; }
+    /// <summary>
     /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.`
     /// </summary>
     internal void RegisterPotentialActivation(Neuron neuron);

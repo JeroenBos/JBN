@@ -55,8 +55,7 @@ internal sealed class Machine : IMachine
 
             this.DeliverFiredAxons(e);
 
-            var latestOutput = CopyOutputTo(output);
-            bool stop = ProcessFeedback(latestOutput);
+            bool stop = ProcessFeedback(network.Output);
 
             this.UpdateNeurons(e);
             this.InvokeOnTicked(e, stop);
@@ -121,16 +120,6 @@ internal sealed class Machine : IMachine
         potentiallyActivatedDuringStep.Clear();
         emits.RemoveAt(0);
     }
-    private float[] CopyOutputTo(float[,] totalOutput)
-    {
-        // PERF: use ReadOnlySpan2D<T>
-        var latestOutput = network.Output;
-        for (int i = 0; i < latestOutput.Length; i++)
-        {
-            totalOutput[this.Clock.Time, i] = latestOutput[i];
-        }
-        return latestOutput;
-    }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
         var feedback = getFeedback(latestOutput);
@@ -162,4 +151,5 @@ internal sealed class Machine : IMachine
         potentiallyActivatedDuringStep.Add(neuron);
     }
     public IReadOnlyClock Clock => network.Clock;
+    public float[] Output => network.Output;
 }
