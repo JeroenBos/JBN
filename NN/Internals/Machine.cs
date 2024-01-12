@@ -42,13 +42,14 @@ internal sealed class Machine : IMachine
     ///   - those reached threshold fire and go into refractory state
     ///   - others' charge decay
     /// </summary>
-    public float[] Run(int maxTime)
+    public float[] Run(int? maxTime = null)
     {
         if (clock.Time != IReadOnlyClock.UNSTARTED) throw new InvalidOperationException("This machine has already run");
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
+        if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
         float[] output = network.Output;
-        foreach (var time in clock.Ticks.TakeWhile(time => time < maxTime))
+        foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
             var e = new OnTickEventArgs { Time = time, Output = output };
 

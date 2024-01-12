@@ -14,7 +14,8 @@ public interface IMachine
     }
 
     public event OnTickDelegate OnTicked;
-    public float[] Run(int maxTime);
+    /// <param name="maxTime">If <see langword="null" is specified, it runs until the clock's max time. </param>
+    public float[] Run(int? maxTime = null);
     /// <summary>
     /// Calls <see cref="Run(int)"/> and collects all the outputs for each timestep in a list.
     /// </summary>
