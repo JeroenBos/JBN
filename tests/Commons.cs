@@ -47,7 +47,7 @@ static class NeuronTypes
 
 class MockAxonType : IAxonType
 {
-    public static IAxonInitialization LengthTwo { get; } = IAxonInitialization.Create(length: 2, initialWeight: 1, new MockAxonType());
+    public static IAxonInitialization LengthTwo { get; } = IAxonInitialization.Create(length: 2, initialWeight: new float[] { 1 }, new MockAxonType());
 
     public static IAxonInitialization?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
     {
@@ -60,7 +60,7 @@ class MockAxonType : IAxonType
             {
                 if (random.NextSingle() < connectionChance)
                 {
-                    result[i, j] = IAxonInitialization.Create(getLength(i, j), getInitialWeight(i, j), new MockAxonType());
+                    result[i, j] = IAxonInitialization.Create(getLength(i, j), new float[] { getInitialWeight(i, j) }, new MockAxonType());
                 }
             }
         }
@@ -90,9 +90,8 @@ class MockAxonType : IAxonType
     }
 
     private MockAxonType() { }
-    public float GetUpdatedWeight(float currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback)
+    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback)
     {
-        return currentWeight;
     }
 }
 
@@ -101,7 +100,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, 0, new IAxonInitialization[0, 0], IClock.Create(null)));
+        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, IClock.Create(null)));
         AtTime0.Run(0);
     }
 }

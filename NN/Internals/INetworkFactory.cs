@@ -12,25 +12,21 @@ public interface INetworkFactory
     public (IMachine, INetwork) Create(int? maxTime = null)
     {
         var clock = IClock.Create(maxTime);
-        var network = INetwork.Create(this.NeuronTypes, this.InputCount, this.OutputCount, this.GetAxonConnection, clock);
+        var network = INetwork.Create(this.NeuronTypes, this.OutputCount, this.GetAxonConnection, clock);
         var machine = IMachine.Create(network);
         this.InputPrimer.Activate(network.Inputs, machine);
         return (machine, network);
     }
 
     /// <summary>
-    /// The number of input axons.
+    /// A type of neuron for each neuron in the network.
     /// </summary>
-    public int InputCount { get; }
+    /// <remarks>Must have at least <see cref="OutputCount"/> elements.</remarks>
+    public IReadOnlyList<INeuronType> NeuronTypes { get; }
     /// <summary>
     /// The number of output neurons.
     /// </summary>
     public int OutputCount { get; }
-    /// <summary>
-    /// The neuron types of the network.
-    /// </summary>
-    /// <remarks>Must have at least <see cref="OutputCount"/> elements.</remarks>
-    public IReadOnlyList<INeuronType> NeuronTypes { get; }
     /// <summary>
     /// Gets the initialization data per axon.
     /// </summary>

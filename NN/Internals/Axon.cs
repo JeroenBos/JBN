@@ -3,25 +3,24 @@ namespace JBSnorro.NN.Internals;
 internal sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this triggers them at t=0, and allows throwing when dt==0
-    public Axon(IAxonType type, Neuron endpoint, int length, float initialWeight)
+    public Axon(IAxonType type, Neuron endpoint, int length, IReadOnlyList<float> initialWeights)
     {
         if (length <= 0 || length > MAX_LENGTH)
             throw new ArgumentOutOfRangeException(nameof(length));
 
         this.type = type;
         this.length = length;
-        weight = initialWeight;
+        this.weights = initialWeights.ToArray();
         this.endpoint = endpoint;
     }
 
     private readonly IAxonType type;
     private readonly int length;
     private readonly Neuron endpoint;
-    private float weight;
+    private readonly float[] weights;
     private int timeOfDelivery = NEVER;
     private int activationCount = 0;
     private float averageTimeBetweenActivations = float.NaN;
-    internal float Weight => weight;
     /// <returns>the time of delivery</returns>
     internal int Excite(int currentTime)
     {
@@ -42,17 +41,17 @@ internal sealed class Axon
     }
     internal void Emit(Machine machine)
     {
-        endpoint.Receive(type, weight, machine);
+        endpoint.Receive(type.GetCharge(weights), machine);
     }
     internal void Process(Feedback feedback, int time)
     {
         int timeSinceLastActivation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position
-        weight = type.GetUpdatedWeight(weight,
-                                       timeSinceLastActivation,
-                                       averageTimeBetweenActivations,
-                                       activationCount,
-                                       feedback);
+        type.UpdateWeights(weights,
+                           timeSinceLastActivation,
+                           averageTimeBetweenActivations,
+                           activationCount,
+                           feedback);
     }
 }
 
