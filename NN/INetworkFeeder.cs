@@ -24,7 +24,7 @@ public interface INetworkFeeder
     /// <summary>
     /// Activates the axons (depends on the machine's clock time).
     /// </summary>
-    internal void Activate(IReadOnlyList<Axon> axons, IMachine machine);
+    internal void Activate(IReadOnlyList<Axon> inputAxons, IMachine machine);
 
     // TODO:
     // support accepting a large immutable list of axon firings
