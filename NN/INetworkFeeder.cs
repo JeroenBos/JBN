@@ -22,7 +22,7 @@ public interface INetworkFeeder
     }
 
     /// <summary>
-    /// Gets the input axons to activate when on start.
+    /// Activates the axons (depends on the machine's clock time).
     /// </summary>
     internal void Activate(IReadOnlyList<Axon> axons, IMachine machine);
 
