@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace JBSnorro.NN.Internals;
 
+[DebuggerDisplay("Axon(→{endpoint.index})")]
 internal sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this delivers initial inputs at t=0, allowing throwing when dt==0
