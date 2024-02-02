@@ -55,6 +55,18 @@ jobs:
         if: steps.version-check.outputs.changed == 'true'
         run: dotnet build --configuration Release
 
+      - name: Debug
+        run: |
+          cd "${project}"
+          ls
+          echo 1
+          cd "${project}"
+          ls
+          echo 2
+          cd "${project}"
+          ls
+          echo 3
+
       - name: Wait for CI
         if: steps.version-check.outputs.changed == 'true'
         uses: deepinsight-io/action-wait-on-workflow@v2.1.1
