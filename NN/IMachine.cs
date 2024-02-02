@@ -20,9 +20,9 @@ public interface IMachine
     /// Calls <see cref="Run(int)"/> and collects all the outputs for each timestep in a list.
     /// </summary>
     /// <returns>the list of collected ouputs.</returns>
-    public IReadOnlyList<float[]> RunCollect(int maxTime)
+    public IReadOnlyList<float[]> RunCollect(int? maxTime = null)
     {
-        var result = new List<float[]>(capacity: maxTime);
+        List<float[]> result = maxTime is null ? new() : new(capacity: maxTime.Value);
         this.OnTicked += OnTicked;
 
         try
