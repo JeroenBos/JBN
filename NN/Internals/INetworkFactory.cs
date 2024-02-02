@@ -30,7 +30,7 @@ public interface INetworkFactory
     /// <summary>
     /// Gets the initialization data per axon.
     /// </summary>
-    /// <param name="neuronFromIndex">The index in <see cref="NeuronTypes"/> of the axon's start neuron. -1 if it's an input axon.</param>
+    /// <param name="neuronFromIndex">The index in <see cref="NeuronTypes"/> of the axon's start neuron. <see cref="IAxonType.FROM_INPUT"/> if it's an input axon.</param>
     /// <param name="neuronToIndex">The index in <see cref="NeuronTypes"/> of the axon's end neuron.</param>
     /// <returns><see langword="null"/> if there's no connection between the two specified neurons; otherwise initial data length and weights for the requested axon.</returns>
     public IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex);
