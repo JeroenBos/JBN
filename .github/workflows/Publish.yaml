@@ -43,8 +43,6 @@ jobs:
               echo "new-version=$current_version" >> $GITHUB_OUTPUT
               echo "Publishing"
           fi
-      - name: Debug
-        run: cd ./bin && ls # 🚧
 
       - name: Setup .NET Core
         if: steps.version-check.outputs.changed == 'true'
@@ -55,7 +53,13 @@ jobs:
       - name: Build
         if: steps.version-check.outputs.changed == 'true'
         run: dotnet build --configuration Release
-
+        
+      - name: Debug 🚧
+        run: |
+          cd ./bin && ls
+          echo 1
+          cd ./Release ls
+          echo 2
       - name: Wait for CI
         if: steps.version-check.outputs.changed == 'true'
         uses: deepinsight-io/action-wait-on-workflow@v2.1.1
