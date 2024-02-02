@@ -9,11 +9,11 @@ public class AND
     {
         public IReadOnlyList<INeuronType> NeuronTypes { get; } = Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray();
         public int OutputCount => 1;
-        public INetworkFeeder InputPrimer { get; }
+        public INetworkFeeder InputFeeder { get; }
 
         public NetworkFactory(INetworkFeeder inputPrimer)
         {
-            this.InputPrimer = inputPrimer;
+            this.InputFeeder = inputPrimer;
         }
 
         public IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex)

@@ -26,7 +26,7 @@ public class NetworkTests
         int NeuronCount,
         int OutputCount,
         GetAxonConnectionDelegate getConnections,
-        INetworkFeeder InputPrimer
+        INetworkFeeder InputFeeder
     ) : INetworkFactory
     {
         IAxonInitialization? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => getConnections(neuronFromIndex, neuronToIndex);
