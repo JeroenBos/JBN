@@ -31,7 +31,7 @@ internal sealed class Axon
         this.timeOfDelivery = newTimeOfDelivery;
         if (float.IsNaN(averageTimeBetweenActivations))
         {
-            averageTimeBetweenActivations = currentTime;
+            averageTimeBetweenActivations = currentTime + 1;
         }
         else
         {
