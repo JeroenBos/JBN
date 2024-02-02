@@ -9,7 +9,7 @@ public interface INetworkFactory
     /// </summary>
     /// <param name="maxTime"></param>
     /// <returns></returns>
-    public (IMachine, INetwork) Create(int? maxTime = null)
+    public (IMachine Machine, INetwork Network) Create(int? maxTime = null)
     {
         var clock = IClock.Create(maxTime);
         var network = INetwork.Create(this.NeuronTypes, this.OutputCount, this.GetAxonConnection, clock);
