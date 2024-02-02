@@ -43,7 +43,8 @@ jobs:
               echo "new-version=$current_version" >> $GITHUB_OUTPUT
               echo "Publishing"
           fi
-
+      - name: Debug
+        run: cd ./bin/Release && ls # 🚧
 
       - name: Setup .NET Core
         if: steps.version-check.outputs.changed == 'true'
@@ -55,20 +56,6 @@ jobs:
         if: steps.version-check.outputs.changed == 'true'
         run: dotnet build --configuration Release
 
-      - name: Debug
-        run: |
-          ls
-          echo 0
-          cd "${project}"
-          ls
-          echo 1
-          cd "${project}"
-          ls
-          echo 2
-          cd "${project}"
-          ls
-          echo 3
-
       - name: Wait for CI
         if: steps.version-check.outputs.changed == 'true'
         uses: deepinsight-io/action-wait-on-workflow@v2.1.1
@@ -79,8 +66,8 @@ jobs:
       - name: Publish
         if: steps.version-check.outputs.changed == 'true' # 🚧 && github.ref == 'refs/heads/main'
         run: |
-          dotnet nuget push "./${project}/bin/Release/${project}.${new_version}.symbols.nupkg" \
-            --api-key '${{ secrets.NUGET_API_KEY }}'                                           \
+          dotnet nuget push "./bin/Release/${project}.${new_version}.symbols.nupkg" \
+            --api-key '${{ secrets.NUGET_API_KEY }}'                                \
             --source 'https://api.nuget.org/v3/index.json'
         env:
           new_version: ${{ steps.version-check.outputs.new-version }}
