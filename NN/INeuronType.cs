@@ -9,6 +9,10 @@ public interface INeuronType
     {
         return new VariableNeuronType(noActivation, activation);
     }
+    /// <summary>
+    /// Gets a neuron that has no retention time, i.e. could fire the next step directly after it has fired.
+    /// </summary>
+    public static INeuronType NoRetentionNeuronType { get; } = new RetentionOfOneNeuronType();
 
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation);
 }
