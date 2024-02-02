@@ -18,3 +18,16 @@ public interface IAxonType
     /// </summary>
     public float GetCharge(float[] weights) => weights[0];
 }
+
+/// <summary>
+/// Represents an axon that does not update when given feedback.
+/// </summary>
+public class UnchangingAxonType : IAxonType
+{
+    public static UnchangingAxonType Instance { get; } = new UnchangingAxonType();
+    private UnchangingAxonType() { }
+    public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback)
+    {
+        
+    }
+}
