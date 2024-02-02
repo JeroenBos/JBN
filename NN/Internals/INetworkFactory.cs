@@ -14,7 +14,7 @@ public interface INetworkFactory
         var clock = IClock.Create(maxTime);
         var network = INetwork.Create(this.NeuronTypes, this.OutputCount, this.GetAxonConnection, clock);
         var machine = IMachine.Create(network);
-        this.InputPrimer.Activate(network.Inputs, machine);
+        this.InputFeeder.Activate(network.Inputs, machine);
         return (machine, network);
     }
 
@@ -37,5 +37,5 @@ public interface INetworkFactory
     /// <summary>
     /// Gets an object representing the data to be fed to the network.
     /// </summary>
-    public INetworkFeeder InputPrimer { get; }
+    public INetworkFeeder InputFeeder { get; }
 }
