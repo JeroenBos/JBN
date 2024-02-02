@@ -1,7 +1,9 @@
 using JBSnorro.NN.Internals;
+using System.Diagnostics;
 
 namespace JBSnorro.NN;
 
+[DebuggerDisplay("Neuron({index == null ? -1 : index},Charge={Charge})")]
 internal sealed class Neuron
 {
     /// <summary>
@@ -25,11 +27,17 @@ internal sealed class Neuron
     private int lastReceivedChargeTime = NEVER;
     internal float Charge { get; private set; }
 
-    public Neuron(INeuronType type, float initialCharge = 0)
+#if DEBUG
+    private readonly int? index;
+#endif
+    public Neuron(INeuronType type, float initialCharge = 0, int? index = null)
     {
         this.type = type;
         this.axons = new List<Axon>();
         this.Charge = initialCharge;
+#if DEBUG
+        this.index = index;
+#endif
         if (initialCharge != 0)
         {
             this.lastReceivedChargeTime = 0;

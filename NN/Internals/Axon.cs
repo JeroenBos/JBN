@@ -1,8 +1,11 @@
+using System.Diagnostics;
+
 namespace JBSnorro.NN.Internals;
 
+[DebuggerDisplay("Axon(→{endpoint.index})")]
 internal sealed class Axon
 {
-    public static readonly int InputLength = 1; // if the machine starts at t=-1, this triggers them at t=0, and allows throwing when dt==0
+    public static readonly int InputLength = 1; // if the machine starts at t=-1, this delivers initial inputs at t=0, allowing throwing when dt==0
     public Axon(IAxonType type, Neuron endpoint, int length, IReadOnlyList<float> initialWeights)
     {
         if (length <= 0 || length > MAX_LENGTH)
@@ -21,7 +24,7 @@ internal sealed class Axon
     private int timeOfDelivery = NEVER;
     private int activationCount = 0;
     private float averageTimeBetweenActivations = float.NaN;
-    /// <returns>the time of delivery</returns>
+    /// <returns>the time of delivery.</returns>
     internal int Excite(int currentTime)
     {
         activationCount++;
@@ -31,7 +34,7 @@ internal sealed class Axon
         this.timeOfDelivery = newTimeOfDelivery;
         if (float.IsNaN(averageTimeBetweenActivations))
         {
-            averageTimeBetweenActivations = currentTime;
+            averageTimeBetweenActivations = currentTime + 1;
         }
         else
         {

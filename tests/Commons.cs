@@ -9,7 +9,7 @@ static class NeuronTypes
     public static INeuronType B { get; }
     public static INeuronType C { get; }
     public static INeuronType[] OnlyA { get; }
-    public static INeuronType One { get; } = new RetentionOfOneNeuronType();
+    public static INeuronType One { get; } = INeuronType.NoRetentionNeuronType;
     public static INeuronType[] OnlyOne { get; }
 
     static NeuronTypes()

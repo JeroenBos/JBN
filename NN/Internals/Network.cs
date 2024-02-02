@@ -35,7 +35,7 @@ internal sealed class Network : INetwork
 
         this.Clock = clock;
         this.neuronTypes = neuronTypes;
-        this.neurons = neuronTypes.Select(type => new Neuron(type, 0)).ToArray();
+        this.neurons = neuronTypes.Select((type, index) => new Neuron(type, 0, index)).ToArray();
         this._output = new float[outputCount];
         this.Axons = new List<Axon>();
 
