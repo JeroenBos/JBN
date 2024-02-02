@@ -20,6 +20,11 @@ public interface INetworkFeeder
     {
         return new UniformNetworkPrimer();
     }
+    /// <inheritdoc cref="DeterministicFeeder.DeterministicFeeder(IEnumerable{IReadOnlyList{bool}})"/>
+    public static INetworkFeeder CreateDeterministicFeeder(IEnumerable<IReadOnlyList<bool>> inputs)
+    {
+        return new PredeterminedFeeder(inputs);
+    }
 
     /// <summary>
     /// Activates the axons (depends on the machine's clock time).
@@ -27,6 +32,5 @@ public interface INetworkFeeder
     internal void Activate(IReadOnlyList<Axon> inputAxons, IMachine machine);
 
     // TODO:
-    // support accepting a large immutable list of axon firings
     // support a pattern that allows for reacting to outputs
 }
