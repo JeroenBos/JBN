@@ -11,6 +11,7 @@ env:
   LANG: 'C.UTF-8'  # necessary for grep on Windows
   CSPROJ_PATH: JBN.csproj
   project: JBN
+  project_id: JBSnorro.NN
 defaults:
   run:
     shell: bash
@@ -59,6 +60,7 @@ jobs:
           cd ./bin && ls
           echo 1
           cd ./Release
+          ls
           echo 2
       - name: Wait for CI
         if: steps.version-check.outputs.changed == 'true'
@@ -70,7 +72,7 @@ jobs:
       - name: Publish
         if: steps.version-check.outputs.changed == 'true' # 🚧 && github.ref == 'refs/heads/main'
         run: |
-          dotnet nuget push "./bin/Release/${project}.${new_version}.symbols.nupkg" \
+          dotnet nuget push "./bin/Release/${project_id}.${new_version}.symbols.nupkg" \
             --api-key '${{ secrets.NUGET_API_KEY }}'                                \
             --source 'https://api.nuget.org/v3/index.json'
         env:
