@@ -58,7 +58,7 @@ jobs:
         run: |
           cd ./bin && ls
           echo 1
-          cd ./Release ls
+          cd ./Release
           echo 2
       - name: Wait for CI
         if: steps.version-check.outputs.changed == 'true'
