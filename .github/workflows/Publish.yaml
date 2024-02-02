@@ -1,0 +1,72 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - ".github/workflows/Publish.yaml"
+
+env:
+  LANG: 'C.UTF-8'  # necessary for grep on Windows
+  CSPROJ_PATH: JBN.csproj
+  project: JBN
+defaults:
+  run:
+    shell: bash
+    working-directory: JBN
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: JeroenBos/JBSnorro
+          path: JBSnorro
+      - uses: actions/checkout@v4
+        with:
+          path: JBN
+      - name: Detect if version changed
+        id: version-check
+        run: |
+          current_version=$(bash ../JBSnorro/.github/get_current_version.sh "${CSPROJ_PATH}" | xargs)
+          echo "current_version: \"$current_version\""
+          published_version="0.0.0" # 🚧 $(bash ../JBSnorro/.github/get_published_version.sh "${project}" | xargs)
+          echo "published_version: \"$published_version\""
+
+          if [[ "$current_version" == "$published_version" ]]; then
+              echo "Up-to-date"
+          else
+              echo "changed=true" >> $GITHUB_OUTPUT
+              echo "new-version=$current_version" >> $GITHUB_OUTPUT
+              echo "Publishing"
+          fi
+
+
+      - name: Setup .NET Core
+        if: steps.version-check.outputs.changed == 'true'
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          
+      - name: Build
+        if: steps.version-check.outputs.changed == 'true'
+        run: dotnet build --configuration Release
+
+      - name: Wait for CI
+        if: steps.version-check.outputs.changed == 'true'
+        uses: deepinsight-io/action-wait-on-workflow@v2.1.1
+        with:
+          workflowName: CI
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish
+        if: steps.version-check.outputs.changed == 'true' # 🚧 && github.ref == 'refs/heads/main'
+        run: |
+          dotnet nuget push "./${project}/bin/Release/${project}.${new_version}.symbols.nupkg" \
+            --api-key '${{ secrets.NUGET_API_KEY }}'                                           \
+            --source 'https://api.nuget.org/v3/index.json'
+        env:
+          new_version: ${{ steps.version-check.outputs.new-version }}
