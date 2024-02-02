@@ -10,8 +10,7 @@ on:
 env:
   LANG: 'C.UTF-8'  # necessary for grep on Windows
   CSPROJ_PATH: JBN.csproj
-  project: JBN
-  project_id: JBSnorro.NN
+  package_name: JBSnorro.NN
 defaults:
   run:
     shell: bash
@@ -34,7 +33,7 @@ jobs:
         run: |
           current_version=$(bash ../JBSnorro/.github/get_current_version.sh "${CSPROJ_PATH}" | xargs)
           echo "current_version: \"$current_version\""
-          published_version="0.0.0" # 🚧 $(bash ../JBSnorro/.github/get_published_version.sh "${project}" | xargs)
+          published_version=$(bash ../JBSnorro/.github/get_published_version.sh "${package_name}" | xargs)
           echo "published_version: \"$published_version\""
 
           if [[ "$current_version" == "$published_version" ]]; then
@@ -70,9 +69,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish
-        if: steps.version-check.outputs.changed == 'true' # 🚧 && github.ref == 'refs/heads/main'
+        if: steps.version-check.outputs.changed == 'true' && github.ref == 'refs/heads/main'
         run: |
-          dotnet nuget push "./bin/Release/${project_id}.${new_version}.symbols.nupkg" \
+          dotnet nuget push "./bin/Release/${package_name}.${new_version}.symbols.nupkg" \
             --api-key '${{ secrets.NUGET_API_KEY }}'                                \
             --source 'https://api.nuget.org/v3/index.json'
         env:
