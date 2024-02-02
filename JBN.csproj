@@ -15,7 +15,7 @@
 		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	    <IncludeSymbols>true</IncludeSymbols>
 	    <IncludeSource>true</IncludeSource>
-		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<Copyright>Copyright $([System.DateTime]::Now.Year) $(Authors)</Copyright>
 	</PropertyGroup>
 	
