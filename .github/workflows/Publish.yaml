@@ -44,7 +44,7 @@ jobs:
               echo "Publishing"
           fi
       - name: Debug
-        run: cd ./bin/Release && ls # 🚧
+        run: cd ./bin && ls # 🚧
 
       - name: Setup .NET Core
         if: steps.version-check.outputs.changed == 'true'
