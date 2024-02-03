@@ -8,7 +8,7 @@ internal sealed class Axon
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this delivers initial inputs at t=0, allowing throwing when dt==0
     public Axon(IAxonType type, Neuron endpoint, int length, IReadOnlyList<float> initialWeights)
     {
-        if (length <= 0 || length > MAX_LENGTH)
+        if (length <= 0 || length > MAX_AXON_LENGTH)
             throw new ArgumentOutOfRangeException(nameof(length));
 
         this.type = type;
