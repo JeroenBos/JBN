@@ -1,25 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>JBSnorro</RootNamespace>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <RootNamespace>JBSnorro</RootNamespace>
+		<PackageId>JBSnorro.NN</PackageId>
+	    <Version>0.0.1</Version>
+	    <Authors>JeroenBos</Authors>
+	    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<RepositoryUrl>https://github.com/JeroenBos/JBN</RepositoryUrl>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	    <IncludeSymbols>true</IncludeSymbols>
+	    <IncludeSource>true</IncludeSource>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Copyright>Copyright $([System.DateTime]::Now.Year) $(Authors)</Copyright>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<DefaultItemExcludes>$(DefaultItemExcludes);tests\**</DefaultItemExcludes>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <DefaultItemExcludes>$(DefaultItemExcludes);tests\**</DefaultItemExcludes>
-  </PropertyGroup>
+	<ItemGroup>
+        <None Remove=".gitignore" />
+		<Content Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Remove=".gitignore" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>JBN.Tests</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>JBN.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 </Project>

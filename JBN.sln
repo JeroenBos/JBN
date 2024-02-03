@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		.github\workflows\CI.yaml = .github\workflows\CI.yaml
+		.github\workflows\Publish.yaml = .github\workflows\Publish.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JBN.Tests", "tests\JBN.Tests.csproj", "{36C456B2-46F1-447A-A303-575133AB9747}"
