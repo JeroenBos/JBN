@@ -4,10 +4,6 @@ namespace JBSnorro.NN;
 
 public interface IMachine
 {
-    public static IMachine Create(INetwork network)
-    {
-        return new Machine(network);
-    }
     public static IMachine Create(INetwork network, GetFeedbackDelegate getFeedback)
     {
         return new Machine(network, getFeedback);

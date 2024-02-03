@@ -22,7 +22,6 @@ internal sealed class Machine : IMachine
     /// </summary>
     public event OnTickDelegate? OnTicked;
 
-    public Machine(INetwork network) : this(network, _ => Feedback.Empty) { }
     public Machine(INetwork network, GetFeedbackDelegate getFeedback)
     {
         this.network = network;
@@ -112,7 +111,10 @@ internal sealed class Machine : IMachine
     }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
-        var feedback = getFeedback(latestOutput);
+        var feedback = getFeedback(latestOutput, this.Clock);
+        if (feedback is null)
+            return false;
+
         network.Process(feedback);
         return feedback.Stop;
     }
