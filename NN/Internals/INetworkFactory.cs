@@ -2,7 +2,8 @@
 
 namespace JBSnorro.NN;
 
-public interface INetworkFactory
+internal interface INetworkFactory : INetworkFactory<IFeedback> { }
+public interface INetworkFactory<TFeedback> where TFeedback : class, IFeedback
 {
     /// <summary>
     /// Creates a <see cref="INetwork"/> and <see cref="IMachine"/> representing a neural network and its
@@ -44,5 +45,5 @@ public interface INetworkFactory
     /// <param name="latestOutput">The output of the current round.</param>
     /// <param name="clock">The current clock, at the end of the current time step.</param>
     /// <returns>Feedback to be incorporated by the network; <see langword="null"/> indicates there is no feedback and the network should continue operating as is.</returns>
-    public IFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) => null;
+    public TFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) => null;
 }

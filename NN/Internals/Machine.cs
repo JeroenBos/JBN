@@ -3,7 +3,7 @@
 internal sealed class Machine : IMachine
 {
     private readonly INetwork network;
-    private readonly GetFeedbackDelegate getFeedback;
+    private readonly InternalGetFeedbackDelegate getFeedback;
     private readonly List<Neuron> potentiallyActivatedDuringStep;
     /// <summary>
     /// A list of axons to fire per time step.
@@ -22,7 +22,7 @@ internal sealed class Machine : IMachine
     /// </summary>
     public event OnTickDelegate? OnTicked;
 
-    public Machine(INetwork network, GetFeedbackDelegate getFeedback)
+    public Machine(INetwork network, InternalGetFeedbackDelegate getFeedback)
     {
         this.network = network;
         this.clock = network.MutableClock;
