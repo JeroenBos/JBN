@@ -18,7 +18,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetworkViaFactory()
     {
-        INetworkFactory<IFeedback> factory = new MockNetworkFactory(new INeuronType[0], 0, 0, (i, j) => null, INetworkFeeder.CreateUniformActivator());
+        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, (i, j) => null, INetworkFeeder.CreateUniformActivator());
         factory.Create();
     }
     record MockNetworkFactory(
@@ -27,9 +27,9 @@ public class NetworkTests
         int OutputCount,
         GetAxonConnectionDelegate getConnections,
         INetworkFeeder InputFeeder
-    ) : INetworkFactory<IFeedback>
+    ) : INetworkFactory
     {
-        IAxonType? INetworkFactory<IFeedback>.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => getConnections(neuronFromIndex, neuronToIndex);
+        IAxonType? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => getConnections(neuronFromIndex, neuronToIndex);
     }
 
 

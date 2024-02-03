@@ -1,12 +1,11 @@
 ﻿using JBSnorro.NN;
-using JBSnorro.NN.Internals;
 using System.Diagnostics;
 
 namespace Tests.JBSnorro.NN;
 
 public class AND
 {
-    class NetworkFactory : INetworkFactory<IFeedback>
+    class NetworkFactory : INetworkFactory
     {
         public IReadOnlyList<INeuronType> NeuronTypes { get; } = Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray();
         public int OutputCount => 1;
@@ -44,7 +43,7 @@ public class AND
     {
         var inputSequence = new[] { new bool[] { input1, input2 } };
 
-        INetworkFactory<IFeedback> factory = new NetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
+        INetworkFactory factory = new NetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
         return factory.Create(maxTime);
     }
     [Fact]
