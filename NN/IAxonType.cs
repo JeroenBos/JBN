@@ -34,4 +34,16 @@ public interface IAxonType
     /// Gets the charge delivered by this axon.
     /// </summary>
     public float GetCharge(float[] weights) => weights[0];
+
+    internal static void AssertPreconditions(int length, IReadOnlyList<float> initialWeights)
+    {
+        if (length <= 0 || length > MAX_AXON_LENGTH)
+            throw new ArgumentOutOfRangeException(nameof(length));
+        if (initialWeights is null)
+            throw new ArgumentNullException(nameof(initialWeights));
+        if (initialWeights.Count == 0)
+            throw new ArgumentException("At least one weight must be provided", nameof(initialWeights));
+        if (initialWeights.Any(float.IsNaN))
+            throw new ArgumentException("NaN is not valid", nameof(initialWeights));
+    }
 }
