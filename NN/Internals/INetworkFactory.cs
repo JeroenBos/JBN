@@ -2,7 +2,6 @@
 
 namespace JBSnorro.NN;
 
-internal interface INetworkFactory : INetworkFactory<IFeedback> { }
 public interface INetworkFactory<TFeedback> where TFeedback : class, IFeedback
 {
     /// <summary>

@@ -5,7 +5,7 @@ namespace Tests.JBSnorro.NN;
 
 public class AND
 {
-    class NetworkFactory : INetworkFactory
+    class NetworkFactory : INetworkFactory<IFeedback>
     {
         public IReadOnlyList<INeuronType> NeuronTypes { get; } = Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray();
         public int OutputCount => 1;
@@ -43,7 +43,7 @@ public class AND
     {
         var inputSequence = new[] { new bool[] { input1, input2 } };
 
-        INetworkFactory factory = new NetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
+        INetworkFactory<IFeedback> factory = new NetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
         return factory.Create(maxTime);
     }
     [Fact]
