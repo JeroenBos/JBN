@@ -42,7 +42,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonInitialization.Input : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
+        var machine = IMachine.Create(network, _ => null);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(1);
@@ -60,7 +60,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonInitialization.Input : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
+        var machine = IMachine.Create(network, _ => null);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.RunCollect(2);
@@ -75,7 +75,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonInitialization.Input : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
+        var machine = IMachine.Create(network, _ => null);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.RunCollect(3);
@@ -116,7 +116,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j],
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
+        var machine = IMachine.Create(network, _ => null);
         INetworkFeeder.CreateRandom(random).Activate(((Network)network).Inputs, machine);
 
         var output = machine.RunCollect(maxTime);

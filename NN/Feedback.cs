@@ -2,11 +2,13 @@ namespace JBSnorro.NN;
 
 public sealed class Feedback
 {
-    public static Feedback Empty { get; } = new Feedback();
-
     public float Dopamine { get; init; }
     public float Cortisol { get; init; }
+    /// <summary>
+    /// Whether the network should abort it's execution loop.
+    /// </summary>
     public bool Stop { get; init; }
 }
 
-public delegate Feedback GetFeedbackDelegate(ReadOnlySpan<float> latestOutput);
+/// <inheritdoc cref="INetworkFactory.GetFeedback(ReadOnlySpan{float})"/>
+public delegate Feedback? GetFeedbackDelegate(ReadOnlySpan<float> latestOutput);
