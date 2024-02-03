@@ -31,9 +31,9 @@ jobs:
       - name: Detect if version changed
         id: version-check
         run: |
-          current_version=$(bash ../JBSnorro/.github/get_current_version.sh "${CSPROJ_PATH}" | xargs)
+          current_version=$(bash ../JBSnorro/.github/get_current_version.sh "${CSPROJ_PATH}")
           echo "current_version: \"$current_version\""
-          published_version=$(bash ../JBSnorro/.github/get_published_version.sh "${package_name}" | xargs)
+          published_version=$(bash ../JBSnorro/.github/get_published_version.sh "${package_name}")
           echo "published_version: \"$published_version\""
 
           if [[ "$current_version" == "$published_version" ]]; then
@@ -54,13 +54,6 @@ jobs:
         if: steps.version-check.outputs.changed == 'true'
         run: dotnet build --configuration Release
         
-      - name: Debug 🚧
-        run: |
-          cd ./bin && ls
-          echo 1
-          cd ./Release
-          ls
-          echo 2
       - name: Wait for CI
         if: steps.version-check.outputs.changed == 'true'
         uses: deepinsight-io/action-wait-on-workflow@v2.1.1
