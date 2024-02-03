@@ -224,4 +224,48 @@ public class NeuronTypeTests
 
         Assert.Equal(feedbackTimes, new[] { 0, 1, 2 });
     }
+
+    [Fact]
+    public void TestThatInputWithSingleWeightIsAcceptedWhenTheNetworkUsesMultipleWeights()
+    {
+        // the network is one input axon, one hidden neuron and one output neuron, receiving linea recta from the hidden neuron.
+        const int INPUT_NEURON = IAxonType.FROM_INPUT;
+        const int HIDDEN_NEURON = 0;
+        const int OUTPUT_NEURON = 1;
+        float[] actual = Array.Empty<float>();
+        var intermediateAxon = new AxonTypeThatUsesTwoWeights(new[] { 1f, (float)Math.PI } /*explicitly has two elements*/, currentWeightsCallback);
+        IAxonType ? getConnections(int from, int to) => (from, to) switch
+        {
+            (INPUT_NEURON, HIDDEN_NEURON) => IAxonType.CreateInput(new[] { 1f } /*explicitly has one element*/),
+            (HIDDEN_NEURON, OUTPUT_NEURON) => intermediateAxon,
+            _ => null
+        };
+        var network = INetwork.Create(Enumerable.Repeat(INeuronType.NoRetentionNeuronType, 2).ToArray(), outputCount: 1, getConnections, IClock.Create(maxTime: 2));
+        var machine = IMachine.Create(network, (_, _) => new MockFeedback());
+        void currentWeightsCallback(float[] currentWeights)
+        {
+            actual = currentWeights.ToArray();
+        }
+
+        // Act
+        machine.Run();
+
+        Assert.Equal(2, actual.Length);
+    }
+
+    class AxonTypeThatUsesTwoWeights(IReadOnlyList<float> initialWeights, Action<float[]> currentWeightsCallback) : IAxonType
+    {
+        public int Length => 1;
+        public IReadOnlyList<float> InitialWeights => initialWeights;
+
+
+        public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
+        {
+            currentWeightsCallback(currentWeights);
+        }
+    }
+    class MockFeedback : IFeedback
+    {
+        public bool Stop => false;
+    }
 }
