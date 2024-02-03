@@ -1,4 +1,5 @@
 ﻿using JBSnorro.NN;
+using JBSnorro.NN.Internals;
 using System.Diagnostics;
 
 namespace Tests.JBSnorro.NN;
@@ -16,16 +17,16 @@ public class AND
             this.InputFeeder = inputPrimer;
         }
 
-        public IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+        public IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
         {
             switch ((neuronFromIndex, neuronToIndex))
             {
                 case (IAxonType.FROM_INPUT, 0):
                 case (IAxonType.FROM_INPUT, 1):
-                    return IAxonInitialization.Create(length: 1, new float[] { 1 }, IAxonType.Input);
+                    return IAxonType.Input;
                 case (0, 2):
                 case (1, 2):
-                    return IAxonInitialization.Create(length: 1, new float[] { 0.5f }, UnchangingAxonType.Instance);
+                    return IAxonType.CreateImmutable(length: 1, new float[] { 0.5f });
                 case (0, 0):
                 case (1, 1):
                 case (2, 2):

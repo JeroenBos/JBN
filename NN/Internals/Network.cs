@@ -44,10 +44,10 @@ internal sealed class Network : INetwork
         {
             for (int j = 0; j < neuronCount; j++)
             {
-                var axonInitialization = getConnection(i, j);
-                if (axonInitialization != null)
+                var axonPrecursor = getConnection(i, j);
+                if (axonPrecursor != null)
                 {
-                    var axon = new Axon(axonInitialization.AxonType, neurons[j], axonInitialization.Length, axonInitialization.InitialWeight);
+                    var axon = new Axon(axonPrecursor, neurons[j]);
                     neurons[i].AddAxon(axon);
                     axons.Add(axon);
                 }
@@ -57,10 +57,10 @@ internal sealed class Network : INetwork
         var inputs = new List<Axon>();
         for (int i = 0; i < neuronCount; i++)
         {
-            var axonInitialization = getConnection(-1, i);
-            if (axonInitialization != null)
+            var axonPrecursor = getConnection(-1, i);
+            if (axonPrecursor != null)
             {
-                inputs.Add(new Axon(IAxonType.Input, this.neurons[i], axonInitialization.Length, axonInitialization.InitialWeight));
+                inputs.Add(new Axon(axonPrecursor, this.neurons[i]));
             }
         }
         this.Inputs = inputs.ToArray();
@@ -82,4 +82,4 @@ internal sealed class Network : INetwork
     }
 }
 
-internal delegate IAxonInitialization? GetAxonConnectionDelegate(int neuronFromIndex, int neuronToIndex);
+internal delegate IAxonType? GetAxonConnectionDelegate(int neuronFromIndex, int neuronToIndex);
