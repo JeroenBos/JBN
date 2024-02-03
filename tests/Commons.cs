@@ -1,5 +1,6 @@
 using JBSnorro.NN;
 using JBSnorro.NN.Internals;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 
 namespace Tests.JBSnorro.NN;
 
@@ -47,11 +48,11 @@ static class NeuronTypes
 
 class MockAxonType : IAxonType
 {
-    public static IAxonInitialization LengthTwo { get; } = IAxonInitialization.Create(length: 2, initialWeight: new float[] { 1 }, new MockAxonType());
+    public static IAxonType LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: new float[] { 1 });
 
-    public static IAxonInitialization?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
+    public static IAxonType?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
     {
-        var result = new IAxonInitialization?[neuronCount, neuronCount];
+        var result = new IAxonType?[neuronCount, neuronCount];
         var getLength = CreateDefault2DGetLength(neuronCount);
         var getInitialWeight = CreateRandomWeightInitializer(random);
         for (int i = 0; i < neuronCount; i++)
@@ -60,7 +61,7 @@ class MockAxonType : IAxonType
             {
                 if (random.NextSingle() < connectionChance)
                 {
-                    result[i, j] = IAxonInitialization.Create(getLength(i, j), new float[] { getInitialWeight(i, j) }, new MockAxonType());
+                    result[i, j] = new MockAxonType(getLength(i, j), new float[] { getInitialWeight(i, j) });
                 }
             }
         }
@@ -89,8 +90,10 @@ class MockAxonType : IAxonType
         }
     }
 
-    private MockAxonType() { }
-    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback)
+    private MockAxonType(int length, float[] initialWeights) => (this.Length, this.InitialWeights) = (length, initialWeights);
+    public int Length { get; }
+    public IReadOnlyList<float> InitialWeights { get; }
+    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
     {
     }
 }

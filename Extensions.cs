@@ -69,10 +69,10 @@ class Contracts
 
 class Helpers
 {
-    internal const int MAX_LENGTH = 100;
+    internal const int MAX_AXON_LENGTH = 100;
     /// <summary> If initialized to this value, it works together with <see cref="Helpers.IsNever(int)"> 
     /// and being subtracted from <see cref="decayUpdatedTime">. </summary>
-    internal const int NEVER = int.MaxValue - MAX_LENGTH - 1;
+    internal const int NEVER = int.MaxValue - MAX_AXON_LENGTH - 1;
     /// <summary> Gets whether any time minus a time that could contain <see cref="NEVER"/> contained never. </summary>
     internal static bool IsNever(int t)
     {

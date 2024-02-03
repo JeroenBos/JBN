@@ -28,12 +28,12 @@ public interface INetworkFactory
     /// </summary>
     public int OutputCount { get; }
     /// <summary>
-    /// Gets the initialization data per axon.
+    /// Gets the axon initialization data, per axon.
     /// </summary>
     /// <param name="neuronFromIndex">The index in <see cref="NeuronTypes"/> of the axon's start neuron. <see cref="IAxonType.FROM_INPUT"/> if it's an input axon.</param>
     /// <param name="neuronToIndex">The index in <see cref="NeuronTypes"/> of the axon's end neuron.</param>
     /// <returns><see langword="null"/> if there's no connection between the two specified neurons; otherwise initial data length and weights for the requested axon.</returns>
-    public IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex);
+    public IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex);
     /// <summary>
     /// Gets an object representing the data to be fed to the network.
     /// </summary>
@@ -44,5 +44,5 @@ public interface INetworkFactory
     /// <param name="latestOutput">The output of the current round.</param>
     /// <param name="clock">The current clock, at the end of the current time step.</param>
     /// <returns>Feedback to be incorporated by the network; <see langword="null"/> indicates there is no feedback and the network should continue operating as is.</returns>
-    public Feedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) => null;
+    public IFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) => default;
 }
