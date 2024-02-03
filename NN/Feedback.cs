@@ -9,7 +9,7 @@ public interface IFeedback
 }
 
 /// <inheritdoc cref="INetworkFactory.GetFeedback(ReadOnlySpan{float}, IReadOnlyClock)"/>
-public delegate TFeedback? GetFeedbackDelegate<out TFeedback>(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) where TFeedback : class, IFeedback;
+public delegate TFeedback? GetFeedbackDelegate<out TFeedback>(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) where TFeedback : IFeedback;
 
 // The same as GetFeedbackDelegate, but without the generic return type, which can always be cast back when visible through the public surface.
 internal delegate IFeedback? InternalGetFeedbackDelegate(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock);
