@@ -73,7 +73,7 @@ internal sealed class Network : INetwork
             neuron.Decay(this.Clock.Time);
         }
     }
-    public void Process(Feedback feedback)
+    public void Process(IFeedback feedback)
     {
         foreach (var axon in Axons)
         {

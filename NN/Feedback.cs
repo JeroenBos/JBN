@@ -1,14 +1,12 @@
 namespace JBSnorro.NN;
 
-public sealed class Feedback
+public interface IFeedback
 {
-    public float Dopamine { get; init; }
-    public float Cortisol { get; init; }
     /// <summary>
     /// Whether the network should abort it's execution loop.
     /// </summary>
-    public bool Stop { get; init; }
+    public bool Stop { get; }
 }
 
 /// <inheritdoc cref="INetworkFactory.GetFeedback(ReadOnlySpan{float}, IReadOnlyClock)"/>
-public delegate Feedback? GetFeedbackDelegate(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock);
+public delegate IFeedback? GetFeedbackDelegate(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock);

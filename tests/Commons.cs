@@ -90,7 +90,7 @@ class MockAxonType : IAxonType
     }
 
     private MockAxonType() { }
-    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback)
+    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
     {
     }
 }

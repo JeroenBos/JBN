@@ -12,7 +12,7 @@ public interface IAxonType
     public static IAxonType Input => InputAxonType.Instance;
 
     /// <param name="currentWeights">This should be modified in-place.</param>
-    public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback);
+    public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback);
     /// <summary>
     /// Gets the charge delivered by this axon.
     /// </summary>
@@ -26,7 +26,7 @@ public class UnchangingAxonType : IAxonType
 {
     public static UnchangingAxonType Instance { get; } = new UnchangingAxonType();
     private UnchangingAxonType() { }
-    public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback)
+    public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
     {
         
     }

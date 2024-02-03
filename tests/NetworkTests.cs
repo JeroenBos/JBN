@@ -213,7 +213,7 @@ public class NeuronTypeTests
     {
         var network = INetwork.Create(new[] { INeuronType.NoRetentionNeuronType }, 1, (_, _) => null, IClock.Create(maxTime: 3));
         var feedbackTimes = new List<int>();
-        Feedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock)
+        IFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock)
         {
             feedbackTimes.Add(clock.Time);
             return null;

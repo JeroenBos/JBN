@@ -46,7 +46,7 @@ internal sealed class Axon
     {
         endpoint.Receive(type.GetCharge(weights), machine);
     }
-    internal void Process(Feedback feedback, int time)
+    internal void Process(IFeedback feedback, int time)
     {
         int timeSinceLastActivation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position

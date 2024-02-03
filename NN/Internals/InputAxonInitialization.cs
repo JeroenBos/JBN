@@ -4,7 +4,7 @@ internal sealed class InputAxonType : IAxonType
 {
     public static InputAxonType Instance { get; } = new InputAxonType();
 
-    void IAxonType.UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, Feedback feedback)
+    void IAxonType.UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
     {
         throw new InvalidOperationException("Input axons don't update their weights");
     }

@@ -27,7 +27,7 @@ public interface INetwork
     internal IReadOnlyList<Axon> Inputs { get; }
     internal IReadOnlyList<Axon> Axons { get; }
     internal IClock MutableClock => (IClock)Clock;
-    internal void Process(Feedback feedback);
+    internal void Process(IFeedback feedback);
     internal void Decay();
 }
 

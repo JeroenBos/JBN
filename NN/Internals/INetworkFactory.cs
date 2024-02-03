@@ -44,5 +44,5 @@ public interface INetworkFactory
     /// <param name="latestOutput">The output of the current round.</param>
     /// <param name="clock">The current clock, at the end of the current time step.</param>
     /// <returns>Feedback to be incorporated by the network; <see langword="null"/> indicates there is no feedback and the network should continue operating as is.</returns>
-    public Feedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) => null;
+    public IFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) => null;
 }
