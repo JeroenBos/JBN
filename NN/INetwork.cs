@@ -12,10 +12,10 @@ public interface INetwork
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
     internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
                                     int outputCount,
-                                    GetAxonConnectionDelegate getConnections,
+                                    GetAxonConnectionDelegate getConnection,
                                     IReadOnlyClock clock)
     {
-        return new Network(neuronTypes, outputCount, getConnections, clock);
+        return new Network(neuronTypes, outputCount, getConnection, clock);
     }
 
     public IReadOnlyClock Clock { get; }

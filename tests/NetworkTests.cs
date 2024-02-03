@@ -25,11 +25,11 @@ public class NetworkTests
         IReadOnlyList<INeuronType> NeuronTypes,
         int NeuronCount,
         int OutputCount,
-        GetAxonConnectionDelegate getConnections,
+        GetAxonConnectionDelegate getConnection,
         INetworkFeeder InputFeeder
     ) : INetworkFactory
     {
-        IAxonType? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => getConnections(neuronFromIndex, neuronToIndex);
+        IAxonType? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => getConnection(neuronFromIndex, neuronToIndex);
     }
 
 
