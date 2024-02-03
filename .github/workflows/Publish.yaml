@@ -9,7 +9,7 @@ on:
 
 env:
   LANG: 'C.UTF-8'  # necessary for grep on Windows
-  CSPROJ_PATH: JBN.csproj
+  csproj_path: JBN.csproj
   package_name: JBSnorro.NN
 defaults:
   run:
@@ -31,7 +31,7 @@ jobs:
       - name: Detect if version changed
         id: version-check
         run: |
-          current_version=$(bash ../JBSnorro/.github/get_current_version.sh "${CSPROJ_PATH}")
+          current_version=$(bash ../JBSnorro/.github/get_current_version.sh "${csproj_path}")
           echo "current_version: \"$current_version\""
           published_version=$(bash ../JBSnorro/.github/get_published_version.sh "${package_name}")
           echo "published_version: \"$published_version\""
@@ -65,7 +65,7 @@ jobs:
         if: steps.version-check.outputs.changed == 'true' && github.ref == 'refs/heads/main'
         run: |
           dotnet nuget push "./bin/Release/${package_name}.${new_version}.symbols.nupkg" \
-            --api-key '${{ secrets.NUGET_API_KEY }}'                                \
+            --api-key '${{ secrets.NUGET_API_KEY }}'                                     \
             --source 'https://api.nuget.org/v3/index.json'
         env:
           new_version: ${{ steps.version-check.outputs.new-version }}
