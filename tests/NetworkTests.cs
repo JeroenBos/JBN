@@ -42,7 +42,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonInitialization.Input : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, _ => null);
+        var machine = IMachine.Create(network, (_, _) => null);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.Run(1);
@@ -60,7 +60,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonInitialization.Input : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, _ => null);
+        var machine = IMachine.Create(network, (_, _) => null);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.RunCollect(2);
@@ -75,7 +75,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonInitialization.Input : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, _ => null);
+        var machine = IMachine.Create(network, (_, _) => null);
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.RunCollect(3);
@@ -116,7 +116,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j],
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, _ => null);
+        var machine = IMachine.Create(network, (_, _) => null);
         INetworkFeeder.CreateRandom(random).Activate(((Network)network).Inputs, machine);
 
         var output = machine.RunCollect(maxTime);
@@ -208,4 +208,20 @@ public class NeuronTypeTests
         Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0.25f });
     }
 
+    [Fact]
+    public void TestClockPassedToFeedbackIsAtEndOfTimeStep()
+    {
+        var network = INetwork.Create(new[] { INeuronType.NoRetentionNeuronType }, 1, (_, _) => null, IClock.Create(maxTime: 3));
+        var feedbackTimes = new List<int>();
+        Feedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock)
+        {
+            feedbackTimes.Add(clock.Time);
+            return null;
+        }
+
+        // Act
+        IMachine.Create(network, GetFeedback).Run();
+
+        Assert.Equal(feedbackTimes, new[] { 0, 1, 2 });
+    }
 }

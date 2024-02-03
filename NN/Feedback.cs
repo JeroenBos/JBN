@@ -10,5 +10,5 @@ public sealed class Feedback
     public bool Stop { get; init; }
 }
 
-/// <inheritdoc cref="INetworkFactory.GetFeedback(ReadOnlySpan{float})"/>
-public delegate Feedback? GetFeedbackDelegate(ReadOnlySpan<float> latestOutput);
+/// <inheritdoc cref="INetworkFactory.GetFeedback(ReadOnlySpan{float}, IReadOnlyClock)"/>
+public delegate Feedback? GetFeedbackDelegate(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock);
