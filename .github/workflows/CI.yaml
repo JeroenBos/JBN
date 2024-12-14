@@ -10,7 +10,7 @@ on:
     - '**.md'
     
 env:
-    DOTNET_VERSION: 7.0.404  # select a 'sdk'.'version' from https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/7.0/releases.json
+    DOTNET_VERSION: 8.0.303  # select a 'sdk'.'version' from https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/8.0/releases.json
     DOTNET_CLI_TELEMETRY_OPTOUT: true
     configuration: Release
 

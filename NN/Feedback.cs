@@ -3,7 +3,7 @@ namespace JBSnorro.NN;
 public interface IFeedback
 {
     /// <summary>
-    /// Whether the network should abort it's execution loop.
+    /// Whether the network should abort its execution loop.
     /// </summary>
     public bool Stop { get; }
 }
