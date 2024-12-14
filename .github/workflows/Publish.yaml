@@ -63,7 +63,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish
-        if: steps.version-check.outputs.changed == 'true' && github.ref == 'refs/heads/main'
+        if: steps.version-check.outputs.changed == 'true' # && github.ref == 'refs/heads/main' 🚧
         run: |
           dotnet nuget push "./bin/Release/${package_name}.${new_version}.symbols.nupkg" \
             --api-key '${{ secrets.NUGET_API_KEY }}'                                     \
