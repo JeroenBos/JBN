@@ -145,7 +145,7 @@ public class NeuronTypeTests
             new (int, float)[0]
         );
 
-        var sequence = n.GetNoActivationDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
+        var sequence = n.GetNoActivationDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
         Assert.Equal(sequence, new[] { "0.50", "0.50", "0.00", "0.00" });
     }
 
@@ -157,7 +157,7 @@ public class NeuronTypeTests
             new (int, float)[0]
         );
 
-        var sequence = neuron.GetNoActivationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2")).ToList();
+        var sequence = neuron.GetNoActivationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
         Assert.Equal(sequence, new[] { "0.50", "0.25", "0.12", "0.00" });
     }
 
