@@ -18,7 +18,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetworkViaFactory()
     {
-        INetworkFactory factory = new MockNetworkFactory(new INeuronType[0], 0, 0, (i, j) => null, INetworkFeeder.CreateUniformActivator());
+        INetworkFactory factory = new MockNetworkFactory([], 0, 0, (i, j) => null, INetworkFeeder.CreateUniformActivator());
         factory.Create();
     }
     record MockNetworkFactory(
@@ -47,7 +47,7 @@ public class NetworkTests
 
         var output = machine.Run(1);
 
-        Assert.Equal(output, new float[] { 1 });
+        Assert.Equal(output, [1f]);
     }
 
 
@@ -65,7 +65,7 @@ public class NetworkTests
 
         var output = machine.RunCollect(2);
 
-        Assert.Equal(output, new float[][] { new float[] { 1 }, new float[] { 0 } });
+        Assert.Equal(output, [[1f], [0f]]);
     }
     [Fact]
     public void TestNeuronCanActivateSelf()
@@ -79,7 +79,7 @@ public class NetworkTests
         INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
 
         var output = machine.RunCollect(3);
-        Assert.Equal(actual: output, expected: new float[][] { new float[] { 1 }, new float[] { 0 }, new float[] { 1 } });
+        Assert.Equal(actual: output, expected: [[1f], [0f], [1f]]);
     }
     [Fact]
     public void StressTest()
@@ -141,8 +141,8 @@ public class NeuronTypeTests
     public void TestDecaySequence()
     {
         var n = (VariableNeuronType)INeuronType.CreateVariable(
-            new[] { (2, 0.5f) },
-            new (int, float)[0]
+            [(2, 0.5f)],
+            []
         );
 
         var sequence = n.GetNoActivationDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
@@ -153,8 +153,8 @@ public class NeuronTypeTests
     public void TestCumulativeDecaySequence()
     {
         var neuron = (VariableNeuronType)INeuronType.CreateVariable(
-            new[] { (3, 0.5f) },
-            new (int, float)[0]
+            [(3, 0.5f)],
+            []
         );
 
         var sequence = neuron.GetNoActivationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
@@ -166,8 +166,8 @@ public class NeuronTypeTests
     public void TestNeuronInitialChargeDecay()
     {
         var type = INeuronType.CreateVariable(
-            new[] { (2, 0.5f) },
-            new (int, float)[0]
+            [(maxDt: 2, decay: 0.5f)],
+            []
         );
 
         var neuron = new Neuron(type, initialCharge: 1);
@@ -180,15 +180,15 @@ public class NeuronTypeTests
         // these are the charges at the ends of timesteps just before clearance
         // given that the initial axon fires at time 0 and reaches the neuron between time 0 and 1,
         // the charge at the end of time 0 is 1f
-        Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0 });
+        Assert.Equal(charges, [1f, 0.50f, 0.25f, 0]);
     }
 
     [Fact]
     public void TestNeuronInputChargeDecay()
     {
         var type = new VariableNeuronType(
-            new (int, float)[0],
-            new[] { (2, 0.5f) }  // in contrast to the test above, activation is triggered in this one, hence we use that list
+            [],
+            [(maxDt: 2, decay: 0.5f)] // in contrast to the test above, activation is triggered in this one, hence we use that list
         );
 
         var neuron = new Neuron(type, 0);
@@ -205,7 +205,7 @@ public class NeuronTypeTests
         // these are the charges at the ends of timesteps just before clearance
         // given that the initial axon fires at time 0 and reaches the neuron between time 0 and 1,
         // the charge at the end of time 0 is 1f
-        Assert.Equal(charges, new[] { 1f, 0.50f, 0.25f, 0.25f });
+        Assert.Equal(charges, [1f, 0.50f, 0.25f, 0.25f]);
     }
 
     [Fact]
@@ -222,7 +222,7 @@ public class NeuronTypeTests
         // Act
         IMachine.Create(network, GetFeedback).Run();
 
-        Assert.Equal(feedbackTimes, new[] { 0, 1, 2 });
+        Assert.Equal(feedbackTimes, [0, 1, 2]);
     }
 
     [Fact]
@@ -233,10 +233,10 @@ public class NeuronTypeTests
         const int HIDDEN_NEURON = 0;
         const int OUTPUT_NEURON = 1;
         float[] actual = Array.Empty<float>();
-        var intermediateAxon = new AxonTypeThatUsesTwoWeights(new[] { 1f, (float)Math.PI } /*explicitly has two elements*/, currentWeightsCallback);
+        var intermediateAxon = new AxonTypeThatUsesTwoWeights([1f, (float)Math.PI] /*explicitly has two elements*/, currentWeightsCallback);
         IAxonType ? getConnections(int from, int to) => (from, to) switch
         {
-            (INPUT_NEURON, HIDDEN_NEURON) => IAxonType.CreateInput(new[] { 1f } /*explicitly has one element*/),
+            (INPUT_NEURON, HIDDEN_NEURON) => IAxonType.CreateInput([1f] /*explicitly has one element*/),
             (HIDDEN_NEURON, OUTPUT_NEURON) => intermediateAxon,
             _ => null
         };
