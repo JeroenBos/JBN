@@ -1,4 +1,5 @@
 namespace JBSnorro.NN.Internals;
+
 internal sealed class Network : INetwork
 {
     private readonly IReadOnlyList<INeuronType> neuronTypes;

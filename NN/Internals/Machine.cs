@@ -111,7 +111,7 @@ internal sealed class Machine : IMachine
     }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
-        var feedback = getFeedback(latestOutput, this.Clock);
+        var feedback = this.getFeedback(latestOutput, this.Clock);
         if (feedback is null)
             return false;
 
