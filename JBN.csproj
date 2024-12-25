@@ -8,7 +8,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>JBSnorro</RootNamespace>
 		<PackageId>JBSnorro.NN</PackageId>
-	    <Version>0.0.4</Version>
+	    <Version>0.0.5</Version>
 	    <Authors>JeroenBos</Authors>
 	    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<RepositoryUrl>https://github.com/JeroenBos/JBN</RepositoryUrl>

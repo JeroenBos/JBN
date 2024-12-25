@@ -1,6 +1,5 @@
 using JBSnorro.NN;
 using JBSnorro.NN.Internals;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 
 namespace Tests.JBSnorro.NN;
 
