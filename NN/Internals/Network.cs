@@ -3,7 +3,7 @@ namespace JBSnorro.NN.Internals;
 internal sealed class Network : INetwork
 {
     private readonly IReadOnlyList<INeuronType> neuronTypes;
-    private readonly Neuron[] neurons;
+    private readonly IReadOnlyList<Neuron> neurons;
     private readonly float[] _output;
 
     public IReadOnlyList<Axon> Axons { get; } // excluding input axons
@@ -16,7 +16,7 @@ internal sealed class Network : INetwork
             var output = this._output;
             for (int i = 0; i < output.Length; i++)
             {
-                output[i] = neurons[neurons.Length - output.Length + i].Charge;
+                output[i] = neurons[neurons.Count - output.Length + i].Charge;
             }
             return output;
         }
