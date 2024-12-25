@@ -4,9 +4,12 @@ internal sealed class Network : INetwork
 {
     private readonly IReadOnlyList<INeuronType> neuronTypes;
     private readonly IReadOnlyList<Neuron> neurons;
-    private readonly float[] _output;
+    private readonly float[] _output; // mutable
 
-    public IReadOnlyList<Axon> Axons { get; } // excluding input axons
+    /// <summary>
+    /// Does not include input axons <see cref="Inputs"/> 
+    /// </summary>
+    public IReadOnlyList<Axon> Axons { get; }
     public IReadOnlyList<Axon> Inputs { get; }
     public IReadOnlyClock Clock { get; }
     public float[] Output
