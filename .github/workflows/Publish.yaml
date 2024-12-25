@@ -30,7 +30,7 @@ jobs:
           path: JBN
       - uses: JeroenBos/setup-nuget@v1.1
         with:
-          gh-pat: ${{ secrets.GITHUB_TOKEN }}
+          gh-pat: ${{ secrets.MY_PAT }}
       - name: Detect if version changed
         id: version-check
         run: |
