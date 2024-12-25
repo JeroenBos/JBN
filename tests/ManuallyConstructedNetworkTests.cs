@@ -1,4 +1,5 @@
 ﻿using JBSnorro.NN;
+using JBSnorro.NN.Internals;
 using System.Diagnostics;
 
 namespace Tests.JBSnorro.NN;
@@ -22,7 +23,7 @@ public class AND
             {
                 case (IAxonType.FROM_INPUT, 0):
                 case (IAxonType.FROM_INPUT, 1):
-                    return IAxonType.Input;
+                    return InputAxonType.Instance;
                 case (0, 2):
                 case (1, 2):
                     return IAxonType.CreateImmutable(length: 1, new float[] { 0.5f });

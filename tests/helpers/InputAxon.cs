@@ -6,7 +6,7 @@
 /// </summary>
 internal sealed class InputAxonType : IAxonType
 {
-    public static InputAxonType Instance { get; } = Create(initialWeights: new float[] { 1 });
+    public static InputAxonType Instance { get; } = Create(initialWeights: [1f]);
     public static InputAxonType Create(IReadOnlyList<float> initialWeights, int length = 1)
     {
         IAxonType.AssertPreconditions(length, initialWeights);

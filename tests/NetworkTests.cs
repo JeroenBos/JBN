@@ -12,7 +12,7 @@ public class NetworkTests
     {
         INetwork.Create(NeuronTypes.OnlyOne,
                         outputCount: 1,
-                        (i, j) => i == -1 ? IAxonType.Input : null,
+                        (i, j) => i == -1 ? InputAxonType.Instance : null,
                         IClock.Create(maxTime: null));
     }
     [Fact]
@@ -39,7 +39,7 @@ public class NetworkTests
         var connections = new IAxonType?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? IAxonType.Input : null,
+                                      (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network, (_, _) => null as IFeedback);
@@ -57,7 +57,7 @@ public class NetworkTests
         var connections = new IAxonType?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? IAxonType.Input : null,
+                                      (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network, (_, _) => null as IFeedback);
@@ -72,7 +72,7 @@ public class NetworkTests
     {
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? IAxonType.Input : MockAxonType.LengthTwo,
+                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
         var machine = IMachine.Create(network, (_, _) => null as IFeedback);
@@ -236,7 +236,7 @@ public class NeuronTypeTests
         var intermediateAxon = new AxonTypeThatUsesTwoWeights([1f, (float)Math.PI] /*explicitly has two elements*/, currentWeightsCallback);
         IAxonType ? getConnections(int from, int to) => (from, to) switch
         {
-            (INPUT_NEURON, HIDDEN_NEURON) => IAxonType.CreateInput([1f] /*explicitly has one element*/),
+            (INPUT_NEURON, HIDDEN_NEURON) => InputAxonType.Create([1f] /*explicitly has one element*/),
             (HIDDEN_NEURON, OUTPUT_NEURON) => intermediateAxon,
             _ => null
         };

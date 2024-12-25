@@ -8,15 +8,7 @@ public interface IAxonType
     /// An argument passed to <see cref="INetworkFactory.GetAxonConnection(int, int)"/> indicating the neuron connected to is an (imagined) input neuron.
     /// </summary>
     public const int FROM_INPUT = -1;
-    public static IAxonType Input => InputAxonType.Instance;
-    /// <summary>
-    /// Creates an input axon with the specified weights.
-    /// </summary>
-    /// <param name="initialWeights">The weights of the input axon. Must at least contain one element.</param>
-    public static IAxonType CreateInput(IReadOnlyList<float> initialWeights)
-    {
-        return InputAxonType.Create(initialWeights);
-    }
+    // public static IAxonType Input => InputAxonType.Instance;
     /// <summary>
     /// Creates an unchanging axon: one that does not update its weights.
     /// </summary>
