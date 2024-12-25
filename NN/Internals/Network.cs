@@ -85,5 +85,3 @@ internal sealed class Network : INetwork
         }
     }
 }
-
-internal delegate IAxonType? GetAxonConnectionDelegate(int neuronFromIndex, int neuronToIndex);

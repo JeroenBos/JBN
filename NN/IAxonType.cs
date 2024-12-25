@@ -47,3 +47,5 @@ public interface IAxonType
             throw new ArgumentException("NaN is not valid", nameof(initialWeights));
     }
 }
+
+public delegate IAxonType? GetAxonConnectionDelegate(int neuronFromIndex, int neuronToIndex);
