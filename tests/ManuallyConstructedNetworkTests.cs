@@ -60,8 +60,8 @@ public class AND
     ///     →0 →1                             // axons that deliver
     ///               1*    1*    ̲0           // charge at end of t=0. * indicates which fire. Underscore means output
     /// 1             0     0     0           // charge at t=1
-    ///     →0 →1     →2    →2                // axons that deliver
-    ///               1*    1*    ̲2           // charge after delivery + fires. Underscore means output
+    ///               →2    →2                // axons that deliver
+    ///               0     0     ̲2           // charge after delivery + fires. Underscore means output
     /// 2                                     // not relevant to test anymore
     /// </summary>
     [Fact]

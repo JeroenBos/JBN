@@ -119,12 +119,12 @@ internal sealed class Machine : IMachine
     public void AddEmitAction(int deliveryTime, Axon axon)
     {
         if (deliveryTime < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime));
-        if (deliveryTime >= this.Clock.MaxTime)
+        if (deliveryTime > this.Clock.MaxTime)
         {
             return;
         }
 
-        int dt = deliveryTime - this.Clock.Time - (this.Clock.Time == IReadOnlyClock.UNSTARTED ? 1 : 0);
+        int dt = deliveryTime - Math.Max(this.Clock.Time, 0);
 
         if (dt == 0 && this.Clock.Time != IReadOnlyClock.UNSTARTED) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery instantaneous");
         if (dt < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery in the past");
