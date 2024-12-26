@@ -27,7 +27,7 @@ internal sealed class Machine : IMachine
         this.network = network;
         this.clock = network.MutableClock;
         this.getFeedback = getFeedback;
-        this.potentiallyActivatedDuringStep = new List<Neuron>();
+        this.potentiallyActivatedDuringStep = new List<Neuron>(); // TODO: make it a HashSet?
         this.emits = new List<List<Axon>> { new() };
     }
 
