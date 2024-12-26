@@ -112,7 +112,7 @@ public class NetworkTests
 
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
-        machine.Run(3);
+        machine.Run(maxTime: 3);
         Assert.Equal(3, neuronExcitationCounts.Count);
         Assert.Equal([1, 0], neuronExcitationCounts[0..2]);
         // the third one can be either 0 or 1, depending on whether we update the neurons just to get that number

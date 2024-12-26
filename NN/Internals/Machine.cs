@@ -4,7 +4,7 @@ internal sealed class Machine : IMachine
 {
     private readonly INetwork network;
     private readonly GetFeedbackDelegate getFeedback;
-    private readonly List<Neuron> potentiallyExcitedDuringStep;
+    private readonly List<Neuron> potentiallyExcitedDuringStep; // TODO: make it a HashSet (when adding we know it's been added before if charge were monotonous, but it's not)
     /// <summary>
     /// A list of axons to fire per time step.
     /// If the time now is t_0, then <see cref="emits"/>[t_0] + δt represents all axons that will deliver δt timesteps in the future.
@@ -27,8 +27,9 @@ internal sealed class Machine : IMachine
         this.network = network;
         this.clock = network.MutableClock;
         this.getFeedback = getFeedback;
-        this.potentiallyExcitedDuringStep = new List<Neuron>(); // TODO: make it a HashSet (when adding we know it's been added before if charge were monotonous, but it's not)
         this.emits = [[]];
+        // they're all potentially excited because the initial charge is not known
+        this.potentiallyExcitedDuringStep = [];
     }
 
     /// <summary>
