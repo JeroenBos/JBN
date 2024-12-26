@@ -1,4 +1,4 @@
-﻿namespace JBSnorro.NN.Internals;
+namespace JBSnorro.NN.Internals;
 
 internal sealed class Machine : IMachine
 {
@@ -18,7 +18,7 @@ internal sealed class Machine : IMachine
     private readonly IClock clock;
 
     /// <summary>
-    /// Triggered at the end of a time step, with the event args containing what happened in this time step
+    /// Triggered at the end of a time step, with the event args containing what happened in this time step.
     /// </summary>
     public event OnTickDelegate? OnTicked;
 

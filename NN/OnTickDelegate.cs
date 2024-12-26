@@ -1,4 +1,6 @@
-﻿namespace JBSnorro.NN;
+﻿using System.Diagnostics;
+
+namespace JBSnorro.NN;
 
 public delegate void OnTickDelegate(IMachine sender, OnTickEventArgs e);
 
@@ -28,7 +30,7 @@ public sealed class OnTickEventArgs
 
     // must be set before we pass this class through public surface
     private IReadOnlyList<float>? output;
-    internal OnTickEventArgs(int time)
+    [DebuggerHidden] internal OnTickEventArgs(int time)
     {
         this.Time = time;
     }
