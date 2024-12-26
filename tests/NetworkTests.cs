@@ -66,7 +66,7 @@ public class NetworkTests
 
         var output = machine.RunCollect(2);
 
-        Assert.Equal(output, [[1f], [0f]]);
+        Assert.Equal(actual: output, expected: [[1f], [0f]]);
     }
     [Fact]
     public void TestNeuronCanActivateSelf()

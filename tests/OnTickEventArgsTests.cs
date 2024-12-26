@@ -45,7 +45,10 @@ namespace Tests.JBSnorro.NN;
 // ProcessFeedback()
 // onTicked?.Invoke()
 
-// in the code we have two method calls: ProcessFeedback(output), onTicked?.Invoke(e)
+// -------------
+// damnit. The above doesn't work because neurons fire and the axons deliver within a time step but the axons would have to deliver that of the next time step already!
+// T=0                                                                                                                                     T=1
+// axons deliver, register output,                neurons fire                                 charge decays, axons propagate                        
 
 // public class OnTickEventArgsTests
 // {
