@@ -16,7 +16,7 @@ internal sealed class Neuron
     /// <summary>
     /// The time up until and including which the decay has been updated. Decay happens at the end of a timestep.
     /// </summary>
-    private int decayUpdatedTime = 0;
+    private int decayUpdatedTime = -1;
     /// <summary>
     /// The time this neuron was excited last. Excitation happens at the end of a timestep.
     /// </summary>

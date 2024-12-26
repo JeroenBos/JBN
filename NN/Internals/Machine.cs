@@ -35,12 +35,11 @@ internal sealed class Machine : IMachine
     /// Order of events:
     /// - if clock is not started, deliver input axon firings
     /// - while time is below maxTime (exclusive)
+    ///   - axons firings are delivered
+    ///   - output is measured
     ///   - neurons update:
     ///     - those reached threshold fire and go into refractory state
     ///     - others' charge decay
-    ///   - axons firings are delivered
-    ///   - output is measured
-    /// 
     /// </summary>
     public float[] Run(int? maxTime = null)
     {
@@ -53,8 +52,7 @@ internal sealed class Machine : IMachine
         {
             var e = new OnTickEventArgs(time);
 
-            if (time != 0)
-                this.UpdateNeurons(e);
+            // although you might want the neurons to fire at the beginning, then axons would have to fire with dt=0
             this.DeliverFiredAxons(e);
 
             e.Output = output = network.Output;
@@ -66,6 +64,7 @@ internal sealed class Machine : IMachine
             {
                 break;
             }
+            this.UpdateNeurons(e);
         }
         return output;
     }
