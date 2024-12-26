@@ -118,6 +118,22 @@ public class NetworkTests
         // the third one can be either 0 or 1, depending on whether we update the neurons just to get that number
         Assert.Equal(1, neuronExcitationCounts[2]); // current implementation is 1, but 0 would also be okay
     }
+
+    
+    [Fact]
+    public void Neuron_with_initial_charge_fires_normally()
+    {
+        var network = INetwork.Create([NeuronTypes.InitiallyCharged],
+                                      outputCount: 0,
+                                      (i, j) => i == -1 ? null : IAxonType.CreateImmutable(length: 1, initialWeight: [0]),
+                                      IClock.Create(maxTime: null));
+        var machine = IMachine.Create(network, noFeedback);
+        List<int> neuronExcitationCounts = [];
+        machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
+        machine.Run(3);
+
+        Assert.Equal([1, 0, 0], neuronExcitationCounts);
+    }
     [Fact]
     public void StressTest()
     {
