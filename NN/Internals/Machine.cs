@@ -48,21 +48,18 @@ internal sealed class Machine : IMachine
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
         if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
-        // this.DeliverFiredAxons(new OnTickEventArgs(IReadOnlyClock.UNSTARTED));
-
         float[] output = network.Output;
-        foreach (var time in (maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime)).Prepend(IReadOnlyClock.UNSTARTED))
+        foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
             var e = new OnTickEventArgs(time);
 
-            if (time != IReadOnlyClock.UNSTARTED)
+            if (time != 0)
                 this.UpdateNeurons(e);
             this.DeliverFiredAxons(e);
 
             e.Output = output = network.Output;
             
-            bool stop = time != IReadOnlyClock.UNSTARTED ? ProcessFeedback(output) : false;
-
+            bool stop = ProcessFeedback(output);
             this.OnTicked?.Invoke(this, e);
 
             if (stop)
@@ -127,14 +124,14 @@ internal sealed class Machine : IMachine
             return;
         }
 
-        int dt = deliveryTime - (this.Clock.Time == IReadOnlyClock.UNSTARTED ? 0 : this.Clock.Time);
+        int dt = deliveryTime - this.Clock.Time - (this.Clock.Time == IReadOnlyClock.UNSTARTED ? 1 : 0);
 
         if (dt == 0 && this.Clock.Time != IReadOnlyClock.UNSTARTED) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery instantaneous");
         if (dt < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery in the past");
 
         while (dt >= emits.Count)
         {
-            emits.Add(new List<Axon>());
+            emits.Add([]);
         }
         emits[dt].Add(axon);
     }
