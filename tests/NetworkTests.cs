@@ -7,6 +7,7 @@ namespace Tests.JBSnorro.NN;
 
 public class NetworkTests
 {
+    GetFeedbackDelegate noFeedback = (_, _) => null;
     [Fact]
     public void CreateNetwork()
     {
@@ -42,10 +43,10 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, (_, _) => null as IFeedback);
-        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
+        var machine = IMachine.Create(network, noFeedback);
+        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
 
-        var output = machine.Run(1);
+        var output = machine.Run(maxTime: 1);
 
         Assert.Equal(output, [1f]);
     }
@@ -60,8 +61,8 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, (_, _) => null as IFeedback);
-        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
+        var machine = IMachine.Create(network, noFeedback);
+        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
 
         var output = machine.RunCollect(2);
 
@@ -75,8 +76,8 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, (_, _) => null as IFeedback);
-        INetworkFeeder.CreateUniformActivator().Activate(((Network)network).Inputs, machine);
+        var machine = IMachine.Create(network, noFeedback);
+        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
 
         var output = machine.RunCollect(3);
         Assert.Equal(actual: output, expected: [[1f], [0f], [1f]]);
@@ -116,8 +117,8 @@ public class NetworkTests
                                       (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j],
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, (_, _) => null as IFeedback);
-        INetworkFeeder.CreateRandom(random).Activate(((Network)network).Inputs, machine);
+        var machine = IMachine.Create(network, noFeedback);
+        INetworkFeeder.CreateRandom(random).Activate(network.Inputs, machine);
 
         var output = machine.RunCollect(maxTime);
         for (int t = 0; t < maxTime; t++)
@@ -209,10 +210,11 @@ public class NeuronTypeTests
     }
 
     [Fact]
-    public void TestClockPassedToFeedbackIsAtEndOfTimeStep()
+    public void Clock_passed_to_Feedback_should_be_at_end_of_timestep()
     {
-        var network = INetwork.Create(new[] { INeuronType.NoRetentionNeuronType }, 1, (_, _) => null, IClock.Create(maxTime: 3));
-        var feedbackTimes = new List<int>();
+        const int maxTime = 3;
+        var network = INetwork.Create([INeuronType.NoRetentionNeuronType], 1, (_, _) => null, IClock.Create(maxTime));
+        List<int> feedbackTimes = [];
         IFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock)
         {
             feedbackTimes.Add(clock.Time);
