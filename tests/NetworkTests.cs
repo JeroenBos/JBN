@@ -46,7 +46,7 @@ public class NetworkTests
         var machine = IMachine.Create(network, noFeedback);
         INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
 
-        var output = machine.Run(maxTime: 1);
+        var output = machine.Run(maxTime: 0);
 
         Assert.Equal(output, [1f]);
     }

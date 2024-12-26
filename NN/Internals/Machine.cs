@@ -1,4 +1,4 @@
-namespace JBSnorro.NN.Internals;
+﻿namespace JBSnorro.NN.Internals;
 
 internal sealed class Machine : IMachine
 {
@@ -28,18 +28,19 @@ internal sealed class Machine : IMachine
         this.clock = network.MutableClock;
         this.getFeedback = getFeedback;
         this.potentiallyExcitedDuringStep = new List<Neuron>(); // TODO: make it a HashSet?
-        this.emits = new List<List<Axon>> { new() };
+        this.emits = [[]];
     }
 
     /// <summary>
     /// Order of events:
-    /// - time ticks (starts at -1 so the first time observed is 0)
-    /// - if time is maxTime -> abort (meaning maxTime is exclusive)
-    /// - axons firings are delivered
-    /// - output is measured
-    /// - neurons update:
-    ///   - those reached threshold fire and go into refractory state
-    ///   - others' charge decay
+    /// - if clock is not started, deliver input axon firings
+    /// - while time is below maxTime (exclusive)
+    ///   - neurons update:
+    ///     - those reached threshold fire and go into refractory state
+    ///     - others' charge decay
+    ///   - axons firings are delivered
+    ///   - output is measured
+    /// 
     /// </summary>
     public float[] Run(int? maxTime = null)
     {
@@ -47,17 +48,19 @@ internal sealed class Machine : IMachine
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
         if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
+        this.DeliverFiredAxons(new OnTickEventArgs(IReadOnlyClock.UNSTARTED));
+
         float[] output = network.Output;
-        foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
+        foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime)) // .Prepend(IReadOnlyClock.UNSTARTED)
         {
             var e = new OnTickEventArgs(time);
 
+            this.UpdateNeurons(e);
             this.DeliverFiredAxons(e);
 
             e.Output = output = network.Output;
             bool stop = ProcessFeedback(output);
 
-            this.UpdateNeurons(e);
             this.OnTicked?.Invoke(this, e);
 
             if (stop)
