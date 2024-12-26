@@ -48,18 +48,20 @@ internal sealed class Machine : IMachine
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
         if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
-        this.DeliverFiredAxons(new OnTickEventArgs(IReadOnlyClock.UNSTARTED));
+        // this.DeliverFiredAxons(new OnTickEventArgs(IReadOnlyClock.UNSTARTED));
 
         float[] output = network.Output;
-        foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime)) // .Prepend(IReadOnlyClock.UNSTARTED)
+        foreach (var time in (maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime)).Prepend(IReadOnlyClock.UNSTARTED))
         {
             var e = new OnTickEventArgs(time);
 
-            this.UpdateNeurons(e);
+            if (time != IReadOnlyClock.UNSTARTED)
+                this.UpdateNeurons(e);
             this.DeliverFiredAxons(e);
 
             e.Output = output = network.Output;
-            bool stop = ProcessFeedback(output);
+            
+            bool stop = time != IReadOnlyClock.UNSTARTED ? ProcessFeedback(output) : false;
 
             this.OnTicked?.Invoke(this, e);
 
