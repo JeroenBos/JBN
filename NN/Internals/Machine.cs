@@ -58,7 +58,7 @@ internal sealed class Machine : IMachine
             bool stop = ProcessFeedback(output);
 
             this.UpdateNeurons(e);
-            this.InvokeOnTicked(e, stop);
+            this.OnTicked?.Invoke(this, e);
 
             if (stop)
             {
@@ -66,11 +66,6 @@ internal sealed class Machine : IMachine
             }
         }
         return output;
-    }
-    private void InvokeOnTicked(OnTickEventArgs e, bool feedbackStops)
-    {
-        bool stopping = feedbackStops && this.Clock.Time + 1 != this.Clock.MaxTime;
-        this.OnTicked?.Invoke(this, e); // ExcitationCount: excitationCount));
     }
     private void DeliverFiredAxons(OnTickEventArgs e)
     {
