@@ -23,6 +23,9 @@ internal sealed class Axon
     private readonly float[] weights;
     private int timeOfDelivery = NEVER;
     private int activationCount = 0;
+    /// <summary>
+    /// Average time between activations. NaN means hasn't fired yet.
+    /// </summary>
     private float averageTimeBetweenActivations = float.NaN;
     /// <returns>the time of delivery.</returns>
     internal int Excite(int currentTime)
