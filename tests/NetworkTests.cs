@@ -82,11 +82,6 @@ public class NetworkTests
         var output = machine.RunCollect(3);
         Assert.Equal(actual: output, expected: [[1f], [0f], [1f]]);
     }
-    // [Fact]
-    // public void Neuron_with_initial_charge_fires_normally()
-    // {
-    //     throw new NotImplementedException();
-    // }
     [Fact]
     public void Should_say_how_many_neurons_fired()
     {
@@ -105,7 +100,7 @@ public class NetworkTests
         //              →0               // axons that deliver
         //               ̲1               // charge after delivery + fires. Underscore means output
         // 3
-        // as you can see, the number of fires neurons is [1, 0, 1]
+        // as you can see, the number of fired neurons is [1, 0, 1]
         // 
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
