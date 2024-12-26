@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Tests.JBSnorro.NN;
 
-/// https://en.wikipedia.org/wiki/List_of_Unicode_characters#Box_Drawing
+// https://en.wikipedia.org/wiki/List_of_Unicode_characters#Box_Drawing
 
 public class AND
 {
