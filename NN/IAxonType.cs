@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using JBSnorro.NN.Internals;
 
 namespace JBSnorro.NN;
@@ -25,6 +26,7 @@ public interface IAxonType
     /// <summary>
     /// Gets the charge delivered by this axon.
     /// </summary>
+    [DebuggerHidden]
     public float GetCharge(float[] weights) => weights[0];
 
     internal static void AssertPreconditions(int length, IReadOnlyList<float> initialWeights)
