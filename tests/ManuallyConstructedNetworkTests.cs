@@ -28,7 +28,7 @@ public class AND
                     return InputAxonType.Instance;
                 case (0, 2):
                 case (1, 2):
-                    return IAxonType.CreateImmutable(length: 1, new float[] { 0.5f });
+                    return IAxonType.CreateImmutable(length: 1, [0.5f]);
                 case (0, 0):
                 case (1, 1):
                 case (2, 2):
