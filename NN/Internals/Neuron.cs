@@ -68,7 +68,7 @@ internal sealed class Neuron
         this.lastReceivedChargeTime = machine.Clock.Time;
         if (this.Charge >= threshold && !alreadyRegistered)
         {
-            machine.RegisterPotentialActivation(this);
+            machine.RegisterPotentialExcitation(this);
         }
     }
     internal void Excite(IMachine machine)

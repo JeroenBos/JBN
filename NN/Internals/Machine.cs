@@ -138,7 +138,7 @@ internal sealed class Machine : IMachine
         }
         emits[dt].Add(axon);
     }
-    public void RegisterPotentialActivation(Neuron neuron)
+    public void RegisterPotentialExcitation(Neuron neuron)
     {
         potentiallyActivatedDuringStep.Add(neuron);
     }

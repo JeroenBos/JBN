@@ -37,7 +37,7 @@ public interface IMachine
 
         void OnTicked(IMachine sender, OnTickEventArgs e)
         {
-            result.Add([..e.Output]);
+            result.Add([.. e.Output]);
         }
     }
 
@@ -50,7 +50,7 @@ public interface IMachine
     /// <summary>
     /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.`
     /// </summary>
-    internal void RegisterPotentialActivation(Neuron neuron);
+    internal void RegisterPotentialExcitation(Neuron neuron);
     /// <summary>
     /// Sets the specified axon to emit charge at the specified time.
     /// </summary>
