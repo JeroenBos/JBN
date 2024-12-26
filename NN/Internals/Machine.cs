@@ -58,13 +58,13 @@ internal sealed class Machine : IMachine
             e.Output = output = network.Output;
             
             bool stop = ProcessFeedback(output);
+            e.ExcitationCount = this.UpdateNeurons();
             this.OnTicked?.Invoke(this, e);
 
             if (stop)
             {
                 break;
             }
-            this.UpdateNeurons(e);
         }
         return output;
     }
@@ -85,7 +85,7 @@ internal sealed class Machine : IMachine
         emits.Add(emittingAxons);
         // emits[0] is popped after the neurons have been updated
     }
-    private void UpdateNeurons(OnTickEventArgs e)
+    private int UpdateNeurons()
     {
         int excitationCount = 0;
         foreach (Neuron neuron in potentiallyExcitedDuringStep)
@@ -96,7 +96,6 @@ internal sealed class Machine : IMachine
                 neuron.Excite(this);
             }
         }
-        e.ExcitationCount = excitationCount;
 
         // end of time step:
         network.Decay();
@@ -104,6 +103,8 @@ internal sealed class Machine : IMachine
         // clean up
         potentiallyExcitedDuringStep.Clear();
         emits.RemoveAt(0);
+        
+        return excitationCount;
     }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {

@@ -82,6 +82,47 @@ public class NetworkTests
         var output = machine.RunCollect(3);
         Assert.Equal(actual: output, expected: [[1f], [0f], [1f]]);
     }
+    // [Fact]
+    // public void Neuron_with_initial_charge_fires_normally()
+    // {
+    //     throw new NotImplementedException();
+    // }
+    [Fact]
+    public void Should_say_how_many_neurons_fired()
+    {
+        // Schema:
+        //     I ━━━(N)━━━┓
+        //           ↑    ┃Length=2
+        //           ┗━━━━┛
+        // t↓   I1       0    
+        // 0             0               // charge at t=0
+        //     →0                        // axons that deliver
+        //               ̲1* δt=2         // charge at end of t=0. * indicates which fire. Underscore means output
+        // 1             0               // charge at t=1
+        //                               // axons that deliver
+        //               0               // charge after delivery + fires. Underscore means output
+        // 2             0               // charge at t=2
+        //              →0               // axons that deliver
+        //               ̲1               // charge after delivery + fires. Underscore means output
+        // 3
+        // as you can see, the number of fires neurons is [1, 0, 1]
+        // 
+        var network = INetwork.Create(NeuronTypes.OnlyOne,
+                                      outputCount: 1,
+                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
+                                      IClock.Create(maxTime: null));
+
+        var machine = IMachine.Create(network, noFeedback);
+        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+
+        List<int> neuronExcitationCounts = [];
+        machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
+        machine.Run(3);
+        Assert.Equal(3, neuronExcitationCounts.Count);
+        Assert.Equal([1, 0], neuronExcitationCounts[0..2]);
+        // the third one can be either 0 or 1, depending on whether we update the neurons just to get that number
+        Assert.Equal(1, neuronExcitationCounts[2]); // current implementation is 1, but 0 would also be okay
+    }
     [Fact]
     public void StressTest()
     {
