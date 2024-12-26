@@ -20,7 +20,7 @@ public interface IAxonType
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
     /// <param name="currentWeights">This should be modified in-place.</param>
-    public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback);
+    public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback);
 
     /// <summary>
     /// Gets the charge delivered by this axon.

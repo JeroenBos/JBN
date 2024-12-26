@@ -52,7 +52,7 @@ public class NetworkTests
 
 
     [Fact]
-    public void TestNeuronDeactivatesAfterActivation()
+    public void TestNeuronDeactivatesAfterExcitation()
     {
         var connections = new IAxonType?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
@@ -145,7 +145,7 @@ public class NeuronTypeTests
             []
         );
 
-        var sequence = n.GetNoActivationDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
+        var sequence = n.GetNoExcitationDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
         Assert.Equal(sequence, new[] { "0.50", "0.50", "0.00", "0.00" });
     }
 
@@ -157,7 +157,7 @@ public class NeuronTypeTests
             []
         );
 
-        var sequence = neuron.GetNoActivationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
+        var sequence = neuron.GetNoExcitationCumulativeDecaySequence().Take(4).Select(f => f.ToString("n2").Replace(',', '.')).ToList();
         Assert.Equal(sequence, new[] { "0.50", "0.25", "0.12", "0.00" });
     }
 
@@ -234,7 +234,7 @@ public class NeuronTypeTests
         const int OUTPUT_NEURON = 1;
         float[] actual = Array.Empty<float>();
         var intermediateAxon = new AxonTypeThatUsesTwoWeights([1f, (float)Math.PI] /*explicitly has two elements*/, currentWeightsCallback);
-        IAxonType ? getConnections(int from, int to) => (from, to) switch
+        IAxonType? getConnections(int from, int to) => (from, to) switch
         {
             (INPUT_NEURON, HIDDEN_NEURON) => InputAxonType.Create([1f] /*explicitly has one element*/),
             (HIDDEN_NEURON, OUTPUT_NEURON) => intermediateAxon,
@@ -259,7 +259,7 @@ public class NeuronTypeTests
         public IReadOnlyList<float> InitialWeights => initialWeights;
 
 
-        public void UpdateWeights(float[] currentWeights, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
+        public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
         {
             currentWeightsCallback(currentWeights);
         }

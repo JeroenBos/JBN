@@ -92,7 +92,7 @@ class MockAxonType : IAxonType
     private MockAxonType(int length, float[] initialWeights) => (this.Length, this.InitialWeights) = (length, initialWeights);
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
-    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
+    public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
     {
     }
 }

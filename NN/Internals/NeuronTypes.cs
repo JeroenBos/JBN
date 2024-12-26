@@ -4,11 +4,11 @@ namespace JBSnorro.NN.Internals;
 
 internal sealed class RetentionOfOneNeuronType : INeuronType
 {
-    /// <summary> Gets the decay of the charge given the times since last receipt of charge and last activation. </summary>
-    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
+    /// <summary> Gets the decay of the charge given the times since last receipt of charge and last excitation. </summary>
+    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
     {
         Assert(IsNever(timeSinceLastChargeReceipt) || timeSinceLastChargeReceipt >= 0, $"{nameof(timeSinceLastChargeReceipt)} out of range");
-        Assert(IsNever(timeSinceLastActivation) || timeSinceLastActivation >= 0, $"{nameof(timeSinceLastActivation)} out of range");
+        Assert(IsNever(timeSinceLastExcitation) || timeSinceLastExcitation >= 0, $"{nameof(timeSinceLastExcitation)} out of range");
 
         // return 0 means charge immediately decays, but it still had the chance to elicit an excitation
         return 0;
@@ -17,24 +17,24 @@ internal sealed class RetentionOfOneNeuronType : INeuronType
 
 internal sealed class VariableNeuronType : INeuronType
 {
-    const float ActivationTailValue = 1;
+    const float ExcitationTailValue = 1;
     const float ChargeTailValue = 0;
-    private readonly (int maxDt, float decay)[] noActivation;
-    private readonly (int maxDt, float decay)[] activation;
+    private readonly (int maxDt, float decay)[] noExcitation;
+    private readonly (int maxDt, float decay)[] excitation;
 
     /// <summary>
-    /// Creates a <see cref="INeuronType"/> where the activations are variable.
+    /// Creates a <see cref="INeuronType"/> where the excitations are variable.
     /// </summary>
-    /// <param name="noActivation">
-    /// The maxDt should be thought of as number of time steps until and inclusing which the associated decay rate applies. 
+    /// <param name="noExcitation">
+    /// The maxDt should be thought of as number of time steps until and including which the associated decay rate applies. 
     /// </param>
-    public VariableNeuronType((int maxDt, float decay)[] noActivation, (int maxDt, float decay)[] activation)
+    public VariableNeuronType((int maxDt, float decay)[] noExcitation, (int maxDt, float decay)[] excitation)
     {
-        verify(noActivation);
-        verify(activation);
+        verify(noExcitation);
+        verify(excitation);
 
-        this.noActivation = noActivation;
-        this.activation = activation;
+        this.noExcitation = noExcitation;
+        this.excitation = excitation;
 
         static void verify((int maxDt, float decay)[] list, [CallerArgumentExpression("list")] string paramName = "")
         {
@@ -48,28 +48,28 @@ internal sealed class VariableNeuronType : INeuronType
         }
     }
 
-    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastActivation)
+    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
     {
         // we can assume we're at the end of a time step
         bool hasReceivedCharge = !IsNever(timeSinceLastChargeReceipt);
-        bool hasActivated = !IsNever(timeSinceLastActivation);
-        bool activationWasLaterThanChargeReceipt = timeSinceLastChargeReceipt >= timeSinceLastActivation;
+        bool hasExcited = !IsNever(timeSinceLastExcitation);
+        bool excitationWasLaterThanChargeReceipt = timeSinceLastChargeReceipt >= timeSinceLastExcitation;
 
 
         int dt;
         float tail;
         (int max, float decay)[] list;
-        if (hasActivated)
+        if (hasExcited)
         {
             Assert(hasReceivedCharge);
 
-            list = this.activation;
-            dt = timeSinceLastActivation;
-            tail = ActivationTailValue;
+            list = this.excitation;
+            dt = timeSinceLastExcitation;
+            tail = ExcitationTailValue;
         }
         else if (!hasReceivedCharge)
         {
-            Assert(!hasActivated);
+            Assert(!hasExcited);
 
             // In this case the current decay _must_ be 0, so we can return anything. 
             // 0 would make any mistake stand out.
@@ -77,7 +77,7 @@ internal sealed class VariableNeuronType : INeuronType
         }
         else // has received charge without activation
         {
-            list = this.noActivation;
+            list = this.noExcitation;
             dt = timeSinceLastChargeReceipt;
             tail = ChargeTailValue;
         }
@@ -101,13 +101,13 @@ internal sealed class VariableNeuronType : INeuronType
         }
         return tail;
     }
-    internal IEnumerable<float> GetActivationDecaySequence()
+    internal IEnumerable<float> GetExcitationDecaySequence()
     {
-        return GetDecaySequence(this.activation, ActivationTailValue);
+        return GetDecaySequence(this.excitation, ExcitationTailValue);
     }
-    internal IEnumerable<float> GetNoActivationDecaySequence()
+    internal IEnumerable<float> GetNoExcitationDecaySequence()
     {
-        return GetDecaySequence(this.noActivation, ChargeTailValue);
+        return GetDecaySequence(this.noExcitation, ChargeTailValue);
     }
     private IEnumerable<float> GetDecaySequence((int maxDt, float decay)[] decays, float tailValue)
     {
@@ -133,12 +133,12 @@ internal sealed class VariableNeuronType : INeuronType
             }
         }
     }
-    internal IEnumerable<float> GetActivationCumulativeDecaySequence()
+    internal IEnumerable<float> GetExcitationCumulativeDecaySequence()
     {
-        return GetActivationDecaySequence().Scan((a, b) => a * b, 1);
+        return GetExcitationDecaySequence().Scan((a, b) => a * b, 1);
     }
-    internal IEnumerable<float> GetNoActivationCumulativeDecaySequence()
+    internal IEnumerable<float> GetNoExcitationCumulativeDecaySequence()
     {
-        return GetNoActivationDecaySequence().Scan((a, b) => a * b, 1);
+        return GetNoExcitationDecaySequence().Scan((a, b) => a * b, 1);
     }
 }

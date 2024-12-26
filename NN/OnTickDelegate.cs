@@ -9,7 +9,7 @@ public sealed class OnTickEventArgs
     /// <summary>
     /// The number of fired neurons.
     /// </summary>
-    public int ActivationCount { get; internal set; }
+    public int ExcitationCount { get; internal set; }
     /// <summary>
     /// Gets the current charges of the output neurons. A reference to this should not be stored, as the underlying structure is reused.
     /// </summary>
@@ -17,6 +17,6 @@ public sealed class OnTickEventArgs
 
     public static void WriteTickDataToConsole(IMachine sender, OnTickEventArgs e)
     {
-        Console.WriteLine($"t={e.Time:d2}, emits: {e.EmittingAxonCount}, acts: {e.ActivationCount}");
+        Console.WriteLine($"t={e.Time:d2}, emits: {e.EmittingAxonCount}, acts: {e.ExcitationCount}");
     }
 }

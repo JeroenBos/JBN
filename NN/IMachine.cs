@@ -48,7 +48,7 @@ public interface IMachine
     /// </summary>
     internal float[] Output { get; }
     /// <summary>
-    /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.`
+    /// Registers a <see cref="Neuron"/> that is potentially excited when this machine's time ticks.
     /// </summary>
     internal void RegisterPotentialExcitation(Neuron neuron);
     /// <summary>

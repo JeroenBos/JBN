@@ -4,7 +4,7 @@ internal sealed class Machine : IMachine
 {
     private readonly INetwork network;
     private readonly GetFeedbackDelegate getFeedback;
-    private readonly List<Neuron> potentiallyActivatedDuringStep;
+    private readonly List<Neuron> potentiallyExcitedDuringStep;
     /// <summary>
     /// A list of axons to fire per time step.
     /// If the time now is t_0, then <see cref="emits"/>[t_0] + δt represents all axons that will deliver δt timesteps in the future.
@@ -27,7 +27,7 @@ internal sealed class Machine : IMachine
         this.network = network;
         this.clock = network.MutableClock;
         this.getFeedback = getFeedback;
-        this.potentiallyActivatedDuringStep = new List<Neuron>(); // TODO: make it a HashSet?
+        this.potentiallyExcitedDuringStep = new List<Neuron>(); // TODO: make it a HashSet?
         this.emits = new List<List<Axon>> { new() };
     }
 
@@ -70,7 +70,7 @@ internal sealed class Machine : IMachine
     private void InvokeOnTicked(OnTickEventArgs e, bool feedbackStops)
     {
         bool stopping = feedbackStops && this.Clock.Time + 1 != this.Clock.MaxTime;
-        this.OnTicked?.Invoke(this, e); // ActivationCount: activationCount));
+        this.OnTicked?.Invoke(this, e); // ExcitationCount: excitationCount));
     }
     private void DeliverFiredAxons(OnTickEventArgs e)
     {
@@ -91,22 +91,22 @@ internal sealed class Machine : IMachine
     }
     private void UpdateNeurons(OnTickEventArgs e)
     {
-        int activationCount = 0;
-        foreach (Neuron neuron in potentiallyActivatedDuringStep)
+        int excitationCount = 0;
+        foreach (Neuron neuron in potentiallyExcitedDuringStep)
         {
             if (neuron.Charge >= Neuron.threshold)
             {
-                activationCount++;
+                excitationCount++;
                 neuron.Excite(this);
             }
         }
-        e.ActivationCount = activationCount;
+        e.ExcitationCount = excitationCount;
 
         // end of time step:
         network.Decay();
 
         // clean up
-        potentiallyActivatedDuringStep.Clear();
+        potentiallyExcitedDuringStep.Clear();
         emits.RemoveAt(0);
     }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
@@ -140,7 +140,7 @@ internal sealed class Machine : IMachine
     }
     public void RegisterPotentialExcitation(Neuron neuron)
     {
-        potentiallyActivatedDuringStep.Add(neuron);
+        potentiallyExcitedDuringStep.Add(neuron);
     }
     public IReadOnlyClock Clock => network.Clock;
     public float[] Output => network.Output;
