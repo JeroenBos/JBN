@@ -2,21 +2,23 @@
 
 public delegate void OnTickDelegate(IMachine sender, OnTickEventArgs e);
 
-public sealed class OnTickEventArgs
+
+public interface OnTickEventArgs
 {
-    public int Time { get; internal init; }
-    public int EmittingAxonCount { get; internal set; }
+    /// <summary>
+    /// The current time on the Machine's clock.
+    /// </summary>
+    public int Time { get; }
+    /// <summary>
+    /// The number of axons emitted.
+    /// </summary>
+    public int EmittingAxonCount { get; }
     /// <summary>
     /// The number of fired neurons.
     /// </summary>
-    public int ExcitationCount { get; internal set; }
+    public int ExcitationCount { get; }
     /// <summary>
     /// Gets the current charges of the output neurons. A reference to this should not be stored, as the underlying structure is reused.
     /// </summary>
-    public required IReadOnlyList<float> Output { get; set; }
-
-    public static void WriteTickDataToConsole(IMachine sender, OnTickEventArgs e)
-    {
-        Console.WriteLine($"t={e.Time:d2}, emits: {e.EmittingAxonCount}, acts: {e.ExcitationCount}");
-    }
+    public IReadOnlyList<float> Output { get; }
 }

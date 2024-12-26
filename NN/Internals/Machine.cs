@@ -50,8 +50,7 @@ internal sealed class Machine : IMachine
         float[] output = network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs { Time = time, Output = output };
-
+            var e = new OnTickEventArgsImpl { Time = time };
             this.DeliverFiredAxons(e);
 
             e.Output = output = network.Output;
@@ -67,7 +66,7 @@ internal sealed class Machine : IMachine
         }
         return output;
     }
-    private void DeliverFiredAxons(OnTickEventArgs e)
+    private void DeliverFiredAxons(OnTickEventArgsImpl e)
     {
         var emittingAxons = emits[0];
         emits[0] = null!; // to be alerted (through a NullRefException) when there's a bug
@@ -84,7 +83,7 @@ internal sealed class Machine : IMachine
         emits.Add(emittingAxons);
         // emits[0] is popped after the neurons have been updated
     }
-    private void UpdateNeurons(OnTickEventArgs e)
+    private void UpdateNeurons(OnTickEventArgsImpl e)
     {
         int excitationCount = 0;
         foreach (Neuron neuron in potentiallyExcitedDuringStep)
