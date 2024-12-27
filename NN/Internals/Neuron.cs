@@ -1,7 +1,6 @@
-using JBSnorro.NN.Internals;
 using System.Diagnostics;
 
-namespace JBSnorro.NN;
+namespace JBSnorro.NN.Internals;
 
 [DebuggerDisplay("Neuron({index == null ? -1 : index},Charge={Charge})")]
 internal sealed class Neuron
@@ -33,7 +32,7 @@ internal sealed class Neuron
     public Neuron(INeuronType type, float initialCharge = 0, int? index = null)
     {
         this.type = type;
-        this.axons = new List<Axon>();
+        this.axons = [];
         this.Charge = initialCharge;
 #if DEBUG
         this.index = index;
