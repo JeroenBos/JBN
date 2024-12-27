@@ -58,8 +58,9 @@ internal sealed class Machine : IMachine
 
             e.Output = output = network.Output;
             
-            bool stop = ProcessFeedback(output);
             this.UpdateNeurons(e);
+
+            bool stop = ProcessFeedback(output);
             this.OnTicked?.Invoke(this, e);
 
             if (stop)
