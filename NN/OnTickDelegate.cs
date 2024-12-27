@@ -1,4 +1,6 @@
-﻿namespace JBSnorro.NN;
+﻿using JBSnorro.NN.Internals;
+
+namespace JBSnorro.NN;
 
 public delegate void OnTickDelegate(IMachine sender, OnTickEventArgs e);
 
@@ -28,9 +30,10 @@ public sealed class OnTickEventArgs
 
     // must be set before we pass this class through public surface
     private IReadOnlyList<float>? output;
-    [DebuggerHidden] internal OnTickEventArgs(int time)
+    [DebuggerHidden] internal OnTickEventArgs(int time, IReadOnlyList<Axon> inputAxons)
     {
         this.Time = time;
+        this.inputAxons = inputAxons ?? throw new ArgumentNullException(nameof(inputAxons));
     }
 
     /// <summary>
@@ -42,4 +45,11 @@ public sealed class OnTickEventArgs
     /// Gets or sets feedback that the network will use to update its internal state. This feedback is passed opaquely to <see cref="IAxonType.UpdateWeights"/> 
     /// </summary>
     public IFeedback? Feedback { get; set; }
+
+    /// <summary>
+    /// Gets the input axons on the network. 
+    /// Preferably an internal implementation for a refactor, just to get tests to pass.
+    /// Network feeders should have a better way to access the input axons.
+    /// </summary>
+    internal IReadOnlyList<Axon> inputAxons { get; }
 }

@@ -43,8 +43,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         var output = machine.Run(maxTime: 1);
 
@@ -61,8 +60,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         var output = machine.RunCollect(2);
 
@@ -76,8 +74,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         var output = machine.RunCollect(3);
         Assert.Equal(actual: output, expected: [[1f], [0f], [1f]]);
@@ -107,8 +104,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
@@ -119,7 +115,7 @@ public class NetworkTests
         Assert.Equal(1, neuronExcitationCounts[2]); // current implementation is 1, but 0 would also be okay
     }
 
-    
+
     [Fact]
     public void Neuron_with_initial_charge_fires_normally()
     {
@@ -169,8 +165,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j],
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network);
-        INetworkFeeder.CreateRandom(random).Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateRandom(random));
 
         var output = machine.RunCollect(maxTime);
         for (int t = 0; t < maxTime; t++)

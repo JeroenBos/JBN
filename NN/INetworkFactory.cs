@@ -13,8 +13,7 @@ public interface INetworkFactory
     {
         var clock = IClock.Create(maxTime);
         var network = INetwork.Create(this.NeuronTypes, this.OutputCount, this.GetAxonConnection, clock);
-        var machine = IMachine.Create(network);
-        this.InputFeeder.Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, this.InputFeeder);
         return (machine, network);
     }
 

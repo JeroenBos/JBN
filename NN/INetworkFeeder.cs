@@ -27,10 +27,8 @@ public interface INetworkFeeder
     }
 
     /// <summary>
-    /// Activates the axons (depends on the machine's clock time).
+    /// This gets called every time step to prime input axons.
     /// </summary>
-    internal void Activate(IReadOnlyList<Axon> inputAxons, IMachine machine);
-
-    // TODO:
-    // support a pattern that allows for reacting to outputs
+    internal void OnTicked(IMachine machine, OnTickEventArgs e);
+    // TODO: it's improved, but still reacting is only possible in internal code
 }

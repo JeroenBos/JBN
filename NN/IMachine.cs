@@ -4,9 +4,15 @@ namespace JBSnorro.NN;
 
 public interface IMachine
 {
-    public static IMachine Create(INetwork network)
+    public static IMachine Create(INetwork network, INetworkFeeder? feed = null)
     {
-        return new Machine(network);
+        var machine = new Machine(network);
+        if (feed is not null)
+        {
+            machine.OnTicked += feed.OnTicked;
+            feed.OnTicked(machine, new OnTickEventArgs(IReadOnlyClock.UNSTARTED, network.Inputs) { Output = [] });
+        }
+        return machine;
     }
 
     public event OnTickDelegate OnTicked;
@@ -37,7 +43,7 @@ public interface IMachine
 
         void OnTicked(IMachine sender, OnTickEventArgs e)
         {
-            result.Add([..e.Output]);
+            result.Add([.. e.Output]);
         }
     }
 
