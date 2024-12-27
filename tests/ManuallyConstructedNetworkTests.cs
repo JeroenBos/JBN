@@ -14,24 +14,31 @@ public class AND
     ///                    (N2)
     ///     I ━━━(N1)━━━━━━━┛
     /// </summary>
-    
-    class BinaryOPNetworkFactory : INetworkFactory
+
+    public class BinaryOPNetworkFactory : INetworkFactory
     {
         public static (IMachine Machine, INetwork Network) Construct(float weight_N01_N2, IEnumerable<IReadOnlyList<bool>> feeds, int maxTime = 2)
         {
-            INetworkFactory factory = new BinaryOPNetworkFactory(INetworkFeeder.CreateDeterministicFeeder(feeds), weight_N01_N2);
+            return Construct([weight_N01_N2, weight_N01_N2], feeds, maxTime);
+        }
+        public static (IMachine Machine, INetwork Network) Construct(IReadOnlyList<float> weights_to_N2, IEnumerable<IReadOnlyList<bool>> feeds, int maxTime = 2)
+        {
+            INetworkFactory factory = new BinaryOPNetworkFactory(INetworkFeeder.CreateDeterministicFeeder(feeds), weights_to_N2);
             return factory.Create(maxTime);
         }
+
 
         public IReadOnlyList<INeuronType> NeuronTypes { get; } = Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray();
         public int OutputCount => 1;
         public INetworkFeeder InputFeeder { get; }
-        private readonly float weight_N01_N2;
+        private readonly IReadOnlyList<float> weights;
 
-        public BinaryOPNetworkFactory(INetworkFeeder inputPrimer, float weight_N01_N2)
+        public BinaryOPNetworkFactory(INetworkFeeder inputPrimer, IReadOnlyList<float> weights)
         {
+            if (weights?.Count != 2) throw new ArgumentException(nameof(weights));
+
             this.InputFeeder = inputPrimer;
-            this.weight_N01_N2 = weight_N01_N2;
+            this.weights = weights;
         }
 
         public IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
@@ -43,7 +50,7 @@ public class AND
                     return InputAxonType.Instance;
                 case (0, 2):
                 case (1, 2):
-                    return IAxonType.CreateImmutable(length: 1, [weight_N01_N2]);
+                    return IAxonType.CreateImmutable(length: 1, [weights[neuronFromIndex]]);
                 case (IAxonType.FROM_INPUT, 2):
                 case (0, 0):
                 case (1, 1):
@@ -100,6 +107,49 @@ public class AND
     public void False_and_false_gives_false()
     {
         var machine = BinaryOPNetworkFactory.Construct(1f, [[false, false]]).Machine;
+        var output = machine.Run();
+
+        Assert.Equal(0, output[0]);
+    }
+}
+
+public class XOR
+{
+    /// <summary>
+    /// Schema:
+    ///     I ━━━(N0)━━━━━━━┓              
+    ///                    (N2)
+    ///     I ━━━(N1)━━━━━━━┛
+    /// </summary>
+    [Fact]
+    public void True_and_true_gives_true()
+    {
+        var machine = AND.BinaryOPNetworkFactory.Construct([1f, -1f], [[true, true]]).Machine;
+        var output = machine.Run();
+
+        Assert.Equal(0, output[0]);
+    }
+    [Fact]
+    public void True_and_false_gives_false()
+    {
+        var machine = AND.BinaryOPNetworkFactory.Construct([1f, -1f], [[true, false]]).Machine;
+        var output = machine.Run();
+
+        Assert.Equal(1, output[0]); 
+    }
+    [Fact]
+    public void False_and_true_gives_false()
+    {
+        var machine = AND.BinaryOPNetworkFactory.Construct([1f, -1f], [[false, true]]).Machine;
+        var output = machine.Run();
+
+        Assert.Equal(-1, output[0]); // a NOT operator should technically be insert
+    }
+
+    [Fact]
+    public void False_and_false_gives_false()
+    {
+        var machine = AND.BinaryOPNetworkFactory.Construct([1f, -1f], [[false, false]]).Machine;
         var output = machine.Run();
 
         Assert.Equal(0, output[0]);
