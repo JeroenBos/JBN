@@ -1,4 +1,4 @@
-﻿namespace JBSnorro.NN.Internals;
+namespace JBSnorro.NN.Internals;
 
 /// <inheritdoc/>
 internal sealed class Machine : IMachine
@@ -56,7 +56,7 @@ internal sealed class Machine : IMachine
             this.DeliverFiredAxons(e);
 
             e.Output = output = network.Output;
-            
+
             this.UpdateNeurons(e);
 
             this.OnTicked?.Invoke(this, e);
@@ -65,7 +65,7 @@ internal sealed class Machine : IMachine
             {
                 break;
             }
-            if (e.Feedback is not null) 
+            if (e.Feedback is not null)
             {
                 this.network.Process(e.Feedback);
             }
@@ -138,6 +138,7 @@ internal sealed class Machine : IMachine
     {
         potentiallyExcitedDuringStep.Add(neuron);
     }
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public IReadOnlyClock Clock => network.Clock;
     public float[] Output => network.Output;
 }

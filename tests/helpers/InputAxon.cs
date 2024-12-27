@@ -1,9 +1,12 @@
-﻿namespace JBSnorro.NN.Internals;
+﻿using System.Diagnostics;
+
+namespace JBSnorro.NN.Internals;
 
 /// <summary>
 /// Represents an <see cref="IAxonType"/> common for input axons.
 /// There is nothing really special about these, they just typically have length 1, never update their weights, and only the first of their initial weights matters.
 /// </summary>
+[DebuggerDisplay("Input")]
 internal sealed class InputAxonType : IAxonType
 {
     public static InputAxonType Instance { get; } = Create(initialWeights: [1f]);

@@ -3,6 +3,7 @@
 /// <summary>
 /// Represents an axon that does not update its weights when given feedback.
 /// </summary>
+[DebuggerDisplay("Axon")]
 internal sealed class ImmutableAxonType : IAxonType
 {
     internal ImmutableAxonType(int length, IReadOnlyList<float> initialWeight)
