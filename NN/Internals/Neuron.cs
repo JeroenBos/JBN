@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace JBSnorro.NN.Internals;
 
 [DebuggerDisplay("Neuron({index == null ? -1 : index},Charge={Charge})")]

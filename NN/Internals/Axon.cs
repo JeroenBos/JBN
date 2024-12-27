@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace JBSnorro.NN.Internals;
 
 [DebuggerDisplay("Axon(→{endpoint.index})")]
