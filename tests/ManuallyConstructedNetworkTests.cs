@@ -1,4 +1,4 @@
-﻿using JBSnorro.NN;
+using JBSnorro.NN;
 using JBSnorro.NN.Internals;
 using System.Diagnostics;
 
@@ -135,7 +135,7 @@ public class XOR
         var machine = AND.BinaryOPNetworkFactory.Construct([1f, -1f], [[true, false]]).Machine;
         var output = machine.Run();
 
-        Assert.Equal(1, output[0]); 
+        Assert.Equal(1, output[0]);
     }
     [Fact]
     public void False_and_true_gives_false()
