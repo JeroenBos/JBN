@@ -73,6 +73,8 @@ internal sealed class Machine : IMachine
             }
 
             // clean up
+            potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
+            network.Decay(this); // could theoretically add to emits, so must be before emits.RemoteAt(0)
             emits.RemoveAt(0);
         }
         return output;
@@ -106,9 +108,6 @@ internal sealed class Machine : IMachine
                 }
             }
         }
-
-        potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
-        network.Decay(this); // could theoretically add to emits, so must be before emits.RemoteAt(0)
     }
 
     public void Excite(int inputAxonIndex)
