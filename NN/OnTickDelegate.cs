@@ -5,7 +5,7 @@ namespace JBSnorro.NN;
 public delegate void OnTickDelegate(IMachine sender, OnTickEventArgs e);
 
 
-public sealed class OnTickEventArgs : OnFeedEventArgs
+public sealed class OnTickEventArgs
 {
     /// <summary>
     /// The current time on the Machine's clock.
@@ -31,10 +31,9 @@ public sealed class OnTickEventArgs : OnFeedEventArgs
     // must be set before we pass this class through public surface
     private IReadOnlyList<float>? output;
     [DebuggerHidden]
-    internal OnTickEventArgs(int time, IReadOnlyList<Axon> inputAxons)
+    internal OnTickEventArgs(int time)
     {
         this.Time = time;
-        this._inputAxons = inputAxons ?? throw new ArgumentNullException(nameof(inputAxons));
     }
 
     /// <summary>
@@ -46,19 +45,22 @@ public sealed class OnTickEventArgs : OnFeedEventArgs
     /// Gets or sets feedback that the network will use to update its internal state. This feedback is passed opaquely to <see cref="IAxonType.UpdateWeights"/> 
     /// </summary>
     public IFeedback? Feedback { get; set; }
-
-    private readonly IReadOnlyList<Axon> _inputAxons;
-    IReadOnlyList<Axon> OnFeedEventArgs.inputAxons => _inputAxons;
 }
 
-public interface OnFeedEventArgs
+public sealed class OnFeedEventArgs
 {
     /// <inheritdoc cref="OnTickEventArgs.Time"/>
-    int Time { get; }
+    public int Time { get; }
     /// <summary>
     /// Gets the input axons on the network. 
     /// Preferably an internal implementation for a refactor, just to get tests to pass.
     /// Network feeders should have a better way to access the input axons.
     /// </summary>
     internal IReadOnlyList<Axon> inputAxons { get; }
+
+    internal OnFeedEventArgs(int time, IReadOnlyList<Axon> inputAxons)
+    {
+        this.Time = time;
+        this.inputAxons = inputAxons;
+    }
 }
