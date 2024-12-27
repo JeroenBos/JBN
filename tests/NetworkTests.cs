@@ -119,15 +119,16 @@ public class NetworkTests
     public void Neuron_with_initial_charge_fires_normally()
     {
         var network = INetwork.Create([NeuronTypes.InitiallyCharged],
-                                      outputCount: 0,
-                                      (i, j) => null,
+                                      outputCount: 1,
+                                      (i, j) => i == -1 ? InputAxonType.Create([0.1f]) : null,
                                       IClock.Create(maxTime: null));
         var machine = IMachine.Create(network);
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
-        machine.Run(3);
+        var outputs = machine.RunCollect(3).Select(o => o[0]).ToArray();
 
         Assert.Equal([1, 0, 0], neuronExcitationCounts);
+        Assert.Equal([1, 0, 0], outputs);
     }
 
     [Fact]

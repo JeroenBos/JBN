@@ -47,7 +47,11 @@ internal sealed class Machine : IMachine
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
         if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
-        UpdateNeurons(new (IReadOnlyClock.UNSTARTED, int.MinValue));
+        // You might want the neurons to fire at t=-1, but consider these situations:
+        // 1) an always-charged neuron: you expect its axons (assuming L=1) to always deliver, even on t=0
+        // 2) an initially-charged neuron decaying immediately: you expect it to excite in t=0
+        // In 1) you want `UpdateNeurons(new (IReadOnlyClock.UNSTARTED))` but in 2) you do not.
+        // Given that it's unsolvable, if you want initial charge to take effect, shift everything on timestep forward, and discard outputs from t=0.
 
         float[] output = network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
@@ -73,8 +77,6 @@ internal sealed class Machine : IMachine
             }
 
             // clean up
-            potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
-            network.Decay(this); // could theoretically add to emits, so must be before emits.RemoteAt(0)
             emits.RemoveAt(0);
         }
         return output;
@@ -108,6 +110,9 @@ internal sealed class Machine : IMachine
                 }
             }
         }
+
+        potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
+        network.Decay(this); // could theoretically add to emits, so must be before emits.RemoteAt(0)
     }
 
     public void Excite(int inputAxonIndex)

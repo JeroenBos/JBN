@@ -167,21 +167,35 @@ public class NOT
     ///           (N0)
     ///          
     /// t↓   I1       N0    N1
-    /// 0             1     0                // charge at t=0
-    ///               →1                     // axons that deliver. no → because neurons don't fire before t=0
-    ///               1*    ̲1*               // charge at end of t=0. * indicates which fire. Underscore means output
+    /// 0             1     0                // charge at t=1
+    ///               no                     // axons that deliver. no → because neurons don't fire before t=0
+    ///               1*    ̲0                // charge at end of t=1. * indicates which fire. Underscore means output
     /// 1             1     0                // charge at t=1
-    ///      →1       →1                     // axons that deliver
-    ///               1*    ̲½                // charge after delivery + fires. Underscore means output
+    ///               →1                     // axons that deliver
+    ///               1*    ̲1*               // charge at end of t=1. * indicates which fire. Underscore means output
     /// 2             1     0                // charge at t=2
     ///      →1       →1                     // axons that deliver
-    ///               1*    ̲½                // charge after delivery + fires. Underscore means output
+    ///               1*    ̲0                // charge after delivery + fires. Underscore means output
     /// 3             1     0                // charge at t=3
+    ///      →1       →1                     // axons that deliver
+    ///               1*    ̲0                // charge after delivery + fires. Underscore means output
+    /// 4             1     0                // charge at t=4
     ///               →1                     // axons that deliver
-    ///               1*    ̲1*               // charge at end of t=3. * indicates which fire. Underscore means output
-    /// 4
+    ///               1*    ̲1*               // charge at end of t=4. * indicates which fire. Underscore means output
+    /// 5
     /// </summary>
-    public IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+    [Fact]
+    public void Input_sequence_FTTF_is_negated_by_NOT_operator()
+    {
+        var network = INetwork.Create([INeuronType.AlwaysOn, INeuronType.NoRetentionNeuronType], 1, GetAxonConnection, IClock.Create(5));
+        var machine = IMachine.Create(network, INetworkFeeder.CreateDeterministicFeeder([[false], [false], [true], [true], [false]]));
+        
+        var output = machine.RunCollect().Select(o => o[0]).ToArray();
+
+        // t=0 is different because firing from AlwaysOn didn't arrive (because it didn't fire at t=-1 to arrive at t=0)
+        Assert.Equal([0, 1, 0, 0, 1], output);
+    }
+    IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
     {
         switch ((neuronFromIndex, neuronToIndex))
         {
@@ -189,15 +203,5 @@ public class NOT
             case (0, 1): return IAxonType.CreateImmutable(length: 1, [1f]);
             default: return null;
         }
-    }
-    [Fact]
-    public void Input_sequence_FTTF_is_negated_by_NOT_operator()
-    {
-        var network = INetwork.Create([INeuronType.AlwaysOn, INeuronType.NoRetentionNeuronType], 1, GetAxonConnection, IClock.Create(4));
-        var machine = IMachine.Create(network, INetworkFeeder.CreateDeterministicFeeder([[false], [true], [true], [false]]));
-        
-        var output = machine.RunCollect().Select(o => o[0]).ToArray();
-
-        Assert.Equal([1, 0, 0, 1], output);
     }
 }
