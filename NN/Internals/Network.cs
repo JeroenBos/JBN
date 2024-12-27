@@ -41,9 +41,9 @@ internal sealed class Network : INetwork
         this.neuronTypes = neuronTypes;
         this.neurons = neuronTypes.Select((type, index) => new Neuron(type, type.InitialCharge, index)).ToArray();
         this._output = new float[outputCount];
-        this.Axons = new List<Axon>();
+        List<Axon> axons = [];
+        this.Axons = axons;
 
-        var axons = (List<Axon>)this.Axons;
         for (int i = 0; i < neuronCount; i++)
         {
             for (int j = 0; j < neuronCount; j++)
