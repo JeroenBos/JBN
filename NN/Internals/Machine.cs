@@ -3,7 +3,7 @@
 /// <inheritdoc/>
 internal sealed class Machine : IMachine
 {
-    private readonly INetwork network;
+    public INetwork Network { get; }
     private readonly List<Neuron> potentiallyExcitedDuringStep; // Not necessary to be a HashSet: Neuron.Excite(..) doesn't do anything if called again on the same timestep.
     /// <summary>
     /// A list of axons to fire per time step.
@@ -24,11 +24,11 @@ internal sealed class Machine : IMachine
 
     public Machine(INetwork network)
     {
-        this.network = network;
+        this.Network = network;
         this.clock = network.MutableClock;
         this.emits = [[]];
         // they're all potentially excited because the initial charge is not known
-        this.potentiallyExcitedDuringStep = [..this.network.Neurons];
+        this.potentiallyExcitedDuringStep = [..this.Network.Neurons];
     }
 
     /// <summary>
@@ -53,15 +53,15 @@ internal sealed class Machine : IMachine
         // In 1) you want `UpdateNeurons(new (IReadOnlyClock.UNSTARTED))` but in 2) you do not.
         // Given that it's unsolvable, if you want initial charge to take effect, shift everything on timestep forward, and discard outputs from t=0.
 
-        float[] output = network.Output;
+        float[] output = this.Network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs(time, network.Inputs.Count);
+            var e = new OnTickEventArgs(time, this.Network.Inputs.Count);
 
             // although you might want the neurons to fire at the beginning, then axons would have to fire with dt=0
             this.DeliverFiredAxons(e);
 
-            e.Output = output = network.Output;
+            e.Output = output = this.Network.Output;
 
             this.UpdateNeurons(e);
 
@@ -73,7 +73,7 @@ internal sealed class Machine : IMachine
             }
             if (e.Feedback is not null)
             {
-                this.network.Process(e.Feedback);
+                this.Network.Process(e.Feedback);
             }
 
             // clean up
@@ -112,12 +112,12 @@ internal sealed class Machine : IMachine
         }
 
         potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
-        network.Decay(this); // could theoretically add to emits, so must be before emits.RemoteAt(0)
+        this.Network.Decay(this); // could theoretically add to emits, so must be before emits.RemoteAt(0)
     }
 
     public void Excite(int inputAxonIndex)
     {
-        this.network.Inputs[inputAxonIndex].Excite(this);
+        this.Network.Inputs[inputAxonIndex].Excite(this);
     }
     /// <summary>
     /// Sets the specified axon to emit charge at the specified time.
@@ -147,6 +147,6 @@ internal sealed class Machine : IMachine
         potentiallyExcitedDuringStep.Add(neuron);
     }
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public IReadOnlyClock Clock => network.Clock;
-    public float[] Output => network.Output;
+    public IReadOnlyClock Clock => this.Network.Clock;
+    public float[] Output => this.Network.Output;
 }

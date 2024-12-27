@@ -52,6 +52,10 @@ public interface IMachine
     /// </summary>
     public IReadOnlyClock Clock { get; }
     /// <summary>
+    /// Gets the network this machine is associated with.
+    /// </summary>
+    public INetwork Network { get; }
+    /// <summary>
     /// Excites the specified input axon.
     /// </summary>
     public void Excite(int inputAxonIndex);
