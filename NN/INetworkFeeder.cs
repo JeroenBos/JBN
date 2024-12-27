@@ -27,8 +27,7 @@ public interface INetworkFeeder
     }
 
     /// <summary>
-    /// This gets called every time step to prime input axons.
+    /// Feeds the input axons. Gets called every time step.
     /// </summary>
-    internal void OnFeed(IMachine machine, OnFeedEventArgs e);
-    // TODO: it's improved, but still reacting is only possible in internal code
+    public void Feed(IMachine machine, OnFeedEventArgs e);
 }
