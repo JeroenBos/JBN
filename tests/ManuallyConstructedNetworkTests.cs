@@ -8,13 +8,20 @@ namespace Tests.JBSnorro.NN;
 
 public class AND
 {
-    class NetworkFactory : INetworkFactory
+    /// <summary>
+    /// Schema:
+    ///     I ━━━(N0)━━━━━━━┓              
+    ///                    (N2)
+    ///     I ━━━(N1)━━━━━━━┛
+    /// </summary>
+    
+    class ANDNetworkFactory : INetworkFactory
     {
         public IReadOnlyList<INeuronType> NeuronTypes { get; } = Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray();
         public int OutputCount => 1;
         public INetworkFeeder InputFeeder { get; }
 
-        public NetworkFactory(INetworkFeeder inputPrimer)
+        public ANDNetworkFactory(INetworkFeeder inputPrimer)
         {
             this.InputFeeder = inputPrimer;
         }
@@ -28,7 +35,8 @@ public class AND
                     return InputAxonType.Instance;
                 case (0, 2):
                 case (1, 2):
-                    return IAxonType.CreateImmutable(length: 1, [0.5f]);
+                    return IAxonType.CreateImmutable(length: 1, [1f]);
+                case (IAxonType.FROM_INPUT, 2):
                 case (0, 0):
                 case (1, 1):
                 case (2, 2):
@@ -36,7 +44,6 @@ public class AND
                 case (2, 0):
                 case (0, 1):
                 case (1, 0):
-                case (IAxonType.FROM_INPUT, 2):
                     return null;
                 default: throw new UnreachableException();
             }
@@ -46,7 +53,7 @@ public class AND
     {
         var inputSequence = new[] { new bool[] { input1, input2 } };
 
-        INetworkFactory factory = new NetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
+        INetworkFactory factory = new ANDNetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
         return factory.Create(maxTime);
     }
     /// <summary>
@@ -70,7 +77,7 @@ public class AND
         var machine = Construct(true, true).Machine;
         var output = machine.Run();
 
-        Assert.True(output[0] > 0);
+        Assert.Equal(2, output[0]);
     }
     [Fact]
     public void False_and_true_gives_false()
@@ -78,7 +85,7 @@ public class AND
         var machine = Construct(false, true).Machine;
         var output = machine.Run();
 
-        Assert.Equal(0.5, output[0]);
+        Assert.Equal(1, output[0]);
     }
     [Fact]
     public void True_and_false_gives_false()
@@ -86,7 +93,7 @@ public class AND
         var machine = Construct(true, false).Machine;
         var output = machine.Run();
 
-        Assert.Equal(0.5, output[0]);
+        Assert.Equal(1, output[0]);
     }
     [Fact]
     public void False_and_false_gives_false()
@@ -94,6 +101,6 @@ public class AND
         var machine = Construct(false, false).Machine;
         var output = machine.Run();
 
-        Assert.True(output[0] == 0);
+        Assert.Equal(0, output[0]);
     }
 }
