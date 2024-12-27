@@ -71,13 +71,18 @@ internal sealed class Neuron
             machine.RegisterPotentialExcitation(this);
         }
     }
-    internal void Excite(IMachine machine)
+    /// <returns>whether the this was the first time this neuron was excited this timestep. </returns>
+    internal bool Excite(IMachine machine)
     {
+        if (this.lastExcitationTime == machine.Clock.Time)
+            return false;
+
         this.lastExcitationTime = machine.Clock.Time;
         foreach (var axon in this.axons)
         {
             int timeOfDelivery = axon.Excite(machine.Clock.Time);
             machine.AddEmitAction(timeOfDelivery, axon);
         }
+        return true;
     }
 }

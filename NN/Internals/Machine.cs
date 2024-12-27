@@ -4,7 +4,7 @@ internal sealed class Machine : IMachine
 {
     private readonly INetwork network;
     private readonly GetFeedbackDelegate getFeedback;
-    private readonly List<Neuron> potentiallyExcitedDuringStep; // TODO: make it a HashSet (when adding we know it's been added before if charge were monotonous, but it's not)
+    private readonly List<Neuron> potentiallyExcitedDuringStep; // Not necessary to be a HashSet: Neuron.Excite(..) doesn't do anything if called again on the same timestep.
     /// <summary>
     /// A list of axons to fire per time step.
     /// If the time now is t_0, then <see cref="emits"/>[t_0] + δt represents all axons that will deliver δt timesteps in the future.
@@ -91,10 +91,9 @@ internal sealed class Machine : IMachine
         int excitationCount = 0;
         foreach (Neuron neuron in potentiallyExcitedDuringStep)
         {
-            if (neuron.Charge >= Neuron.threshold)
+            if (neuron.Charge >= Neuron.threshold && neuron.Excite(this))
             {
                 excitationCount++;
-                neuron.Excite(this);
             }
         }
 
