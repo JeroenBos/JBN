@@ -130,6 +130,21 @@ public class NetworkTests
 
         Assert.Equal([1, 0, 0], neuronExcitationCounts);
     }
+
+    [Fact]
+    public void Neuron_with_charge_retention_fires_again()
+    {
+        var network = INetwork.Create([NeuronTypes.AlwaysOn],
+                                      outputCount: 0,
+                                      (i, j) => null,
+                                      IClock.Create(maxTime: null));
+        var machine = IMachine.Create(network);
+        List<int> neuronExcitationCounts = [];
+        machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
+        machine.Run(3);
+
+        Assert.Equal([1, 1, 1], neuronExcitationCounts);
+    }
     [Fact]
     public void StressTest()
     {

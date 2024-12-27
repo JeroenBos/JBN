@@ -70,11 +70,15 @@ internal sealed class Network : INetwork
         this.Inputs = inputs.ToArray();
     }
 
-    public void Decay()
+    public void Decay(IMachine machine)
     {
         foreach (var neuron in this.neurons)
         {
             neuron.Decay(this.Clock.Time);
+            if (neuron.Charge >= Neuron.threshold)
+            {
+                machine.RegisterPotentialExcitation(neuron);
+            }
         }
     }
     public void Process(IFeedback feedback)

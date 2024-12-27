@@ -99,15 +99,12 @@ internal sealed class Machine : IMachine
                 excitationCount++;
             }
         }
+        e.ExcitationCount = excitationCount;
+        potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
 
         // end of time step:
-        network.Decay();
-
-        // clean up
-        potentiallyExcitedDuringStep.Clear();
+        network.Decay(this);
         emits.RemoveAt(0);
-        
-        e.ExcitationCount = excitationCount;
     }
 
     public void Excite(int inputAxonIndex)
