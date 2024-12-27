@@ -168,8 +168,8 @@ public class NOT
     ///          
     /// t↓   I1       N0    N1
     /// 0             1     0                // charge at t=0
-    ///               no →1                  // axons that deliver. no → because neurons don't fire before t=0
-    ///               1*    ̲0*               // charge at end of t=0. * indicates which fire. Underscore means output
+    ///               →1                     // axons that deliver. no → because neurons don't fire before t=0
+    ///               1*    ̲1*               // charge at end of t=0. * indicates which fire. Underscore means output
     /// 1             1     0                // charge at t=1
     ///      →1       →1                     // axons that deliver
     ///               1*    ̲½                // charge after delivery + fires. Underscore means output
@@ -198,7 +198,6 @@ public class NOT
         
         var output = machine.RunCollect().Select(o => o[0]).ToArray();
 
-        // the first F is not negated because the inhibiting charge from N0 fires at t=0 and so arrives at t=1 only
-        Assert.Equal([0, 0, 0, 1], output);
+        Assert.Equal([1, 0, 0, 1], output);
     }
 }

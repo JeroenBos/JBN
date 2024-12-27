@@ -47,6 +47,8 @@ internal sealed class Machine : IMachine
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
         if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
+        UpdateNeurons(new (IReadOnlyClock.UNSTARTED, int.MinValue));
+
         float[] output = network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
