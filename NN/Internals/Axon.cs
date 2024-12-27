@@ -1,8 +1,6 @@
-using System.Diagnostics;
-
 namespace JBSnorro.NN.Internals;
 
-[DebuggerDisplay("Axon(→{endpoint.index})")]
+[DebuggerDisplay("Axon(→{endpoint.index}, type={type}, w={weights[0]})")]
 internal sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this delivers initial inputs at t=0, allowing throwing when dt==0
@@ -28,24 +26,24 @@ internal sealed class Axon
     /// </summary>
     private float averageTimeBetweenExcitations = float.NaN;
     /// <returns>the time of delivery.</returns>
-    internal int Excite(int currentTime)
+    internal void Excite(Machine machine)
     {
         excitationCount++;
 
-        int newTimeOfDelivery = currentTime + this.length;
+        int newTimeOfDelivery = machine.Clock.Time + this.length;
         int timeBetweenExcitations = newTimeOfDelivery - this.timeOfDelivery;
         this.timeOfDelivery = newTimeOfDelivery;
         if (float.IsNaN(averageTimeBetweenExcitations))
         {
-            averageTimeBetweenExcitations = currentTime + 1;
+            averageTimeBetweenExcitations = machine.Clock.Time + 1;
         }
         else
         {
             averageTimeBetweenExcitations = (averageTimeBetweenExcitations * (excitationCount - 1) + timeBetweenExcitations) / excitationCount;
         }
-        return this.timeOfDelivery;
+        machine.AddEmitAction(timeOfDelivery, this);
     }
-    internal void Emit(Machine machine)
+    internal void Emit(IMachine machine)
     {
         endpoint.Receive(type.GetCharge(weights), machine);
     }

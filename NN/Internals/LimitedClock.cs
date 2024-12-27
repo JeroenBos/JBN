@@ -1,5 +1,6 @@
 ﻿namespace JBSnorro.NN.Internals;
 
+[DebuggerDisplay("Clock({Time}/{MaxTime})")]
 internal sealed class LimitedClock : IClock
 {
     public int MaxTime { get; }
@@ -26,6 +27,8 @@ internal sealed class LimitedClock : IClock
     int? IReadOnlyClock.MaxTime => this.MaxTime;
 
 }
+
+[DebuggerDisplay("Clock({Time}/∞)")]
 internal sealed class UnlimitedClock : IClock
 {
     public int Time { get; private set; } = IReadOnlyClock.UNSTARTED;

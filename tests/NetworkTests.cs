@@ -7,7 +7,6 @@ namespace Tests.JBSnorro.NN;
 
 public class NetworkTests
 {
-    GetFeedbackDelegate noFeedback = (_, _) => null;
     [Fact]
     public void CreateNetwork()
     {
@@ -43,8 +42,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, noFeedback);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         var output = machine.Run(maxTime: 1);
 
@@ -61,8 +59,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : null,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, noFeedback);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         var output = machine.RunCollect(2);
 
@@ -76,8 +73,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, noFeedback);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         var output = machine.RunCollect(3);
         Assert.Equal(actual: output, expected: [[1f], [0f], [1f]]);
@@ -107,8 +103,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, noFeedback);
-        INetworkFeeder.CreateUniformActivator().Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
 
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
@@ -119,20 +114,35 @@ public class NetworkTests
         Assert.Equal(1, neuronExcitationCounts[2]); // current implementation is 1, but 0 would also be okay
     }
 
-    
     [Fact]
     public void Neuron_with_initial_charge_fires_normally()
     {
         var network = INetwork.Create([NeuronTypes.InitiallyCharged],
-                                      outputCount: 0,
-                                      (i, j) => i == -1 ? null : IAxonType.CreateImmutable(length: 1, initialWeight: [0]),
+                                      outputCount: 1,
+                                      (i, j) => i == -1 ? InputAxonType.Create([0.1f]) : null,
                                       IClock.Create(maxTime: null));
-        var machine = IMachine.Create(network, noFeedback);
+        var machine = IMachine.Create(network);
+        List<int> neuronExcitationCounts = [];
+        machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
+        var outputs = machine.RunCollect(3).Select(o => o[0]).ToArray();
+
+        Assert.Equal([1, 0, 0], neuronExcitationCounts);
+        Assert.Equal([1, 0, 0], outputs);
+    }
+
+    [Fact]
+    public void Neuron_with_charge_retention_fires_again()
+    {
+        var network = INetwork.Create([NeuronTypes.AlwaysOn],
+                                      outputCount: 0,
+                                      (i, j) => null,
+                                      IClock.Create(maxTime: null));
+        var machine = IMachine.Create(network);
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
         machine.Run(3);
 
-        Assert.Equal([1, 0, 0], neuronExcitationCounts);
+        Assert.Equal([1, 1, 1], neuronExcitationCounts);
     }
     [Fact]
     public void StressTest()
@@ -169,8 +179,7 @@ public class NetworkTests
                                       (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j],
                                       IClock.Create(maxTime: null));
 
-        var machine = IMachine.Create(network, noFeedback);
-        INetworkFeeder.CreateRandom(random).Activate(network.Inputs, machine);
+        var machine = IMachine.Create(network, INetworkFeeder.CreateRandom(random));
 
         var output = machine.RunCollect(maxTime);
         for (int t = 0; t < maxTime; t++)
@@ -266,15 +275,12 @@ public class NeuronTypeTests
     {
         const int maxTime = 3;
         var network = INetwork.Create([INeuronType.NoRetentionNeuronType], 1, (_, _) => null, IClock.Create(maxTime));
+        var machine = IMachine.Create(network);
         List<int> feedbackTimes = [];
-        IFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock)
-        {
-            feedbackTimes.Add(clock.Time);
-            return null;
-        }
+        machine.OnTicked += (sender, e) => feedbackTimes.Add(sender.Clock.Time);
 
         // Act
-        IMachine.Create(network, GetFeedback).Run();
+        machine.Run();
 
         Assert.Equal(feedbackTimes, [0, 1, 2]);
     }
@@ -294,8 +300,10 @@ public class NeuronTypeTests
             (HIDDEN_NEURON, OUTPUT_NEURON) => intermediateAxon,
             _ => null
         };
-        var network = INetwork.Create(Enumerable.Repeat(INeuronType.NoRetentionNeuronType, 2).ToArray(), outputCount: 1, getConnections, IClock.Create(maxTime: 2));
-        var machine = IMachine.Create(network, (_, _) => new MockFeedback());
+        var network = INetwork.Create([INeuronType.NoRetentionNeuronType, INeuronType.NoRetentionNeuronType], outputCount: 1, getConnections, IClock.Create(maxTime: 2));
+        var machine = IMachine.Create(network);
+        machine.OnTicked += (sender, e) => e.Feedback = new MockFeedback();
+
         void currentWeightsCallback(float[] currentWeights)
         {
             actual = currentWeights.ToArray();
@@ -320,6 +328,5 @@ public class NeuronTypeTests
     }
     class MockFeedback : IFeedback
     {
-        public bool Stop => false;
     }
 }

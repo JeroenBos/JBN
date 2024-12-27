@@ -1,9 +1,9 @@
 ﻿namespace JBSnorro.NN.Internals;
 
+/// <inheritdoc/>
 internal sealed class Machine : IMachine
 {
-    private readonly INetwork network;
-    private readonly GetFeedbackDelegate getFeedback;
+    public INetwork Network { get; }
     private readonly List<Neuron> potentiallyExcitedDuringStep; // Not necessary to be a HashSet: Neuron.Excite(..) doesn't do anything if called again on the same timestep.
     /// <summary>
     /// A list of axons to fire per time step.
@@ -22,14 +22,13 @@ internal sealed class Machine : IMachine
     /// </summary>
     public event OnTickDelegate? OnTicked;
 
-    public Machine(INetwork network, GetFeedbackDelegate getFeedback)
+    public Machine(INetwork network)
     {
-        this.network = network;
+        this.Network = network;
         this.clock = network.MutableClock;
-        this.getFeedback = getFeedback;
         this.emits = [[]];
         // they're all potentially excited because the initial charge is not known
-        this.potentiallyExcitedDuringStep = [..this.network.Neurons];
+        this.potentiallyExcitedDuringStep = [..this.Network.Neurons];
     }
 
     /// <summary>
@@ -48,24 +47,37 @@ internal sealed class Machine : IMachine
         if (clock.MaxTime.HasValue && clock.MaxTime < maxTime) throw new ArgumentException("maxTime > this.Clock.MaxTime", nameof(maxTime));
         if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
-        float[] output = network.Output;
+        // You might want the neurons to fire at t=-1, but consider these situations:
+        // 1) an always-charged neuron: you expect its axons (assuming L=1) to always deliver, even on t=0
+        // 2) an initially-charged neuron decaying immediately: you expect it to excite in t=0
+        // In 1) you want `UpdateNeurons(new (IReadOnlyClock.UNSTARTED))` but in 2) you do not.
+        // Given that it's unsolvable, if you want initial charge to take effect, shift everything on timestep forward, and discard outputs from t=0.
+
+        float[] output = this.Network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs(time);
+            var e = new OnTickEventArgs(time, this.Network.Inputs.Count);
 
             // although you might want the neurons to fire at the beginning, then axons would have to fire with dt=0
             this.DeliverFiredAxons(e);
 
-            e.Output = output = network.Output;
-            
-            bool stop = ProcessFeedback(output);
+            e.Output = output = this.Network.Output;
+
             this.UpdateNeurons(e);
+
             this.OnTicked?.Invoke(this, e);
 
-            if (stop)
+            if (e.Stop)
             {
                 break;
             }
+            if (e.Feedback is not null)
+            {
+                this.Network.Process(e.Feedback);
+            }
+
+            // clean up
+            emits.RemoveAt(0);
         }
         return output;
     }
@@ -88,34 +100,29 @@ internal sealed class Machine : IMachine
     }
     private void UpdateNeurons(OnTickEventArgs e)
     {
-        int excitationCount = 0;
         foreach (Neuron neuron in potentiallyExcitedDuringStep)
         {
-            if (neuron.Charge >= Neuron.threshold && neuron.Excite(this))
+            if (neuron.Charge >= Neuron.threshold)
             {
-                excitationCount++;
+                if (neuron.Excite(this))
+                {
+                    e.ExcitationCount++;
+                }
             }
         }
 
-        // end of time step:
-        network.Decay();
-
-        // clean up
-        potentiallyExcitedDuringStep.Clear();
-        emits.RemoveAt(0);
-        
-        e.ExcitationCount = excitationCount;
+        potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
+        this.Network.Decay(this); // could theoretically add to emits, so must be before emits.RemoteAt(0)
     }
-    private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
+
+    public void Excite(int inputAxonIndex)
     {
-        var feedback = this.getFeedback(latestOutput, this.Clock);
-        if (feedback is null)
-            return false;
-
-        network.Process(feedback);
-        return feedback.Stop;
+        this.Network.Inputs[inputAxonIndex].Excite(this);
     }
-
+    /// <summary>
+    /// Sets the specified axon to emit charge at the specified time.
+    /// </summary>
+    /// <param name="timeOfDelivery">The time the emit is to be delivered at the end of its axon. </param>
     public void AddEmitAction(int deliveryTime, Axon axon)
     {
         if (deliveryTime < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime));
@@ -139,6 +146,7 @@ internal sealed class Machine : IMachine
     {
         potentiallyExcitedDuringStep.Add(neuron);
     }
-    public IReadOnlyClock Clock => network.Clock;
-    public float[] Output => network.Output;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public IReadOnlyClock Clock => this.Network.Clock;
+    public float[] Output => this.Network.Output;
 }

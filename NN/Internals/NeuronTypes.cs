@@ -4,7 +4,6 @@ namespace JBSnorro.NN.Internals;
 
 internal sealed class RetentionOfOneNeuronType : INeuronType
 {
-    /// <summary> Gets the decay of the charge given the times since last receipt of charge and last excitation. </summary>
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
     {
         Assert(IsNever(timeSinceLastChargeReceipt) || timeSinceLastChargeReceipt >= 0, $"{nameof(timeSinceLastChargeReceipt)} out of range");
@@ -141,4 +140,18 @@ internal sealed class VariableNeuronType : INeuronType
     {
         return GetNoExcitationDecaySequence().Scan((a, b) => a * b, 1);
     }
+}
+
+
+internal sealed class AlwaysOnNeuronType : INeuronType
+{
+    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
+    {
+        Assert(IsNever(timeSinceLastChargeReceipt) || timeSinceLastChargeReceipt >= 0, $"{nameof(timeSinceLastChargeReceipt)} out of range");
+        Assert(IsNever(timeSinceLastExcitation) || timeSinceLastExcitation >= 0, $"{nameof(timeSinceLastExcitation)} out of range");
+
+        // return 0 means charge never decays, but it still had the chance to elicit an excitation
+        return 1;
+    }
+    float INeuronType.InitialCharge => 1;
 }

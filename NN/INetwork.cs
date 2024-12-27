@@ -24,11 +24,12 @@ public interface INetwork
     /// </summary>
     public float[] Output { get; }
 
+    public int InputAxonCount => Inputs.Count;
     internal IReadOnlyList<Axon> Inputs { get; }
     internal IReadOnlyList<Axon> Axons { get; }
     internal IClock MutableClock => (IClock)Clock;
     internal void Process(IFeedback feedback);
-    internal void Decay();
+    internal void Decay(IMachine machine);
     internal IReadOnlyList<Neuron> Neurons { get; }
 }
 

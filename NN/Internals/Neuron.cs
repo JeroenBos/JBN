@@ -1,9 +1,6 @@
-using JBSnorro.NN.Internals;
-using System.Diagnostics;
+namespace JBSnorro.NN.Internals;
 
-namespace JBSnorro.NN;
-
-[DebuggerDisplay("Neuron({index == null ? -1 : index},Charge={Charge})")]
+[DebuggerDisplay("Neuron({index == null ? -1 : index}, Charge={Charge})")]
 internal sealed class Neuron
 {
     /// <summary>
@@ -12,6 +9,23 @@ internal sealed class Neuron
     internal const float threshold = 1;
 
     private readonly INeuronType type;
+
+    /// <summary>
+    /// Note on terminology:
+    /// In biology, a neuron has only one axon. It branches at the tip, and has many terminals connecting to other neurons' dendrites at synapses.
+    /// At a synapse, positive and negative charges accumulate and slowly depolarize the dendrite. Only sufficient depolarization reaches the neuron, let's say.
+    /// That reflects more the current implementation of the neuron: charges accumulate and at a threshold it fires.
+    /// The dendritic process is well-modeled here (accumulation until threshold, like digital: 0 or 1), but the synaptic isn't modeled well: accumulate and pass, like analog.
+    /// 
+    /// There are multiple kinds of neurotransmitters which have different polarizing, spatial and temporal effects on the synapse. That I sort of model with decay
+    /// and with the neuronal charge being multidimensional.
+    /// I'm debating whether my implementation is equivalent: it's as though the axons connect directly to the neurons, without dendrites.
+    /// Still enough charge has to accumulate to excite it, and they are accumulated anyway, just in a different way. The question is whether
+    /// synapse charge accumulation, dendritic charge propagation, neuronal charge accumulation commute.
+    /// If any of them do, given that accumulation commutes, then I can swap dedritic charge propagation with synapse charge accumulation, and then say that 
+    /// the axons in my implementation "also" implement contain the dendrites. It seems equivalent to me. Instead of accumulating accumulations, we just accumulate all:
+    /// whether it reaches a threshold won't be affected, I think.
+    /// </summary>
     private readonly List<Axon> axons;
     /// <summary>
     /// The time up until and including which the decay has been updated. Decay happens at the end of a timestep.
@@ -33,7 +47,7 @@ internal sealed class Neuron
     public Neuron(INeuronType type, float initialCharge = 0, int? index = null)
     {
         this.type = type;
-        this.axons = new List<Axon>();
+        this.axons = [];
         this.Charge = initialCharge;
 #if DEBUG
         this.index = index;
@@ -52,6 +66,10 @@ internal sealed class Neuron
 
     internal void Decay(int time)
     {
+        if (time == IReadOnlyClock.UNSTARTED)
+        {
+            this.Charge *= this.type.GetDecay(0, 0);
+        }
         // Decay is at the end of a time step, and so we decay the current time also. The neuron's excitation, if any, has been elicited already.
         // That means that if a neuron got charge this step, the type.GetDecay(..) is called with timeSinceLastChargeReceipt: 0
         // +1 because the decayUpdatedTime has already been updated
@@ -72,7 +90,7 @@ internal sealed class Neuron
         }
     }
     /// <returns>whether the this was the first time this neuron was excited this timestep. </returns>
-    internal bool Excite(IMachine machine)
+    internal bool Excite(Machine machine)
     {
         if (this.lastExcitationTime == machine.Clock.Time)
             return false;
@@ -80,8 +98,7 @@ internal sealed class Neuron
         this.lastExcitationTime = machine.Clock.Time;
         foreach (var axon in this.axons)
         {
-            int timeOfDelivery = axon.Excite(machine.Clock.Time);
-            machine.AddEmitAction(timeOfDelivery, axon);
+            axon.Excite(machine);
         }
         return true;
     }

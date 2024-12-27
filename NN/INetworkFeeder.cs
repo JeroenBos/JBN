@@ -27,10 +27,7 @@ public interface INetworkFeeder
     }
 
     /// <summary>
-    /// Activates the axons (depends on the machine's clock time).
+    /// Feeds the input axons. Gets called every time step.
     /// </summary>
-    internal void Activate(IReadOnlyList<Axon> inputAxons, IMachine machine);
-
-    // TODO:
-    // support a pattern that allows for reacting to outputs
+    public void Feed(IMachine machine, EventArgs e);
 }

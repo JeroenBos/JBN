@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
+﻿using JBSnorro.NN.Internals;
 
 namespace JBSnorro.NN;
 
 public delegate void OnTickDelegate(IMachine sender, OnTickEventArgs e);
 
 
-public sealed class OnTickEventArgs
+public sealed class OnTickEventArgs : EventArgs
 {
     /// <summary>
     /// The current time on the Machine's clock.
@@ -30,8 +30,26 @@ public sealed class OnTickEventArgs
 
     // must be set before we pass this class through public surface
     private IReadOnlyList<float>? output;
-    [DebuggerHidden] internal OnTickEventArgs(int time)
+    [DebuggerHidden]
+    internal OnTickEventArgs(int time, int inputAxonCount)
     {
         this.Time = time;
+        this.InputAxonCount = inputAxonCount;
     }
+
+    /// <summary>
+    /// Gets or sets whether the network should abort its execution loop.
+    /// </summary>
+    public bool Stop { get; set; }
+
+    /// <summary>
+    /// Gets or sets feedback that the network will use to update its internal state. This feedback is passed opaquely to <see cref="IAxonType.UpdateWeights"/> 
+    /// </summary>
+    public IFeedback? Feedback { get; set; }
+
+    /// <summary>
+    /// Gets the number of input axons in the current network.
+    /// </summary>
+    public int InputAxonCount { get; }
 }
+

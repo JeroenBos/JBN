@@ -4,9 +4,15 @@ namespace JBSnorro.NN;
 
 public interface IMachine
 {
-    public static IMachine Create(INetwork network, GetFeedbackDelegate getFeedback)
+    public static IMachine Create(INetwork network, INetworkFeeder? feed = null)
     {
-        return new Machine(network, getFeedback);
+        var machine = new Machine(network);
+        if (feed is not null)
+        {
+            machine.OnTicked += feed.Feed;
+            feed.Feed(machine, new OnTickEventArgs(IReadOnlyClock.UNSTARTED, network.Inputs.Count));
+        }
+        return machine;
     }
 
     public event OnTickDelegate OnTicked;
@@ -37,11 +43,22 @@ public interface IMachine
 
         void OnTicked(IMachine sender, OnTickEventArgs e)
         {
-            result.Add([..e.Output]);
+            result.Add([.. e.Output]);
         }
     }
 
+    /// <summary>
+    /// Indicates the current machine's time.
+    /// </summary>
     public IReadOnlyClock Clock { get; }
+    /// <summary>
+    /// Gets the network this machine is associated with.
+    /// </summary>
+    public INetwork Network { get; }
+    /// <summary>
+    /// Excites the specified input axon.
+    /// </summary>
+    public void Excite(int inputAxonIndex);
 
     /// <summary>
     /// Gets the current charges of the output neurons of the network.
@@ -51,9 +68,4 @@ public interface IMachine
     /// Registers a <see cref="Neuron"/> that is potentially excited when this machine's time ticks.
     /// </summary>
     internal void RegisterPotentialExcitation(Neuron neuron);
-    /// <summary>
-    /// Sets the specified axon to emit charge at the specified time.
-    /// </summary>
-    /// <param name="timeOfDelivery">The time the emit is to be delivered at the end of its axon. </param>
-    internal void AddEmitAction(int timeOfDelivery, Axon axon);
 }

@@ -12,6 +12,7 @@ static class NeuronTypes
     public static INeuronType One { get; } = INeuronType.NoRetentionNeuronType;
     public static INeuronType[] OnlyOne { get; }
     public static INeuronType InitiallyCharged { get; }
+    public static INeuronType AlwaysOn => INeuronType.AlwaysOn;
 
     static NeuronTypes()
     {
@@ -40,7 +41,7 @@ static class NeuronTypes
         OnlyA = [A];
         OnlyOne = [One];
 
-        InitiallyCharged = new InitiallyChargedNeuronType(A, 1);
+        InitiallyCharged = new InitiallyChargedNeuronType(INeuronType.NoRetentionNeuronType, 1);
     }
 }
 
@@ -111,7 +112,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, IClock.Create(null)), (_, _) => null);
+        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, IClock.Create(null)));
         AtTime0.Run(0);
     }
 }

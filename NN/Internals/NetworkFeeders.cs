@@ -14,14 +14,17 @@ internal sealed class RandomNetworkPrimer : INetworkFeeder
         this.Random = random;
     }
 
-    public void Activate(IReadOnlyList<Axon> axons, IMachine machine)
+    public void Feed(IMachine machine, EventArgs e)
     {
-        foreach (var axon in axons)
+        if (machine.Clock.Time != IReadOnlyClock.UNSTARTED)
+            return;
+
+        foreach (var inputAxonIndex in Enumerable.Range(0, machine.Network.InputAxonCount))
         {
-            bool activate = Random.Next(2) == 0;
-            if (activate)
+            bool excite = Random.Next(2) == 0;
+            if (excite)
             {
-                machine.AddEmitAction(INetworkFeeder.INITIALIZATION_TIME, axon);
+                machine.Excite(inputAxonIndex);
             }
         }
     }
@@ -32,11 +35,14 @@ internal sealed class RandomNetworkPrimer : INetworkFeeder
 /// </summary>
 internal sealed class UniformNetworkPrimer : INetworkFeeder
 {
-    public void Activate(IReadOnlyList<Axon> axons, IMachine machine)
+    public void Feed(IMachine machine, EventArgs e)
     {
-        foreach (var axon in axons)
+        if (machine.Clock.Time != IReadOnlyClock.UNSTARTED)
+            return;
+
+        foreach (int inputAxonIndex in Enumerable.Range(0, machine.Network.InputAxonCount))
         {
-            machine.AddEmitAction(INetworkFeeder.INITIALIZATION_TIME, axon);
+            machine.Excite(inputAxonIndex);
         }
     }
 }
@@ -45,10 +51,10 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
 {
     // null means finished
     private IEnumerator<IReadOnlyList<bool>>? inputs;
-    private int lastTime = -2; // because we start at -1
+    private int lastTime = IReadOnlyClock.UNSTARTED - 1;
 
     /// <summary>
-    /// Creates a deterministic sequence of input neuron activations.
+    /// Creates a deterministic sequence of input neuron excitations.
     /// </summary>
     /// <param name="inputs">A sequence of indications whether input neurons fire. The first yielded list represents the time -1, etc.</param>
     public PredeterminedFeeder(IEnumerable<IReadOnlyList<bool>> inputs)
@@ -57,29 +63,29 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
     }
 
 
-    void INetworkFeeder.Activate(IReadOnlyList<Axon> axons, IMachine machine)
+    void INetworkFeeder.Feed(IMachine machine, EventArgs e)
     {
         if (inputs is null || !inputs.MoveNext())
         {
             return;
         }
-        if (inputs.Current.Count != axons.Count)
+        if (inputs.Current.Count != machine.Network.InputAxonCount)
         {
-            throw new InvalidOperationException($"Each yielded set must have the exact same number of element as there are input neurons (={axons.Count}); got {inputs.Current.Count}");
+            throw new InvalidOperationException($"Each yielded set must have the exact same number of element as there are input neurons (={machine.Network.InputAxonCount}); got {inputs.Current.Count}");
         }
         var currentTime = machine.Clock.Time;
         if (lastTime + 1 != currentTime)
         {
-            throw new InvalidOperationException($"{nameof(INetworkFeeder)}.{nameof(INetworkFeeder.Activate)} must be called every timestep");
+            throw new InvalidOperationException($"{nameof(INetworkFeeder)}.{nameof(INetworkFeeder.Feed)} must be called every timestep");
         }
         this.lastTime = currentTime;
 
 
-        foreach (var (axon, input) in axons.Zip(inputs.Current))
+        foreach (var (inputAxonIndex, input) in Enumerable.Range(0, machine.Network.InputAxonCount).Zip(inputs.Current))
         {
             if (input)
             {
-                machine.AddEmitAction(currentTime + 1, axon);
+                machine.Excite(inputAxonIndex);
             }
         }
     }

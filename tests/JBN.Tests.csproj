@@ -7,7 +7,7 @@
 	  <LangVersion>preview</LangVersion>
     <IsPackable>false</IsPackable>
 	  <NoWarn>CS7022</NoWarn> <!-- I can't find the property that prevents generating this file -->
-	  <RootNamespace>Tests.JBSnorro</RootNamespace>
+	  <RootNamespace>Tests.JBSnorro.NN</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
