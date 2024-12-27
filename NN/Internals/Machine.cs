@@ -29,7 +29,7 @@ internal sealed class Machine : IMachine
         this.getFeedback = getFeedback;
         this.emits = [[]];
         // they're all potentially excited because the initial charge is not known
-        this.potentiallyExcitedDuringStep = [];
+        this.potentiallyExcitedDuringStep = [..this.network.Neurons];
     }
 
     /// <summary>

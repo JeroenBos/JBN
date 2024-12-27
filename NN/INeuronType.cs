@@ -15,4 +15,6 @@ public interface INeuronType
     public static INeuronType NoRetentionNeuronType { get; } = new RetentionOfOneNeuronType();
 
     public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation);
+
+    public float InitialCharge => 0;
 }
