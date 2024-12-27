@@ -9,8 +9,8 @@ public interface IMachine
         var machine = new Machine(network);
         if (feed is not null)
         {
-            machine.OnTicked += (sender, e) => feed.OnFeed(sender, new(e.Time, ??));
-            feed.OnFeed(machine, new OnFeedEventArgs(IReadOnlyClock.UNSTARTED, network.Inputs));
+            machine.OnTicked += feed.OnFeed;
+            feed.OnFeed(machine, new OnTickEventArgs(IReadOnlyClock.UNSTARTED, network.Inputs) { Output = [] });
         }
         return machine;
     }
