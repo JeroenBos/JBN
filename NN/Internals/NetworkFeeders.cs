@@ -19,12 +19,12 @@ internal sealed class RandomNetworkPrimer : INetworkFeeder
         if (e.Time != IReadOnlyClock.UNSTARTED)
             return;
 
-        foreach (var axon in e.inputAxons)
+        foreach (var inputAxonIndex in Enumerable.Range(0, e.InputAxonCount))
         {
-            bool activate = Random.Next(2) == 0;
-            if (activate)
+            bool excite = Random.Next(2) == 0;
+            if (excite)
             {
-                machine.AddEmitAction(INetworkFeeder.INITIALIZATION_TIME, axon);
+                machine.Excite(inputAxonIndex);
             }
         }
     }
@@ -40,9 +40,9 @@ internal sealed class UniformNetworkPrimer : INetworkFeeder
         if (e.Time != IReadOnlyClock.UNSTARTED)
             return;
 
-        foreach (var axon in e.inputAxons)
+        foreach (int inputAxonIndex in Enumerable.Range(0, e.InputAxonCount))
         {
-            machine.AddEmitAction(INetworkFeeder.INITIALIZATION_TIME, axon);
+            machine.Excite(inputAxonIndex);
         }
     }
 }
@@ -69,9 +69,9 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
         {
             return;
         }
-        if (inputs.Current.Count != e.inputAxons.Count)
+        if (inputs.Current.Count != e.InputAxonCount)
         {
-            throw new InvalidOperationException($"Each yielded set must have the exact same number of element as there are input neurons (={e.inputAxons.Count}); got {inputs.Current.Count}");
+            throw new InvalidOperationException($"Each yielded set must have the exact same number of element as there are input neurons (={e.InputAxonCount}); got {inputs.Current.Count}");
         }
         var currentTime = machine.Clock.Time;
         if (lastTime + 1 != currentTime)
@@ -81,11 +81,11 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
         this.lastTime = currentTime;
 
 
-        foreach (var (axon, input) in e.inputAxons.Zip(inputs.Current))
+        foreach (var (inputAxonIndex, input) in Enumerable.Range(0, e.InputAxonCount).Zip(inputs.Current))
         {
             if (input)
             {
-                machine.AddEmitAction(currentTime + 1, axon);
+                machine.Excite(inputAxonIndex);
             }
         }
     }

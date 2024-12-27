@@ -1,5 +1,6 @@
 ﻿namespace JBSnorro.NN.Internals;
 
+/// <inheritdoc/>
 internal sealed class Machine : IMachine
 {
     private readonly INetwork network;
@@ -49,7 +50,7 @@ internal sealed class Machine : IMachine
         float[] output = network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs(time, this.network.Inputs, this);
+            var e = new OnTickEventArgs(time, network.Inputs.Count);
 
             // although you might want the neurons to fire at the beginning, then axons would have to fire with dt=0
             this.DeliverFiredAxons(e);
@@ -109,6 +110,14 @@ internal sealed class Machine : IMachine
         e.ExcitationCount = excitationCount;
     }
 
+    public void Excite(int inputAxonIndex)
+    {
+        this.network.Inputs[inputAxonIndex].Excite(this);
+    }
+    /// <summary>
+    /// Sets the specified axon to emit charge at the specified time.
+    /// </summary>
+    /// <param name="timeOfDelivery">The time the emit is to be delivered at the end of its axon. </param>
     public void AddEmitAction(int deliveryTime, Axon axon)
     {
         if (deliveryTime < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime));

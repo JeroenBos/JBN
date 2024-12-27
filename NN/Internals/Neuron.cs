@@ -86,7 +86,7 @@ internal sealed class Neuron
         }
     }
     /// <returns>whether the this was the first time this neuron was excited this timestep. </returns>
-    internal bool Excite(IMachine machine)
+    internal bool Excite(Machine machine)
     {
         if (this.lastExcitationTime == machine.Clock.Time)
             return false;

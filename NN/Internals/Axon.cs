@@ -26,7 +26,7 @@ internal sealed class Axon
     /// </summary>
     private float averageTimeBetweenExcitations = float.NaN;
     /// <returns>the time of delivery.</returns>
-    internal void Excite(IMachine machine)
+    internal void Excite(Machine machine)
     {
         excitationCount++;
 
