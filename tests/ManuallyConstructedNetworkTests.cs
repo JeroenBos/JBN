@@ -15,15 +15,23 @@ public class AND
     ///     I ━━━(N1)━━━━━━━┛
     /// </summary>
     
-    class ANDNetworkFactory : INetworkFactory
+    class BinaryOPNetworkFactory : INetworkFactory
     {
+        public static (IMachine Machine, INetwork Network) Construct(float weight_N01_N2, IEnumerable<IReadOnlyList<bool>> feeds, int maxTime = 2)
+        {
+            INetworkFactory factory = new BinaryOPNetworkFactory(INetworkFeeder.CreateDeterministicFeeder(feeds), weight_N01_N2);
+            return factory.Create(maxTime);
+        }
+
         public IReadOnlyList<INeuronType> NeuronTypes { get; } = Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray();
         public int OutputCount => 1;
         public INetworkFeeder InputFeeder { get; }
+        private readonly float weight_N01_N2;
 
-        public ANDNetworkFactory(INetworkFeeder inputPrimer)
+        public BinaryOPNetworkFactory(INetworkFeeder inputPrimer, float weight_N01_N2)
         {
             this.InputFeeder = inputPrimer;
+            this.weight_N01_N2 = weight_N01_N2;
         }
 
         public IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
@@ -35,7 +43,7 @@ public class AND
                     return InputAxonType.Instance;
                 case (0, 2):
                 case (1, 2):
-                    return IAxonType.CreateImmutable(length: 1, [1f]);
+                    return IAxonType.CreateImmutable(length: 1, [weight_N01_N2]);
                 case (IAxonType.FROM_INPUT, 2):
                 case (0, 0):
                 case (1, 1):
@@ -48,13 +56,6 @@ public class AND
                 default: throw new UnreachableException();
             }
         }
-    }
-    private (IMachine Machine, INetwork Network) Construct(bool input1, bool input2, int maxTime = 2)
-    {
-        var inputSequence = new[] { new bool[] { input1, input2 } };
-
-        INetworkFactory factory = new ANDNetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
-        return factory.Create(maxTime);
     }
     /// <summary>
     /// Schema:
@@ -74,7 +75,7 @@ public class AND
     [Fact]
     public void True_and_true_gives_true()
     {
-        var machine = Construct(true, true).Machine;
+        var machine = BinaryOPNetworkFactory.Construct(1f, [[true, true]]).Machine;
         var output = machine.Run();
 
         Assert.Equal(2, output[0]);
@@ -82,7 +83,7 @@ public class AND
     [Fact]
     public void False_and_true_gives_false()
     {
-        var machine = Construct(false, true).Machine;
+        var machine = BinaryOPNetworkFactory.Construct(1f, [[false, true]]).Machine;
         var output = machine.Run();
 
         Assert.Equal(1, output[0]);
@@ -90,7 +91,7 @@ public class AND
     [Fact]
     public void True_and_false_gives_false()
     {
-        var machine = Construct(true, false).Machine;
+        var machine = BinaryOPNetworkFactory.Construct(1f, [[true, false]]).Machine;
         var output = machine.Run();
 
         Assert.Equal(1, output[0]);
@@ -98,7 +99,7 @@ public class AND
     [Fact]
     public void False_and_false_gives_false()
     {
-        var machine = Construct(false, false).Machine;
+        var machine = BinaryOPNetworkFactory.Construct(1f, [[false, false]]).Machine;
         var output = machine.Run();
 
         Assert.Equal(0, output[0]);
