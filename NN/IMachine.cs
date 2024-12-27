@@ -37,14 +37,14 @@ public interface IMachine
 
         void OnTicked(IMachine sender, OnTickEventArgs e)
         {
-            result.Add([.. e.Output]);
+            result.Add([..e.Output]);
         }
     }
 
     public IReadOnlyClock Clock { get; }
 
     /// <summary>
-    /// Gets the current charges of the output neuron of the network.
+    /// Gets the current charges of the output neurons of the network.
     /// </summary>
     internal float[] Output { get; }
     /// <summary>
