@@ -4,9 +4,9 @@ namespace JBSnorro.NN;
 
 public interface IMachine
 {
-    public static IMachine Create(INetwork network, GetFeedbackDelegate getFeedback)
+    public static IMachine Create(INetwork network)
     {
-        return new Machine(network, getFeedback);
+        return new Machine(network);
     }
 
     public event OnTickDelegate OnTicked;

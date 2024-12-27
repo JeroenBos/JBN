@@ -111,7 +111,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, IClock.Create(null)), (_, _) => null);
+        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, IClock.Create(null)));
         AtTime0.Run(0);
     }
 }

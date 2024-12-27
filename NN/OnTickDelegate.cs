@@ -32,4 +32,14 @@ public sealed class OnTickEventArgs
     {
         this.Time = time;
     }
+
+    /// <summary>
+    /// Gets or sets whether the network should abort its execution loop.
+    /// </summary>
+    public bool Stop { get; set; }
+
+    /// <summary>
+    /// Gets or sets feedback that the network will use to update its internal state. This feedback is passed opaquely to <see cref="IAxonType.UpdateWeights"/> 
+    /// </summary>
+    public IFeedback? Feedback { get; set; }
 }

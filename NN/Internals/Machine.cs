@@ -3,7 +3,6 @@
 internal sealed class Machine : IMachine
 {
     private readonly INetwork network;
-    private readonly GetFeedbackDelegate getFeedback;
     private readonly List<Neuron> potentiallyExcitedDuringStep; // Not necessary to be a HashSet: Neuron.Excite(..) doesn't do anything if called again on the same timestep.
     /// <summary>
     /// A list of axons to fire per time step.
@@ -22,11 +21,10 @@ internal sealed class Machine : IMachine
     /// </summary>
     public event OnTickDelegate? OnTicked;
 
-    public Machine(INetwork network, GetFeedbackDelegate getFeedback)
+    public Machine(INetwork network)
     {
         this.network = network;
         this.clock = network.MutableClock;
-        this.getFeedback = getFeedback;
         this.emits = [[]];
         // they're all potentially excited because the initial charge is not known
         this.potentiallyExcitedDuringStep = [..this.network.Neurons];
@@ -60,12 +58,15 @@ internal sealed class Machine : IMachine
             
             this.UpdateNeurons(e);
 
-            bool stop = ProcessFeedback(output);
             this.OnTicked?.Invoke(this, e);
 
-            if (stop)
+            if (e.Stop)
             {
                 break;
+            }
+            if (e.Feedback is not null) 
+            {
+                this.network.Process(e.Feedback);
             }
         }
         return output;
@@ -106,15 +107,6 @@ internal sealed class Machine : IMachine
         emits.RemoveAt(0);
         
         e.ExcitationCount = excitationCount;
-    }
-    private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
-    {
-        var feedback = this.getFeedback(latestOutput, this.Clock);
-        if (feedback is null)
-            return false;
-
-        network.Process(feedback);
-        return feedback.Stop;
     }
 
     public void AddEmitAction(int deliveryTime, Axon axon)

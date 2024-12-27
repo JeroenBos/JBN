@@ -13,7 +13,7 @@ public interface INetworkFactory
     {
         var clock = IClock.Create(maxTime);
         var network = INetwork.Create(this.NeuronTypes, this.OutputCount, this.GetAxonConnection, clock);
-        var machine = IMachine.Create(network, this.GetFeedback);
+        var machine = IMachine.Create(network);
         this.InputFeeder.Activate(network.Inputs, machine);
         return (machine, network);
     }
@@ -38,11 +38,4 @@ public interface INetworkFactory
     /// Gets an object representing the data to be fed to the network.
     /// </summary>
     public INetworkFeeder InputFeeder { get; }
-    /// <summary>
-    /// Gets (external) feedback for the given output.
-    /// </summary>
-    /// <param name="latestOutput">The output of the current round.</param>
-    /// <param name="clock">The current clock, at the end of the current time step.</param>
-    /// <returns>Feedback to be incorporated by the network; <see langword="null"/> indicates there is no feedback and the network should continue operating as is.</returns>
-    public IFeedback? GetFeedback(ReadOnlySpan<float> latestOutput, IReadOnlyClock clock) => default;
 }
