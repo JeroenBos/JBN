@@ -24,6 +24,7 @@ public interface INetwork
     /// </summary>
     public float[] Output { get; }
 
+    public int InputAxonCount => Inputs.Count;
     internal IReadOnlyList<Axon> Inputs { get; }
     internal IReadOnlyList<Axon> Axons { get; }
     internal IClock MutableClock => (IClock)Clock;

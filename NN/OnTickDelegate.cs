@@ -5,7 +5,7 @@ namespace JBSnorro.NN;
 public delegate void OnTickDelegate(IMachine sender, OnTickEventArgs e);
 
 
-public sealed class OnTickEventArgs : OnFeedEventArgs
+public sealed class OnTickEventArgs : EventArgs
 {
     /// <summary>
     /// The current time on the Machine's clock.
@@ -53,11 +53,3 @@ public sealed class OnTickEventArgs : OnFeedEventArgs
     public int InputAxonCount { get; }
 }
 
-public interface OnFeedEventArgs
-{
-    /// <inheritdoc cref="OnTickEventArgs.Time"/>
-    int Time { get; }
-
-    /// <inheritdoc cref="OnTickEventArgs.InputAxonCount"/>
-    public int InputAxonCount { get; }
-}

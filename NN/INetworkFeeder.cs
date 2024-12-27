@@ -29,5 +29,5 @@ public interface INetworkFeeder
     /// <summary>
     /// Feeds the input axons. Gets called every time step.
     /// </summary>
-    public void Feed(IMachine machine, OnFeedEventArgs e);
+    public void Feed(IMachine machine, EventArgs e);
 }

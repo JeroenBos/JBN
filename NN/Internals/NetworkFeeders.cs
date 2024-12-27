@@ -14,12 +14,12 @@ internal sealed class RandomNetworkPrimer : INetworkFeeder
         this.Random = random;
     }
 
-    public void Feed(IMachine machine, OnFeedEventArgs e)
+    public void Feed(IMachine machine, EventArgs e)
     {
-        if (e.Time != IReadOnlyClock.UNSTARTED)
+        if (machine.Clock.Time != IReadOnlyClock.UNSTARTED)
             return;
 
-        foreach (var inputAxonIndex in Enumerable.Range(0, e.InputAxonCount))
+        foreach (var inputAxonIndex in Enumerable.Range(0, machine.Network.InputAxonCount))
         {
             bool excite = Random.Next(2) == 0;
             if (excite)
@@ -35,12 +35,12 @@ internal sealed class RandomNetworkPrimer : INetworkFeeder
 /// </summary>
 internal sealed class UniformNetworkPrimer : INetworkFeeder
 {
-    public void Feed(IMachine machine, OnFeedEventArgs e)
+    public void Feed(IMachine machine, EventArgs e)
     {
-        if (e.Time != IReadOnlyClock.UNSTARTED)
+        if (machine.Clock.Time != IReadOnlyClock.UNSTARTED)
             return;
 
-        foreach (int inputAxonIndex in Enumerable.Range(0, e.InputAxonCount))
+        foreach (int inputAxonIndex in Enumerable.Range(0, machine.Network.InputAxonCount))
         {
             machine.Excite(inputAxonIndex);
         }
@@ -63,15 +63,15 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
     }
 
 
-    void INetworkFeeder.Feed(IMachine machine, OnFeedEventArgs e)
+    void INetworkFeeder.Feed(IMachine machine, EventArgs e)
     {
         if (inputs is null || !inputs.MoveNext())
         {
             return;
         }
-        if (inputs.Current.Count != e.InputAxonCount)
+        if (inputs.Current.Count != machine.Network.InputAxonCount)
         {
-            throw new InvalidOperationException($"Each yielded set must have the exact same number of element as there are input neurons (={e.InputAxonCount}); got {inputs.Current.Count}");
+            throw new InvalidOperationException($"Each yielded set must have the exact same number of element as there are input neurons (={machine.Network.InputAxonCount}); got {inputs.Current.Count}");
         }
         var currentTime = machine.Clock.Time;
         if (lastTime + 1 != currentTime)
@@ -81,7 +81,7 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
         this.lastTime = currentTime;
 
 
-        foreach (var (inputAxonIndex, input) in Enumerable.Range(0, e.InputAxonCount).Zip(inputs.Current))
+        foreach (var (inputAxonIndex, input) in Enumerable.Range(0, machine.Network.InputAxonCount).Zip(inputs.Current))
         {
             if (input)
             {
