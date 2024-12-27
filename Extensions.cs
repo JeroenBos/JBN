@@ -56,7 +56,7 @@ public static class Extensions
 
 class Contracts
 {
-    [Conditional("DEBUG")]
+    [Conditional("DEBUG"), DebuggerHidden]
     public static void Assert([DoesNotReturnIf(false)] bool condition, [CallerArgumentExpression("condition")] string message = "")
     {
         if (!condition)

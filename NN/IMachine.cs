@@ -10,7 +10,10 @@ public interface IMachine
     }
 
     public event OnTickDelegate OnTicked;
-    /// <param name="maxTime">If <see langword="null" is specified, it runs until the clock's max time. </param>
+    /// <summary>
+    /// Runs the network for the specified number of steps (or until the clock's max time) and returns the chargers the output neurons have at the end.
+    /// </summary>
+    /// <param name="maxTime">If <see langword="null" /> is specified, it runs until the clock's max time. </param>
     public float[] Run(int? maxTime = null);
     /// <summary>
     /// Calls <see cref="Run(int)"/> and collects all the outputs for each timestep in a list.
@@ -34,7 +37,7 @@ public interface IMachine
 
         void OnTicked(IMachine sender, OnTickEventArgs e)
         {
-            result.Add(e.Output.ToArray());
+            result.Add([..e.Output]);
         }
     }
 
@@ -45,9 +48,9 @@ public interface IMachine
     /// </summary>
     internal float[] Output { get; }
     /// <summary>
-    /// Registers a <see cref="Neuron"/> that is potentially activated when this machine's time ticks.`
+    /// Registers a <see cref="Neuron"/> that is potentially excited when this machine's time ticks.
     /// </summary>
-    internal void RegisterPotentialActivation(Neuron neuron);
+    internal void RegisterPotentialExcitation(Neuron neuron);
     /// <summary>
     /// Sets the specified axon to emit charge at the specified time.
     /// </summary>

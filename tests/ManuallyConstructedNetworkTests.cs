@@ -1,7 +1,10 @@
 ﻿using JBSnorro.NN;
+using JBSnorro.NN.Internals;
 using System.Diagnostics;
 
 namespace Tests.JBSnorro.NN;
+
+// https://en.wikipedia.org/wiki/List_of_Unicode_characters#Box_Drawing
 
 public class AND
 {
@@ -22,10 +25,10 @@ public class AND
             {
                 case (IAxonType.FROM_INPUT, 0):
                 case (IAxonType.FROM_INPUT, 1):
-                    return IAxonType.Input;
+                    return InputAxonType.Instance;
                 case (0, 2):
                 case (1, 2):
-                    return IAxonType.CreateImmutable(length: 1, new float[] { 0.5f });
+                    return IAxonType.CreateImmutable(length: 1, [0.5f]);
                 case (0, 0):
                 case (1, 1):
                 case (2, 2):
@@ -46,6 +49,21 @@ public class AND
         INetworkFactory factory = new NetworkFactory(INetworkFeeder.CreateDeterministicFeeder(inputSequence));
         return factory.Create(maxTime);
     }
+    /// <summary>
+    /// Schema:
+    ///     I ━━━(N0)━━━━━━━┓              
+    ///                    (N2)
+    ///     I ━━━(N1)━━━━━━━┛
+    ///
+    /// t↓   I1       N0    N1    N2
+    /// 0             0     0     0           // charge at t=0
+    ///     →0 →1                             // axons that deliver
+    ///               1*    1*    ̲0           // charge at end of t=0. * indicates which fire. Underscore means output
+    /// 1             0     0     0           // charge at t=1
+    ///               →2    →2                // axons that deliver
+    ///               0     0     ̲2           // charge after delivery + fires. Underscore means output
+    /// 2                                     // not relevant to test anymore
+    /// </summary>
     [Fact]
     public void True_and_true_gives_true()
     {
@@ -60,7 +78,7 @@ public class AND
         var machine = Construct(false, true).Machine;
         var output = machine.Run();
 
-        Assert.True(output[0] == 0.5);
+        Assert.Equal(0.5, output[0]);
     }
     [Fact]
     public void True_and_false_gives_false()
@@ -68,7 +86,7 @@ public class AND
         var machine = Construct(true, false).Machine;
         var output = machine.Run();
 
-        Assert.True(output[0] == 0.5);
+        Assert.Equal(0.5, output[0]);
     }
     [Fact]
     public void False_and_false_gives_false()

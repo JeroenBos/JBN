@@ -18,9 +18,9 @@ internal sealed class Neuron
     /// </summary>
     private int decayUpdatedTime = -1;
     /// <summary>
-    /// The time this neuron was activated last. Activation happens at the end of a timestep.
+    /// The time this neuron was excited last. Excitation happens at the end of a timestep.
     /// </summary>
-    private int lastActivatedTime = NEVER;
+    private int lastExcitationTime = NEVER;
     /// <summary>
     /// The last timestep this neuron receipt charge.
     /// </summary>
@@ -57,7 +57,7 @@ internal sealed class Neuron
         // +1 because the decayUpdatedTime has already been updated
         for (int decayUpdatingTime = this.decayUpdatedTime + 1; decayUpdatingTime <= time; decayUpdatingTime++)
         {
-            this.Charge *= this.type.GetDecay(decayUpdatingTime - lastReceivedChargeTime, decayUpdatingTime - lastActivatedTime);
+            this.Charge *= this.type.GetDecay(decayUpdatingTime - lastReceivedChargeTime, decayUpdatingTime - lastExcitationTime);
         }
         this.decayUpdatedTime = time;
     }
@@ -68,16 +68,21 @@ internal sealed class Neuron
         this.lastReceivedChargeTime = machine.Clock.Time;
         if (this.Charge >= threshold && !alreadyRegistered)
         {
-            machine.RegisterPotentialActivation(this);
+            machine.RegisterPotentialExcitation(this);
         }
     }
-    internal void Excite(IMachine machine)
+    /// <returns>whether the this was the first time this neuron was excited this timestep. </returns>
+    internal bool Excite(IMachine machine)
     {
-        this.lastActivatedTime = machine.Clock.Time;
+        if (this.lastExcitationTime == machine.Clock.Time)
+            return false;
+
+        this.lastExcitationTime = machine.Clock.Time;
         foreach (var axon in this.axons)
         {
             int timeOfDelivery = axon.Excite(machine.Clock.Time);
             machine.AddEmitAction(timeOfDelivery, axon);
         }
+        return true;
     }
 }

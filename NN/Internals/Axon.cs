@@ -22,23 +22,26 @@ internal sealed class Axon
     private readonly Neuron endpoint;
     private readonly float[] weights;
     private int timeOfDelivery = NEVER;
-    private int activationCount = 0;
-    private float averageTimeBetweenActivations = float.NaN;
+    private int excitationCount = 0;
+    /// <summary>
+    /// Average time between excitations. NaN means hasn't fired yet.
+    /// </summary>
+    private float averageTimeBetweenExcitations = float.NaN;
     /// <returns>the time of delivery.</returns>
     internal int Excite(int currentTime)
     {
-        activationCount++;
+        excitationCount++;
 
         int newTimeOfDelivery = currentTime + this.length;
-        int timeBetweenActivations = newTimeOfDelivery - this.timeOfDelivery;
+        int timeBetweenExcitations = newTimeOfDelivery - this.timeOfDelivery;
         this.timeOfDelivery = newTimeOfDelivery;
-        if (float.IsNaN(averageTimeBetweenActivations))
+        if (float.IsNaN(averageTimeBetweenExcitations))
         {
-            averageTimeBetweenActivations = currentTime + 1;
+            averageTimeBetweenExcitations = currentTime + 1;
         }
         else
         {
-            averageTimeBetweenActivations = (averageTimeBetweenActivations * (activationCount - 1) + timeBetweenActivations) / activationCount;
+            averageTimeBetweenExcitations = (averageTimeBetweenExcitations * (excitationCount - 1) + timeBetweenExcitations) / excitationCount;
         }
         return this.timeOfDelivery;
     }
@@ -48,12 +51,12 @@ internal sealed class Axon
     }
     internal void Process(IFeedback feedback, int time)
     {
-        int timeSinceLastActivation = time - timeOfDelivery - length;
+        int timeSinceLastExcitation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position
         type.UpdateWeights(weights,
-                           timeSinceLastActivation,
-                           averageTimeBetweenActivations,
-                           activationCount,
+                           timeSinceLastExcitation,
+                           averageTimeBetweenExcitations,
+                           excitationCount,
                            feedback);
     }
 }

@@ -1,0 +1,8 @@
+[*.cs]
+
+
+# IDE0160: Convert to block scoped namespace
+dotnet_diagnostic.IDE0160.severity = none
+
+# IDE0011: Add braces
+csharp_prefer_braces = when_multiline

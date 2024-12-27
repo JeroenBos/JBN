@@ -6,7 +6,7 @@
 /// </summary>
 internal sealed class InputAxonType : IAxonType
 {
-    public static InputAxonType Instance { get; } = Create(initialWeights: new float[] { 1 });
+    public static InputAxonType Instance { get; } = Create(initialWeights: [1f]);
     public static InputAxonType Create(IReadOnlyList<float> initialWeights, int length = 1)
     {
         IAxonType.AssertPreconditions(length, initialWeights);
@@ -18,7 +18,7 @@ internal sealed class InputAxonType : IAxonType
 
     private InputAxonType(int length, IReadOnlyList<float> initialWeights) => (Length, InitialWeights) = (length, initialWeights);
 
-    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
+    public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
     {
         throw new InvalidOperationException("Input axons don't update their weights");
     }

@@ -16,38 +16,34 @@ static class NeuronTypes
     {
         float sqrt2 = (float)Math.Sqrt(2);
         float invSqrt2 = 1 / sqrt2;
-        A = new VariableNeuronType(new[] {
+        A = new VariableNeuronType([
             (10, 0.9f),
             (11, 0f),
-        }, new (int, float)[] {
+        ], [
             (0, 1f),
-        });
+        ]);
 
-        B = new VariableNeuronType(new (int, float)[] {
-            // does not decay
-        }, new[] {
-            (1, 0.1f),
-        });
+        B = new VariableNeuronType([], [(1, 0.1f)]);
 
-        C = new VariableNeuronType(new[] {
+        C = new VariableNeuronType([
             (1, 0.9f),
-        }, new[] {
+        ], [
             (1, 0.1f),
             (2, sqrt2),
             (3, sqrt2),
             (4, 1),
             (5, invSqrt2),
             (6, invSqrt2),
-        });
+        ]);
 
-        OnlyA = new[] { A };
-        OnlyOne = new[] { One };
+        OnlyA = [A];
+        OnlyOne = [One];
     }
 }
 
 class MockAxonType : IAxonType
 {
-    public static IAxonType LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: new float[] { 1 });
+    public static IAxonType LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: [1f]);
 
     public static IAxonType?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
     {
@@ -60,7 +56,7 @@ class MockAxonType : IAxonType
             {
                 if (random.NextSingle() < connectionChance)
                 {
-                    result[i, j] = new MockAxonType(getLength(i, j), new float[] { getInitialWeight(i, j) });
+                    result[i, j] = new MockAxonType(getLength(i, j), [getInitialWeight(i, j)]);
                 }
             }
         }
@@ -92,7 +88,7 @@ class MockAxonType : IAxonType
     private MockAxonType(int length, float[] initialWeights) => (this.Length, this.InitialWeights) = (length, initialWeights);
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
-    public void UpdateWeights(float[] currentWeight, int timeSinceLastActivation, float averageTimeBetweenActivations, int activationCount, IFeedback feedback)
+    public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
     {
     }
 }

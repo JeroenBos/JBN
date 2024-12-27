@@ -4,7 +4,7 @@ internal sealed class Machine : IMachine
 {
     private readonly INetwork network;
     private readonly GetFeedbackDelegate getFeedback;
-    private readonly List<Neuron> potentiallyActivatedDuringStep;
+    private readonly List<Neuron> potentiallyExcitedDuringStep; // Not necessary to be a HashSet: Neuron.Excite(..) doesn't do anything if called again on the same timestep.
     /// <summary>
     /// A list of axons to fire per time step.
     /// If the time now is t_0, then <see cref="emits"/>[t_0] + δt represents all axons that will deliver δt timesteps in the future.
@@ -18,7 +18,7 @@ internal sealed class Machine : IMachine
     private readonly IClock clock;
 
     /// <summary>
-    /// Triggered at the end of a time step, with the event args containing what happened in this time step
+    /// Triggered at the end of a time step, with the event args containing what happened in this time step.
     /// </summary>
     public event OnTickDelegate? OnTicked;
 
@@ -27,19 +27,20 @@ internal sealed class Machine : IMachine
         this.network = network;
         this.clock = network.MutableClock;
         this.getFeedback = getFeedback;
-        this.potentiallyActivatedDuringStep = new List<Neuron>();
-        this.emits = new List<List<Axon>> { new() };
+        this.emits = [[]];
+        // they're all potentially excited because the initial charge is not known
+        this.potentiallyExcitedDuringStep = [];
     }
 
     /// <summary>
     /// Order of events:
-    /// - time ticks (starts at -1 so the first time observed is 0)
-    /// - if time is maxTime -> abort (meaning maxTime is exclusive)
-    /// - axons firings are delivered
-    /// - output is measured
-    /// - neurons update:
-    ///   - those reached threshold fire and go into refractory state
-    ///   - others' charge decay
+    /// - if clock is not started, deliver input axon firings
+    /// - while time is below maxTime (exclusive)
+    ///   - axons firings are delivered
+    ///   - output is measured
+    ///   - neurons update:
+    ///     - those reached threshold fire and go into refractory state
+    ///     - others' charge decay
     /// </summary>
     public float[] Run(int? maxTime = null)
     {
@@ -50,15 +51,16 @@ internal sealed class Machine : IMachine
         float[] output = network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs { Time = time, Output = output };
+            var e = new OnTickEventArgs(time);
 
+            // although you might want the neurons to fire at the beginning, then axons would have to fire with dt=0
             this.DeliverFiredAxons(e);
 
             e.Output = output = network.Output;
+            
             bool stop = ProcessFeedback(output);
-
             this.UpdateNeurons(e);
-            this.InvokeOnTicked(e, stop);
+            this.OnTicked?.Invoke(this, e);
 
             if (stop)
             {
@@ -66,11 +68,6 @@ internal sealed class Machine : IMachine
             }
         }
         return output;
-    }
-    private void InvokeOnTicked(OnTickEventArgs e, bool feedbackStops)
-    {
-        bool stopping = feedbackStops && this.Clock.Time + 1 != this.Clock.MaxTime;
-        this.OnTicked?.Invoke(this, e); // ActivationCount: activationCount));
     }
     private void DeliverFiredAxons(OnTickEventArgs e)
     {
@@ -91,23 +88,23 @@ internal sealed class Machine : IMachine
     }
     private void UpdateNeurons(OnTickEventArgs e)
     {
-        int activationCount = 0;
-        foreach (Neuron neuron in potentiallyActivatedDuringStep)
+        int excitationCount = 0;
+        foreach (Neuron neuron in potentiallyExcitedDuringStep)
         {
-            if (neuron.Charge >= Neuron.threshold)
+            if (neuron.Charge >= Neuron.threshold && neuron.Excite(this))
             {
-                activationCount++;
-                neuron.Excite(this);
+                excitationCount++;
             }
         }
-        e.ActivationCount = activationCount;
 
         // end of time step:
         network.Decay();
 
         // clean up
-        potentiallyActivatedDuringStep.Clear();
+        potentiallyExcitedDuringStep.Clear();
         emits.RemoveAt(0);
+        
+        e.ExcitationCount = excitationCount;
     }
     private bool ProcessFeedback(ReadOnlySpan<float> latestOutput)
     {
@@ -122,25 +119,25 @@ internal sealed class Machine : IMachine
     public void AddEmitAction(int deliveryTime, Axon axon)
     {
         if (deliveryTime < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime));
-        if (deliveryTime >= this.Clock.MaxTime)
+        if (deliveryTime > this.Clock.MaxTime)
         {
             return;
         }
 
-        int dt = deliveryTime - (this.Clock.Time == IReadOnlyClock.UNSTARTED ? 0 : this.Clock.Time);
+        int dt = deliveryTime - Math.Max(this.Clock.Time, 0);
 
         if (dt == 0 && this.Clock.Time != IReadOnlyClock.UNSTARTED) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery instantaneous");
         if (dt < 0) throw new ArgumentOutOfRangeException(nameof(deliveryTime), "Delivery in the past");
 
         while (dt >= emits.Count)
         {
-            emits.Add(new List<Axon>());
+            emits.Add([]);
         }
         emits[dt].Add(axon);
     }
-    public void RegisterPotentialActivation(Neuron neuron)
+    public void RegisterPotentialExcitation(Neuron neuron)
     {
-        potentiallyActivatedDuringStep.Add(neuron);
+        potentiallyExcitedDuringStep.Add(neuron);
     }
     public IReadOnlyClock Clock => network.Clock;
     public float[] Output => network.Output;
