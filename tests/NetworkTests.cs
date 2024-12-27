@@ -1,6 +1,5 @@
 using JBSnorro.NN;
 using JBSnorro.NN.Internals;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Assert = Xunit.Assert;
 using VariableNeuronType = JBSnorro.NN.Internals.VariableNeuronType;
 

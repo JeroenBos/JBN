@@ -161,10 +161,10 @@ public class NOT
 {
     /// <summary>
     /// Schema:
-    ///        -1    
-    ///     I ━━━━(N1)
-    ///            ↑+
-    ///           (N0)
+    ///        -    
+    ///     I ━━━(N1)
+    ///           ↑+
+    ///          (N0)
     ///          
     /// t↓   I1       N0    N1
     /// 0             1     0                // charge at t=1
