@@ -98,15 +98,16 @@ internal sealed class Machine : IMachine
     }
     private void UpdateNeurons(OnTickEventArgs e)
     {
-        int excitationCount = 0;
         foreach (Neuron neuron in potentiallyExcitedDuringStep)
         {
-            if (neuron.Charge >= Neuron.threshold && neuron.Excite(this))
+            if (neuron.Charge >= Neuron.threshold)
             {
-                excitationCount++;
+                if (neuron.Excite(this))
+                {
+                    e.ExcitationCount++;
+                }
             }
         }
-        e.ExcitationCount = excitationCount;
     }
 
     public void Excite(int inputAxonIndex)
