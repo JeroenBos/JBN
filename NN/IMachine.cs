@@ -43,7 +43,7 @@ public interface IMachine
 
         void OnTicked(IMachine sender, OnTickEventArgs e)
         {
-            result.Add([.. e.Output]);
+            result.Add([..e.Output]);
         }
     }
 
