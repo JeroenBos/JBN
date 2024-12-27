@@ -14,7 +14,7 @@ internal sealed class RandomNetworkPrimer : INetworkFeeder
         this.Random = random;
     }
 
-    public void OnTicked(IMachine machine, OnTickEventArgs e)
+    public void OnFeed(IMachine machine, OnFeedEventArgs e)
     {
         if (e.Time != IReadOnlyClock.UNSTARTED)
             return;
@@ -35,7 +35,7 @@ internal sealed class RandomNetworkPrimer : INetworkFeeder
 /// </summary>
 internal sealed class UniformNetworkPrimer : INetworkFeeder
 {
-    public void OnTicked(IMachine machine, OnTickEventArgs e)
+    public void OnFeed(IMachine machine, OnFeedEventArgs e)
     {
         if (e.Time != IReadOnlyClock.UNSTARTED)
             return;
@@ -63,7 +63,7 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
     }
 
 
-    void INetworkFeeder.OnTicked(IMachine machine, OnTickEventArgs e)
+    void INetworkFeeder.OnFeed(IMachine machine, OnFeedEventArgs e)
     {
         if (inputs is null || !inputs.MoveNext())
         {
@@ -76,7 +76,7 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
         var currentTime = machine.Clock.Time;
         if (lastTime + 1 != currentTime)
         {
-            throw new InvalidOperationException($"{nameof(INetworkFeeder)}.{nameof(INetworkFeeder.OnTicked)} must be called every timestep");
+            throw new InvalidOperationException($"{nameof(INetworkFeeder)}.{nameof(INetworkFeeder.OnFeed)} must be called every timestep");
         }
         this.lastTime = currentTime;
 
