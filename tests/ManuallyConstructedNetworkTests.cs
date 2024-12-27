@@ -78,7 +78,7 @@ public class AND
         var machine = Construct(false, true).Machine;
         var output = machine.Run();
 
-        Assert.True(output[0] == 0.5);
+        Assert.Equal(0.5, output[0]);
     }
     [Fact]
     public void True_and_false_gives_false()
@@ -86,7 +86,7 @@ public class AND
         var machine = Construct(true, false).Machine;
         var output = machine.Run();
 
-        Assert.True(output[0] == 0.5);
+        Assert.Equal(0.5, output[0]);
     }
     [Fact]
     public void False_and_false_gives_false()
