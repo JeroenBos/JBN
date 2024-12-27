@@ -45,7 +45,7 @@ internal sealed class PredeterminedFeeder : INetworkFeeder
 {
     // null means finished
     private IEnumerator<IReadOnlyList<bool>>? inputs;
-    private int lastTime = -2; // because we start at -1
+    private int lastTime = IReadOnlyClock.UNSTARTED - 1;
 
     /// <summary>
     /// Creates a deterministic sequence of input neuron activations.
