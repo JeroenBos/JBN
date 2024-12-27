@@ -94,8 +94,7 @@ internal sealed class Neuron
         this.lastExcitationTime = machine.Clock.Time;
         foreach (var axon in this.axons)
         {
-            int timeOfDelivery = axon.Excite(machine.Clock.Time);
-            machine.AddEmitAction(timeOfDelivery, axon);
+            axon.Excite(machine);
         }
         return true;
     }

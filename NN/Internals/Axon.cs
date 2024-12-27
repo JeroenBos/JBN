@@ -26,24 +26,24 @@ internal sealed class Axon
     /// </summary>
     private float averageTimeBetweenExcitations = float.NaN;
     /// <returns>the time of delivery.</returns>
-    internal int Excite(int currentTime)
+    internal void Excite(IMachine machine)
     {
         excitationCount++;
 
-        int newTimeOfDelivery = currentTime + this.length;
+        int newTimeOfDelivery = machine.Clock.Time + this.length;
         int timeBetweenExcitations = newTimeOfDelivery - this.timeOfDelivery;
         this.timeOfDelivery = newTimeOfDelivery;
         if (float.IsNaN(averageTimeBetweenExcitations))
         {
-            averageTimeBetweenExcitations = currentTime + 1;
+            averageTimeBetweenExcitations = machine.Clock.Time + 1;
         }
         else
         {
             averageTimeBetweenExcitations = (averageTimeBetweenExcitations * (excitationCount - 1) + timeBetweenExcitations) / excitationCount;
         }
-        return this.timeOfDelivery;
+        machine.AddEmitAction(timeOfDelivery, this);
     }
-    internal void Emit(Machine machine)
+    internal void Emit(IMachine machine)
     {
         endpoint.Receive(type.GetCharge(weights), machine);
     }

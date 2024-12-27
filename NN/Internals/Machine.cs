@@ -49,7 +49,7 @@ internal sealed class Machine : IMachine
         float[] output = network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
         {
-            var e = new OnTickEventArgs(time, this.network.Inputs);
+            var e = new OnTickEventArgs(time, this.network.Inputs, this);
 
             // although you might want the neurons to fire at the beginning, then axons would have to fire with dt=0
             this.DeliverFiredAxons(e);

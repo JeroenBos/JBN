@@ -31,10 +31,11 @@ public sealed class OnTickEventArgs : OnFeedEventArgs
     // must be set before we pass this class through public surface
     private IReadOnlyList<float>? output;
     [DebuggerHidden]
-    internal OnTickEventArgs(int time, IReadOnlyList<Axon> inputAxons)
+    internal OnTickEventArgs(int time, IReadOnlyList<Axon> inputAxons, IMachine machine)
     {
         this.Time = time;
         this._inputAxons = inputAxons ?? throw new ArgumentNullException(nameof(inputAxons));
+        this._machine = machine;
     }
 
     /// <summary>
@@ -49,6 +50,8 @@ public sealed class OnTickEventArgs : OnFeedEventArgs
 
     private readonly IReadOnlyList<Axon> _inputAxons;
     IReadOnlyList<Axon> OnFeedEventArgs.inputAxons => _inputAxons;
+    private readonly IMachine _machine;
+    IMachine OnFeedEventArgs.Machine => _machine;
 }
 
 public interface OnFeedEventArgs
@@ -61,4 +64,10 @@ public interface OnFeedEventArgs
     /// Network feeders should have a better way to access the input axons.
     /// </summary>
     internal IReadOnlyList<Axon> inputAxons { get; }
+    internal IMachine Machine { get; }
+
+    void Emit(int inputAxonIndex)
+    {
+        this.inputAxons[inputAxonIndex].Excite(Machine);
+    }
 }

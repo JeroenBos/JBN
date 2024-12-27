@@ -10,7 +10,7 @@ public interface IMachine
         if (feed is not null)
         {
             machine.OnTicked += feed.OnFeed;
-            feed.OnFeed(machine, new OnTickEventArgs(IReadOnlyClock.UNSTARTED, network.Inputs));
+            feed.OnFeed(machine, new OnTickEventArgs(IReadOnlyClock.UNSTARTED, network.Inputs, machine));
         }
         return machine;
     }
