@@ -48,6 +48,8 @@ internal sealed class Machine : IMachine
         if (maxTime is null && clock.MaxTime is null) throw new ArgumentException("Neither the clock nor the specified argument has a max time", nameof(maxTime));
 
         UpdateNeurons(new (IReadOnlyClock.UNSTARTED, int.MinValue));
+        potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
+        network.Decay(this); // could theoretically add to emits
 
         float[] output = network.Output;
         foreach (var time in maxTime == null ? clock.Ticks : clock.Ticks.TakeWhile(time => time < maxTime))
