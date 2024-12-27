@@ -1,4 +1,4 @@
-namespace JBSnorro.NN.Internals;
+﻿namespace JBSnorro.NN.Internals;
 
 /// <inheritdoc/>
 internal sealed class Machine : IMachine
@@ -69,6 +69,11 @@ internal sealed class Machine : IMachine
             {
                 this.network.Process(e.Feedback);
             }
+
+            // clean up
+            potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
+            network.Decay(this); // could theoretically add to emits
+            emits.RemoveAt(0);
         }
         return output;
     }
@@ -100,11 +105,6 @@ internal sealed class Machine : IMachine
             }
         }
         e.ExcitationCount = excitationCount;
-        potentiallyExcitedDuringStep.Clear(); // can be appended to in network.Decay()
-
-        // end of time step:
-        network.Decay(this);
-        emits.RemoveAt(0);
     }
 
     public void Excite(int inputAxonIndex)
