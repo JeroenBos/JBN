@@ -8,19 +8,28 @@ namespace JBSnorro.NN;
 public interface INetworkFeeder
 {
     internal const int INITIALIZATION_TIME = 0;
-    public static INetworkFeeder CreateRandom(int seed)
+    /// <summary>
+    /// Creates a <see cref="INetworkFeeder"/> that that primes the network randomly.
+    /// </summary>
+    public static INetworkFeeder CreateRandomPrimer(int seed)
     {
-        return CreateRandom(new Random(seed));
+        return CreateRandomPrimer(new Random(seed));
     }
-    public static INetworkFeeder CreateRandom(Random random)
+    /// <summary>
+    /// Creates a <see cref="INetworkFeeder"/> that that primes the network randomly.
+    /// </summary>
+    public static INetworkFeeder CreateRandomPrimer(Random random)
     {
         return new RandomNetworkPrimer(random);
     }
-    public static INetworkFeeder CreateUniformActivator()
+    /// <summary>
+    /// Creates a <see cref="INetworkFeeder"/> that that primes the network uniformly.
+    /// </summary>
+    public static INetworkFeeder CreateUniformPrimer()
     {
         return new UniformNetworkPrimer();
     }
-    /// <inheritdoc cref="DeterministicFeeder.DeterministicFeeder(IEnumerable{IReadOnlyList{bool}})"/>
+    /// <inheritdoc cref="PredeterminedFeeder(IEnumerable{IReadOnlyList{bool}})"/>
     public static INetworkFeeder CreateDeterministicFeeder(IEnumerable<IReadOnlyList<bool>> inputs)
     {
         return new PredeterminedFeeder(inputs);
