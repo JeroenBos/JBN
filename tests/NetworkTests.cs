@@ -318,7 +318,4 @@ public class NeuronTypeTests
             currentWeightsCallback(currentWeights);
         }
     }
-    class MockFeedback : IFeedback
-    {
-    }
 }

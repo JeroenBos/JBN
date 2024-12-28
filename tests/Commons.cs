@@ -13,6 +13,7 @@ static class NeuronTypes
     public static INeuronType[] OnlyOne { get; }
     public static INeuronType InitiallyCharged { get; }
     public static INeuronType AlwaysOn => INeuronType.AlwaysOn;
+    public static INeuronType NoRetention => INeuronType.NoRetentionNeuronType;
 
     static NeuronTypes()
     {
