@@ -1,13 +1,12 @@
 using JBSnorro.NN;
 
-sealed class WeightChangingAxonType(Action<float[]> changeWeights) : IAxonType
+sealed class WeightChangingAxonType<TFeedback>(Action<float[], TFeedback> changeWeights) : IAxonType where TFeedback : IFeedback
 {
-    private readonly Action<float[]> changeWeights = changeWeights;
     public int Length => 1;
     public IReadOnlyList<float> InitialWeights => [1f];
 
     public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
     {
-        this.changeWeights(currentWeights);
+        changeWeights(currentWeights, (TFeedback)feedback);
     }
 }
