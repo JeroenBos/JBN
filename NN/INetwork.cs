@@ -9,6 +9,27 @@ namespace JBSnorro.NN;
 /// </summary>
 public interface INetwork
 {
+    /// <summary>
+    /// Creates a network and machine to operate it.
+    /// </summary>
+    /// <param name="neuronTypes">The types of the neurons to create in the network.</param>
+    /// <param name="outputCount">The number of neurons at the end of <paramref name="neuronTypes"/> that are output neurons (i.e. whose charge will be reported). </param>
+    /// <param name="getAxon">A function specifying connections between the neurons. The arguments are up to <paramref name="neuronTypes"/>.Count), the first parameter accepts -1 indicating input axon. </param>
+    /// <param name="feeder">A function specifing when input axons are triggered. </param>
+    /// <param name="maxTime">The maximum time the machine is allowed to run. </param>
+    public static (IMachine Machine, INetwork Network) Create(
+        IReadOnlyList<INeuronType> neuronTypes,
+        int outputCount,
+        GetAxonConnectionDelegate getAxon,
+        INetworkFeeder feeder,
+        int? maxTime = null)
+    {
+        var clock = IClock.Create(maxTime);
+        var network = Create(neuronTypes, outputCount, getAxon, clock);
+        var machine = IMachine.Create(network, feeder);
+        return (machine, network);
+    }
+
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
     internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
                                     int outputCount,
