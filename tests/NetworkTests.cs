@@ -12,13 +12,12 @@ public class NetworkTests
     {
         INetwork.Create(NeuronTypes.OnlyOne,
                         outputCount: 1,
-                        (i, j) => i == -1 ? InputAxonType.Instance : null,
-                        IClock.Create(maxTime: null));
+                        (i, j) => i == -1 ? InputAxonType.Instance : null);
     }
     [Fact]
     public void CreateNetworkViaFactory()
     {
-        INetworkFactory factory = new MockNetworkFactory([], 0, 0, (i, j) => null, INetworkFeeder.CreateUniformActivator());
+        INetworkFactory factory = new MockNetworkFactory([], 0, 0, (i, j) => null, INetworkFeeder.CreateUniformPrimer());
         factory.Create();
     }
     record MockNetworkFactory(
@@ -39,10 +38,9 @@ public class NetworkTests
         var connections = new IAxonType?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : null,
-                                      IClock.Create(maxTime: null));
+                                      (i, j) => i == -1 ? InputAxonType.Instance : null);
 
-        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
         var output = machine.Run(maxTime: 1);
 
@@ -56,10 +54,9 @@ public class NetworkTests
         var connections = new IAxonType?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : null,
-                                      IClock.Create(maxTime: null));
+                                      (i, j) => i == -1 ? InputAxonType.Instance : null);
 
-        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
         var output = machine.RunCollect(2);
 
@@ -70,10 +67,9 @@ public class NetworkTests
     {
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
-                                      IClock.Create(maxTime: null));
+                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo);
 
-        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
         var output = machine.RunCollect(3);
         Assert.Equal(actual: output, expected: [[1f], [0f], [1f]]);
@@ -100,10 +96,9 @@ public class NetworkTests
         // 
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo,
-                                      IClock.Create(maxTime: null));
+                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo);
 
-        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformActivator());
+        var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
@@ -119,8 +114,7 @@ public class NetworkTests
     {
         var network = INetwork.Create([NeuronTypes.InitiallyCharged],
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Create([0.1f]) : null,
-                                      IClock.Create(maxTime: null));
+                                      (i, j) => i == -1 ? InputAxonType.Create([0.1f]) : null);
         var machine = IMachine.Create(network);
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
@@ -135,8 +129,7 @@ public class NetworkTests
     {
         var network = INetwork.Create([NeuronTypes.AlwaysOn],
                                       outputCount: 0,
-                                      (i, j) => null,
-                                      IClock.Create(maxTime: null));
+                                      (i, j) => null);
         var machine = IMachine.Create(network);
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
@@ -176,10 +169,9 @@ public class NetworkTests
 
         var network = INetwork.Create(neuronTypes,
                                       outputCount,
-                                      (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j],
-                                      IClock.Create(maxTime: null));
+                                      (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j]);
 
-        var machine = IMachine.Create(network, INetworkFeeder.CreateRandom(random));
+        var machine = IMachine.Create(network, INetworkFeeder.CreateRandomPrimer(random));
 
         var output = machine.RunCollect(maxTime);
         for (int t = 0; t < maxTime; t++)
@@ -325,8 +317,5 @@ public class NeuronTypeTests
         {
             currentWeightsCallback(currentWeights);
         }
-    }
-    class MockFeedback : IFeedback
-    {
     }
 }

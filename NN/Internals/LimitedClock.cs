@@ -43,7 +43,7 @@ internal sealed class UnlimitedClock : IClock
 
 internal interface IClock : IReadOnlyClock
 {
-    public static IClock Create(int? maxTime)
+    public static IClock Create(int? maxTime = null)
     {
         return maxTime is null ? new UnlimitedClock() : new LimitedClock(maxTime.Value);
     }

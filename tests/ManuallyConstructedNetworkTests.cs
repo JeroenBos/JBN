@@ -195,7 +195,7 @@ public class NOT
         // t=0 is different because firing from AlwaysOn didn't arrive (because it didn't fire at t=-1 to arrive at t=0)
         Assert.Equal([0, 1, 0, 0, 1], output);
     }
-    IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+    private static IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
     {
         switch ((neuronFromIndex, neuronToIndex))
         {

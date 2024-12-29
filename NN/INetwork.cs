@@ -13,9 +13,9 @@ public interface INetwork
     internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
                                     int outputCount,
                                     GetAxonConnectionDelegate getConnection,
-                                    IReadOnlyClock clock)
+                                    IReadOnlyClock? clock = null)
     {
-        return new Network(neuronTypes, outputCount, getConnection, clock);
+        return new Network(neuronTypes, outputCount, getConnection, clock ?? IClock.Create(maxTime: null));
     }
 
     public IReadOnlyClock Clock { get; }
