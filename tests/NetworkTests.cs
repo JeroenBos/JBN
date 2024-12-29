@@ -14,22 +14,6 @@ public class NetworkTests
                         outputCount: 1,
                         (i, j) => i == -1 ? InputAxonType.Instance : null);
     }
-    [Fact]
-    public void CreateNetworkViaFactory()
-    {
-        INetworkFactory factory = new MockNetworkFactory([], 0, 0, (i, j) => null, INetworkFeeder.CreateUniformPrimer());
-        factory.Create();
-    }
-    record MockNetworkFactory(
-        IReadOnlyList<INeuronType> NeuronTypes,
-        int NeuronCount,
-        int OutputCount,
-        GetAxonConnectionDelegate getConnection,
-        INetworkFeeder InputFeeder
-    ) : INetworkFactory
-    {
-        IAxonType? INetworkFactory.GetAxonConnection(int neuronFromIndex, int neuronToIndex) => getConnection(neuronFromIndex, neuronToIndex);
-    }
 
 
     [Fact]

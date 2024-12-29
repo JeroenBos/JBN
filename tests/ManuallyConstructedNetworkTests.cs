@@ -15,7 +15,7 @@ public class AND
     ///     I ━━━(N1)━━━━━━━┛
     /// </summary>
 
-    public class BinaryOPNetworkFactory : INetworkFactory
+    public static class BinaryOPNetworkFactory
     {
         public static (IMachine Machine, INetwork Network) Construct(float weight_N01_N2, IEnumerable<IReadOnlyList<bool>> feeds, int maxTime = 2)
         {
@@ -23,44 +23,34 @@ public class AND
         }
         public static (IMachine Machine, INetwork Network) Construct(IReadOnlyList<float> weights_to_N2, IEnumerable<IReadOnlyList<bool>> feeds, int maxTime = 2)
         {
-            INetworkFactory factory = new BinaryOPNetworkFactory(INetworkFeeder.CreateDeterministicFeeder(feeds), weights_to_N2);
-            return factory.Create(maxTime);
-        }
+            return INetwork.Create(
+                neuronTypes: Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray(),
+                outputCount: 1,
+                getAxon: GetAxonConnection,
+                feeder: INetworkFeeder.CreateDeterministicFeeder(feeds),
+                maxTime);
 
-
-        public IReadOnlyList<INeuronType> NeuronTypes { get; } = Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray();
-        public int OutputCount => 1;
-        public INetworkFeeder InputFeeder { get; }
-        private readonly IReadOnlyList<float> weights;
-
-        public BinaryOPNetworkFactory(INetworkFeeder inputPrimer, IReadOnlyList<float> weights)
-        {
-            if (weights?.Count != 2) throw new ArgumentException(nameof(weights));
-
-            this.InputFeeder = inputPrimer;
-            this.weights = weights;
-        }
-
-        public IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
-        {
-            switch ((neuronFromIndex, neuronToIndex))
+            IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
             {
-                case (IAxonType.FROM_INPUT, 0):
-                case (IAxonType.FROM_INPUT, 1):
-                    return InputAxonType.Instance;
-                case (0, 2):
-                case (1, 2):
-                    return IAxonType.CreateImmutable(length: 1, [weights[neuronFromIndex]]);
-                case (IAxonType.FROM_INPUT, 2):
-                case (0, 0):
-                case (1, 1):
-                case (2, 2):
-                case (2, 1):
-                case (2, 0):
-                case (0, 1):
-                case (1, 0):
-                    return null;
-                default: throw new UnreachableException();
+                switch ((neuronFromIndex, neuronToIndex))
+                {
+                    case (IAxonType.FROM_INPUT, 0):
+                    case (IAxonType.FROM_INPUT, 1):
+                        return InputAxonType.Instance;
+                    case (0, 2):
+                    case (1, 2):
+                        return IAxonType.CreateImmutable(length: 1, [weights_to_N2[neuronFromIndex]]);
+                    case (IAxonType.FROM_INPUT, 2):
+                    case (0, 0):
+                    case (1, 1):
+                    case (2, 2):
+                    case (2, 1):
+                    case (2, 0):
+                    case (0, 1):
+                    case (1, 0):
+                        return null;
+                    default: throw new UnreachableException();
+                }
             }
         }
     }
