@@ -4,13 +4,13 @@ namespace JBSnorro.NN.Internals;
 
 internal sealed class RetentionOfOneNeuronType : INeuronType
 {
-    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
+    public IReadOnlyList<float> GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
     {
         Assert(IsNever(timeSinceLastChargeReceipt) || timeSinceLastChargeReceipt >= 0, $"{nameof(timeSinceLastChargeReceipt)} out of range");
         Assert(IsNever(timeSinceLastExcitation) || timeSinceLastExcitation >= 0, $"{nameof(timeSinceLastExcitation)} out of range");
 
         // return 0 means charge immediately decays, but it still had the chance to elicit an excitation
-        return 0;
+        return [0];
     }
 }
 
@@ -47,7 +47,7 @@ internal sealed class VariableNeuronType : INeuronType
         }
     }
 
-    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
+    public IReadOnlyList<float> GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
     {
         // we can assume we're at the end of a time step
         bool hasReceivedCharge = !IsNever(timeSinceLastChargeReceipt);
@@ -72,7 +72,7 @@ internal sealed class VariableNeuronType : INeuronType
 
             // In this case the current decay _must_ be 0, so we can return anything. 
             // 0 would make any mistake stand out.
-            return 0;
+            return [0];
         }
         else // has received charge without activation
         {
@@ -87,7 +87,7 @@ internal sealed class VariableNeuronType : INeuronType
             // dt == 0 is a special case which is assumed to always return 1, unless explicitly stated otherwise (through ctor arguments)
             if (list.Length == 0 || list[0].max != 0)
             {
-                return 1;
+                return [1];
             }
         }
 
@@ -95,10 +95,10 @@ internal sealed class VariableNeuronType : INeuronType
         {
             if (maxDt >= dt)
             {
-                return decay;
+                return [decay];
             }
         }
-        return tail;
+        return [tail];
     }
     internal IEnumerable<float> GetExcitationDecaySequence()
     {
@@ -145,13 +145,13 @@ internal sealed class VariableNeuronType : INeuronType
 
 internal sealed class AlwaysOnNeuronType : INeuronType
 {
-    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
+    public IReadOnlyList<float> GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
     {
         Assert(IsNever(timeSinceLastChargeReceipt) || timeSinceLastChargeReceipt >= 0, $"{nameof(timeSinceLastChargeReceipt)} out of range");
         Assert(IsNever(timeSinceLastExcitation) || timeSinceLastExcitation >= 0, $"{nameof(timeSinceLastExcitation)} out of range");
 
-        // return 0 means charge never decays, but it still had the chance to elicit an excitation
-        return 1;
+        // return 1 means charge never decays, but it still had the chance to elicit an excitation
+        return [1];
     }
-    float INeuronType.InitialCharge => 1;
+    IReadOnlyList<float> INeuronType.InitialCharge => [1];
 }

@@ -19,14 +19,14 @@ public interface IAxonType
 
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
-    /// <param name="currentWeights">This should be modified in-place.</param>
+    /// <param name="currentWeights">This should be modified in-place. One per charge dimension.</param>
     public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback);
 
     /// <summary>
     /// Gets the charge delivered by this axon.
     /// </summary>
     [DebuggerHidden]
-    public float GetCharge(float[] weights) => weights[0];
+    public IReadOnlyList<float> GetCharge(float[] weights) => weights;
 
     internal static void AssertPreconditions(int length, IReadOnlyList<float> initialWeights)
     {

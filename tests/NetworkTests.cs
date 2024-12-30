@@ -208,7 +208,7 @@ public class NeuronTypeTests
             []
         );
 
-        var neuron = new Neuron(type, initialCharge: 1);
+        var neuron = new Neuron(type, initialCharge: [1]);
         var charges = new float[4];
         for (int t = 0; t < charges.Length; t++)
         {
@@ -229,21 +229,21 @@ public class NeuronTypeTests
             [(maxDt: 2, decay: 0.5f)] // in contrast to the test above, activation is triggered in this one, hence we use that list
         );
 
-        var neuron = new Neuron(type, 0);
+        var neuron = new Neuron(type, initialCharge: [0]);
         // simulate without triggering Decay
-        neuron.Receive(1, Machines.AtTime0);
+        neuron.Receive([1], Machines.AtTime0);
         neuron.Excite(Machines.AtTime0);
 
-        var charges = new float[4];
+        var charges = new IReadOnlyList<float>[4];
         for (int t = 0; t < charges.Length; t++)
         {
             neuron.Decay(t);
-            charges[t] = neuron.Charge;
+            charges[t] = [..neuron.Charges];
         }
         // these are the charges at the ends of timesteps just before clearance
         // given that the initial axon fires at time 0 and reaches the neuron between time 0 and 1,
         // the charge at the end of time 0 is 1f
-        Assert.Equal(charges, [1f, 0.50f, 0.25f, 0.25f]);
+        Assert.Equal([[1f], [0.50f], [0.25f], [0.25f]], charges);
     }
 
     [Fact]
