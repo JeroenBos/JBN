@@ -1,3 +1,5 @@
+using System.Diagnostics.Contracts;
+
 namespace JBSnorro.NN.Internals;
 
 [DebuggerDisplay("Neuron({index == null ? -1 : index}, Charge={Charge})")]
@@ -36,23 +38,35 @@ internal sealed class Neuron
     /// </summary>
     private int lastExcitationTime = NEVER;
     /// <summary>
-    /// The last timestep this neuron receipt charge.
+    /// The last timestep this neuron received charge.
     /// </summary>
     private int lastReceivedChargeTime = NEVER;
-    internal float Charge { get; private set; }
+    /// <summary>
+    /// The last time step a potential excitation of this neuron was registered.
+    /// </summary>
+    private int lastRegisteredPotentialExcitation = NEVER;
+    /// <summary>
+    /// Gets the multi-dimensional charges of this neuron. Think of it as a vector.
+    /// </summary>
+    internal IReadOnlyList<float> Charges => charge;
+    private readonly float[] charge;
+    /// <summary>
+    /// Gets the effective single-dimensional charge of this neuron. Think of it as an absolute value of a vector.
+    /// </summary>
+    public float Charge => this.type.GetEffectiveCharge(this.Charges);
 
 #if DEBUG
     private readonly int? index;
 #endif
-    public Neuron(INeuronType type, float initialCharge = 0, int? index = null)
+    public Neuron(INeuronType type, IReadOnlyList<float> initialCharge, int? index = null)
     {
         this.type = type;
         this.axons = [];
-        this.Charge = initialCharge;
+        this.charge = [.. initialCharge];
 #if DEBUG
         this.index = index;
 #endif
-        if (initialCharge != 0)
+        if (initialCharge.Any(value => value != 0))
         {
             this.lastReceivedChargeTime = 0;
         }
@@ -68,24 +82,39 @@ internal sealed class Neuron
     {
         if (time == IReadOnlyClock.UNSTARTED)
         {
-            this.Charge *= this.type.GetDecay(0, 0);
+            multiply(this.charge, this.type.GetDecay(0, 0));
         }
         // Decay is at the end of a time step, and so we decay the current time also. The neuron's excitation, if any, has been elicited already.
         // That means that if a neuron got charge this step, the type.GetDecay(..) is called with timeSinceLastChargeReceipt: 0
         // +1 because the decayUpdatedTime has already been updated
         for (int decayUpdatingTime = this.decayUpdatedTime + 1; decayUpdatingTime <= time; decayUpdatingTime++)
         {
-            this.Charge *= this.type.GetDecay(decayUpdatingTime - lastReceivedChargeTime, decayUpdatingTime - lastExcitationTime);
+            multiply(this.charge, this.type.GetDecay(decayUpdatingTime - lastReceivedChargeTime, decayUpdatingTime - lastExcitationTime));
         }
         this.decayUpdatedTime = time;
-    }
-    internal void Receive(float charge, IMachine machine)
-    {
-        bool alreadyRegistered = this.Charge >= threshold;
-        this.Charge += charge;
-        this.lastReceivedChargeTime = machine.Clock.Time;
-        if (this.Charge >= threshold && !alreadyRegistered)
+
+        static void multiply(float[] charge, IReadOnlyList<float> factor)
         {
+            Contract.Requires(charge.Length == charge.Length);
+            for (int i = 0; i < charge.Length; i++)
+            {
+                charge[i] *= factor[i];
+            }
+        }
+    }
+    internal void Receive(IReadOnlyList<float> charge, IMachine machine)
+    {
+        Contract.Requires(charge.Count == this.charge.Length);
+
+        for (int i = 0; i < charge.Count; i++)
+        {
+            this.charge[i] += charge[i];
+        }
+        this.lastReceivedChargeTime = machine.Clock.Time;
+        bool alreadyRegistered = machine.Clock.Time == this.lastRegisteredPotentialExcitation;
+        if (this.Charges[0] >= threshold && !alreadyRegistered)
+        {
+            this.lastRegisteredPotentialExcitation = machine.Clock.Time;
             machine.RegisterPotentialExcitation(this);
         }
     }

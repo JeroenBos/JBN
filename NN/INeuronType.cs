@@ -18,8 +18,15 @@ public interface INeuronType
     /// A bias node.
     /// </summary>
     public static INeuronType AlwaysOn { get; } = new AlwaysOnNeuronType();
-    /// <summary> Gets the decay of the charge given the times since last receipt of charge and last excitation. </summary>
-    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation);
+    /// <summary>
+    /// Gets the decay factors of each of the charge dimensions.
+    /// </summary>
+    public IReadOnlyList<float> GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation);
 
-    public float InitialCharge => 0;
+    public IReadOnlyList<float> InitialCharge => [0];
+
+    public float GetEffectiveCharge(IReadOnlyList<float> charges)
+    {
+        return charges[0];
+    }
 }

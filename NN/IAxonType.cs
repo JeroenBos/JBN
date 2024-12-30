@@ -26,7 +26,7 @@ public interface IAxonType
     /// Gets the charge delivered by this axon.
     /// </summary>
     [DebuggerHidden]
-    public float GetCharge(float[] weights) => weights[0];
+    public IReadOnlyList<float> GetCharge(float[] weights) => weights;
 
     internal static void AssertPreconditions(int length, IReadOnlyList<float> initialWeights)
     {
