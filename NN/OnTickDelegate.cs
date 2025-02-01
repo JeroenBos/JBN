@@ -1,6 +1,4 @@
-﻿using JBSnorro.NN.Internals;
-
-namespace JBSnorro.NN;
+﻿namespace JBSnorro.NN;
 
 public delegate void OnTickDelegate(IMachine sender, OnTickEventArgs e);
 
