@@ -1,5 +1,3 @@
-using System.Diagnostics.Contracts;
-
 namespace JBSnorro.NN.Internals;
 
 [DebuggerDisplay("Neuron({index == null ? -1 : index}, Charge={Charge})")]
@@ -95,7 +93,8 @@ internal sealed class Neuron
 
         static void multiply(float[] charge, IReadOnlyList<float> factor)
         {
-            Contract.Requires(charge.Length == charge.Length);
+            if (charge.Length != factor.Count) throw new ArgumentException("charge.Length != factor.Count");
+
             for (int i = 0; i < charge.Length; i++)
             {
                 charge[i] *= factor[i];
@@ -104,7 +103,7 @@ internal sealed class Neuron
     }
     internal void Receive(IReadOnlyList<float> charge, IMachine machine)
     {
-        Contract.Requires(charge.Count == this.charge.Length);
+        if (charge.Count != this.charge.Length) throw new ArgumentException("charge.Count != this.charge.Length");
 
         for (int i = 0; i < charge.Count; i++)
         {
