@@ -134,11 +134,11 @@ internal sealed class VariableNeuronType : INeuronType
     }
     internal IEnumerable<float> GetExcitationCumulativeDecaySequence()
     {
-        return GetExcitationDecaySequence().Scan((a, b) => a * b, 1);
+        return GetExcitationDecaySequence().Fold((a, b) => a * b, 1);
     }
     internal IEnumerable<float> GetNoExcitationCumulativeDecaySequence()
     {
-        return GetNoExcitationDecaySequence().Scan((a, b) => a * b, 1);
+        return GetNoExcitationDecaySequence().Fold((a, b) => a * b, 1);
     }
 }
 
