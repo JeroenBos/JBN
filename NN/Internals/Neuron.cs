@@ -46,8 +46,8 @@ internal sealed class Neuron
     /// <summary>
     /// Gets the multi-dimensional charges of this neuron. Think of it as a vector.
     /// </summary>
-    internal IReadOnlyList<float> Charges => charge;
-    private readonly float[] charge;
+    internal IReadOnlyList<float> Charges => charges;
+    private readonly float[] charges;
     /// <summary>
     /// Gets the effective single-dimensional charge of this neuron. Think of it as an absolute value of a vector.
     /// </summary>
@@ -60,7 +60,7 @@ internal sealed class Neuron
     {
         this.type = type;
         this.axons = [];
-        this.charge = [.. initialCharge];
+        this.charges = [.. initialCharge];
 #if DEBUG
         this.index = index;
 #endif
@@ -80,14 +80,14 @@ internal sealed class Neuron
     {
         if (time == IReadOnlyClock.UNSTARTED)
         {
-            multiply(this.charge, this.type.GetDecay(0, 0));
+            multiply(this.charges, this.type.GetDecay(0, 0));
         }
         // Decay is at the end of a time step, and so we decay the current time also. The neuron's excitation, if any, has been elicited already.
         // That means that if a neuron got charge this step, the type.GetDecay(..) is called with timeSinceLastChargeReceipt: 0
         // +1 because the decayUpdatedTime has already been updated
         for (int decayUpdatingTime = this.decayUpdatedTime + 1; decayUpdatingTime <= time; decayUpdatingTime++)
         {
-            multiply(this.charge, this.type.GetDecay(decayUpdatingTime - lastReceivedChargeTime, decayUpdatingTime - lastExcitationTime));
+            multiply(this.charges, this.type.GetDecay(decayUpdatingTime - lastReceivedChargeTime, decayUpdatingTime - lastExcitationTime));
         }
         this.decayUpdatedTime = time;
 
@@ -103,11 +103,11 @@ internal sealed class Neuron
     }
     internal void Receive(IReadOnlyList<float> charge, IMachine machine)
     {
-        if (charge.Count != this.charge.Length) throw new ArgumentException("charge.Count != this.charge.Length");
+        if (charge.Count != this.charges.Length) throw new ArgumentException("charge.Count != this.charge.Length");
 
         for (int i = 0; i < charge.Count; i++)
         {
-            this.charge[i] += charge[i];
+            this.charges[i] += charge[i];
         }
         this.lastReceivedChargeTime = machine.Clock.Time;
         bool alreadyRegistered = machine.Clock.Time == this.lastRegisteredPotentialExcitation;
