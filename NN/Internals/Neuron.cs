@@ -1,6 +1,6 @@
 namespace JBSnorro.NN.Internals;
 
-[DebuggerDisplay("Neuron({index == null ? -1 : index}, Charge={Charge})")]
+[DebuggerDisplay("Neuron({index == null ? -1 : index}, EffectiveCharge={EffectiveCharge})")]
 internal sealed class Neuron
 {
     /// <summary>
