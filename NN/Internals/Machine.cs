@@ -102,7 +102,7 @@ internal sealed class Machine : IMachine
     {
         foreach (Neuron neuron in potentiallyExcitedDuringStep)
         {
-            if (neuron.Charge >= Neuron.threshold)
+            if (neuron.EffectiveCharge >= Neuron.threshold)
             {
                 if (neuron.Excite(this))
                 {

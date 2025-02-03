@@ -19,7 +19,7 @@ internal sealed class Network : INetwork
             var output = this._output;
             for (int i = 0; i < output.Length; i++)
             {
-                output[i] = neurons[neurons.Count - output.Length + i].Charge;
+                output[i] = neurons[neurons.Count - output.Length + i].EffectiveCharge;
             }
             return output;
         }
@@ -75,7 +75,7 @@ internal sealed class Network : INetwork
         foreach (var neuron in this.neurons)
         {
             neuron.Decay(this.Clock.Time);
-            if (neuron.Charge >= Neuron.threshold)
+            if (neuron.EffectiveCharge >= Neuron.threshold)
             {
                 machine.RegisterPotentialExcitation(neuron);
             }

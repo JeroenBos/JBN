@@ -213,7 +213,7 @@ public class NeuronTypeTests
         for (int t = 0; t < charges.Length; t++)
         {
             neuron.Decay(t);
-            charges[t] = neuron.Charge;
+            charges[t] = neuron.EffectiveCharge;
         }
         // these are the charges at the ends of timesteps just before clearance
         // given that the initial axon fires at time 0 and reaches the neuron between time 0 and 1,
@@ -238,7 +238,7 @@ public class NeuronTypeTests
         for (int t = 0; t < charges.Length; t++)
         {
             neuron.Decay(t);
-            charges[t] = [..neuron.Charges];
+            charges[t] = [.. neuron.Charges];
         }
         // these are the charges at the ends of timesteps just before clearance
         // given that the initial axon fires at time 0 and reaches the neuron between time 0 and 1,

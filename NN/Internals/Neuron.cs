@@ -51,7 +51,7 @@ internal sealed class Neuron
     /// <summary>
     /// Gets the effective single-dimensional charge of this neuron. Think of it as an absolute value of a vector.
     /// </summary>
-    public float Charge => this.type.GetEffectiveCharge(this.Charges);
+    public float EffectiveCharge => this.type.GetEffectiveCharge(this.Charges);
 
 #if DEBUG
     private readonly int? index;
