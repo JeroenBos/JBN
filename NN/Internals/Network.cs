@@ -2,7 +2,6 @@ namespace JBSnorro.NN.Internals;
 
 internal sealed class Network : INetwork
 {
-    private readonly IReadOnlyList<INeuronType> neuronTypes;
     private readonly IReadOnlyList<Neuron> neurons;
     private readonly float[] _output; // mutable
 
@@ -25,49 +24,51 @@ internal sealed class Network : INetwork
         }
     }
 
-    /// <param name="neuronTypes">One type per neuron.</param>
-    public Network(IReadOnlyList<INeuronType> neuronTypes,
+    public Network(IEnumerable<Either<INeuronType, IAxonBuilder>> seeder,
                    int outputCount,
-                   GetAxonConnectionDelegate getConnection,
                    IReadOnlyClock clock)
     {
-        int neuronCount = neuronTypes.Count;
-        Assert(neuronTypes is not null);
-        Assert(neuronTypes.All(type => type is not null));
-        Assert(outputCount <= neuronCount);
-        Assert(getConnection is not null);
+        Assert(seeder is not null);
+        Assert(clock is not null);
 
         this.Clock = clock;
-        this.neuronTypes = neuronTypes;
-        this.neurons = neuronTypes.Select((type, index) => new Neuron(type, type.InitialCharge, index)).ToArray();
+        var neurons = new List<Neuron>();
         this._output = new float[outputCount];
         List<Axon> axons = [];
         this.Axons = axons;
-
-        for (int i = 0; i < neuronCount; i++)
+        
+        var inputs = new List<Axon>();
+        foreach (var element in seeder)
         {
-            for (int j = 0; j < neuronCount; j++)
+            if (element.TryGet(out INeuronType type))
             {
-                var axonPrecursor = getConnection(i, j);
-                if (axonPrecursor != null)
+                neurons.Add(new Neuron(type, type.InitialCharge, neurons.Count));
+            }
+            else if (element.TryGet(out IAxonBuilder axonBuilder))
+            {
+                Neuron endpoint = neurons[axonBuilder.EndNeuronIndex];
+                Axon axon = new Axon(axonBuilder, endpoint);
+
+                if (axonBuilder.StartNeuronIndex == IAxonBuilder.FROM_INPUT)
                 {
-                    var axon = new Axon(axonPrecursor, neurons[j]);
-                    neurons[i].AddAxon(axon);
+                    inputs.Add(axon);
+                }
+                else
+                {
                     axons.Add(axon);
+                    Neuron startpoint = neurons[axonBuilder.StartNeuronIndex];
+                    startpoint.AddAxon(axon);
                 }
             }
-        }
-
-        var inputs = new List<Axon>();
-        for (int i = 0; i < neuronCount; i++)
-        {
-            var axonPrecursor = getConnection(IAxonType.FROM_INPUT, i);
-            if (axonPrecursor != null)
-            {
-                inputs.Add(new Axon(axonPrecursor, this.neurons[i]));
-            }
+            else throw new Exception("Invalid seed");
         }
         this.Inputs = inputs.ToArray();
+        this.neurons = neurons.ToArray();
+
+        if (outputCount > this.neurons.Count) 
+        {
+            throw new Exception("outputCount > neurons.Count");
+        }
     }
 
     public void Decay(IMachine machine)

@@ -46,13 +46,13 @@ static class NeuronTypes
     }
 }
 
-class MockAxonType : IAxonType
+class MockAxonType : IAxonBuilder
 {
-    public static IAxonType LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: [1f]);
+    public static IAxonBuilder LengthTwo(int startNeuronIndex, int endNeuronIndex) => new MockAxonType(length: 2, initialWeights: [1f], startNeuronIndex, endNeuronIndex);
 
-    public static IAxonType?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
+    public static IAxonBuilder?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
     {
-        var result = new IAxonType?[neuronCount, neuronCount];
+        var result = new IAxonBuilder?[neuronCount, neuronCount];
         var getLength = CreateDefault2DGetLength(neuronCount);
         var getInitialWeight = CreateRandomWeightInitializer(random);
         for (int i = 0; i < neuronCount; i++)
@@ -61,7 +61,7 @@ class MockAxonType : IAxonType
             {
                 if (random.NextSingle() < connectionChance)
                 {
-                    result[i, j] = new MockAxonType(getLength(i, j), [getInitialWeight(i, j)]);
+                    result[i, j] = new MockAxonType(getLength(i, j), [getInitialWeight(i, j)], i, j);
                 }
             }
         }
@@ -90,7 +90,16 @@ class MockAxonType : IAxonType
         }
     }
 
-    private MockAxonType(int length, float[] initialWeights) => (this.Length, this.InitialWeights) = (length, initialWeights);
+    private MockAxonType(int length, float[] initialWeights, int startNeuronIndex, int endNeuronIndex)
+    {
+        this.Length = length;
+        this.InitialWeights = initialWeights;
+        this.StartNeuronIndex = startNeuronIndex;
+        this.EndNeuronIndex = endNeuronIndex;
+    }
+
+    public int StartNeuronIndex { get; }
+    public int EndNeuronIndex { get; }
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
     public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
@@ -113,7 +122,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, IClock.Create(null)));
+        AtTime0 = new Machine(INetwork.Create([], 0, IClock.Create(null)));
         AtTime0.Run(0);
     }
 }

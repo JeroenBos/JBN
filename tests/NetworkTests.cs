@@ -12,17 +12,17 @@ public class NetworkTests
     {
         INetwork.Create(NeuronTypes.OnlyOne,
                         outputCount: 1,
-                        (i, j) => i == -1 ? InputAxonType.Instance : null);
+                        (i, j) => i == -1 ? InputAxonType.Create(j) : null);
     }
 
 
     [Fact]
     public void RunActivatedNetworkOfOne()
     {
-        var connections = new IAxonType?[1, 1] { { null } };
+        var connections = new IAxonBuilder?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : null);
+                                      (i, j) => i == -1 ? InputAxonType.Create(j) : null);
 
         var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
@@ -35,10 +35,10 @@ public class NetworkTests
     [Fact]
     public void TestNeuronDeactivatesAfterExcitation()
     {
-        var connections = new IAxonType?[1, 1] { { null } };
+        var connections = new IAxonBuilder?[1, 1] { { null } };
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : null);
+                                      (i, j) => i == -1 ? InputAxonType.Create(j) : null);
 
         var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
@@ -51,7 +51,7 @@ public class NetworkTests
     {
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo);
+                                      (i, j) => i == -1 ? InputAxonType.Create(j) : MockAxonType.LengthTwo(i, j));
 
         var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
@@ -80,7 +80,7 @@ public class NetworkTests
         // 
         var network = INetwork.Create(NeuronTypes.OnlyOne,
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Instance : MockAxonType.LengthTwo);
+                                      (i, j) => i == -1 ? InputAxonType.Create(j) : MockAxonType.LengthTwo(i, j));
 
         var machine = IMachine.Create(network, INetworkFeeder.CreateUniformPrimer());
 
@@ -98,7 +98,7 @@ public class NetworkTests
     {
         var network = INetwork.Create([NeuronTypes.InitiallyCharged],
                                       outputCount: 1,
-                                      (i, j) => i == -1 ? InputAxonType.Create([0.1f]) : null);
+                                      (i, j) => i == -1 ? InputAxonType.Create(j, length: 1, [0.1f]) : null);
         var machine = IMachine.Create(network);
         List<int> neuronExcitationCounts = [];
         machine.OnTicked += (sender, e) => neuronExcitationCounts.Add(e.ExcitationCount);
@@ -145,15 +145,15 @@ public class NetworkTests
                 _ => throw new Exception()
             };
         }
-        var randomInitialization = new IAxonType[inputCount];
+        var randomInitialization = new float[inputCount][];
         for (int i = 0; i < inputCount; i++)
         {
-            randomInitialization[i] = InputAxonType.Create(new float[] { random.NextSingle() < initializationChance ? 1 : 0 });
+            randomInitialization[i] = [random.NextSingle() < initializationChance ? 1 : 0];
         }
 
         var network = INetwork.Create(neuronTypes,
                                       outputCount,
-                                      (i, j) => i == -1 ? (j < randomInitialization.Length ? randomInitialization[j] : null) : connections[i, j]);
+                                      (i, j) => i == -1 ? (j < randomInitialization.Length ? InputAxonType.Create(j, 1, randomInitialization[j]) : null) : connections[i, j]);
 
         var machine = IMachine.Create(network, INetworkFeeder.CreateRandomPrimer(random));
 
@@ -265,15 +265,14 @@ public class NeuronTypeTests
     public void TestThatInputWithSingleWeightIsAcceptedWhenTheNetworkUsesMultipleWeights()
     {
         // the network is one input axon, one hidden neuron and one output neuron, receiving linea recta from the hidden neuron.
-        const int INPUT_NEURON = IAxonType.FROM_INPUT;
+        const int INPUT_NEURON = IAxonBuilder.FROM_INPUT;
         const int HIDDEN_NEURON = 0;
         const int OUTPUT_NEURON = 1;
         float[] actual = Array.Empty<float>();
-        var intermediateAxon = new AxonTypeThatUsesTwoWeights([1f, (float)Math.PI] /*explicitly has two elements*/, currentWeightsCallback);
-        IAxonType? getConnections(int from, int to) => (from, to) switch
+        IAxonBuilder? getConnections(int from, int to) => (from, to) switch
         {
-            (INPUT_NEURON, HIDDEN_NEURON) => InputAxonType.Create([1f] /*explicitly has one element*/),
-            (HIDDEN_NEURON, OUTPUT_NEURON) => intermediateAxon,
+            (INPUT_NEURON, HIDDEN_NEURON) => InputAxonType.Create(HIDDEN_NEURON, length: 1, [1f]),
+            (HIDDEN_NEURON, OUTPUT_NEURON) => new AxonTypeThatUsesTwoWeights([1f, (float)Math.PI] /*explicitly has two elements*/, currentWeightsCallback, HIDDEN_NEURON, OUTPUT_NEURON),
             _ => null
         };
         var network = INetwork.Create([INeuronType.NoRetentionNeuronType, INeuronType.NoRetentionNeuronType], outputCount: 1, getConnections, IClock.Create(maxTime: 2));
@@ -291,11 +290,13 @@ public class NeuronTypeTests
         Assert.Equal(2, actual.Length);
     }
 
-    class AxonTypeThatUsesTwoWeights(IReadOnlyList<float> initialWeights, Action<float[]> currentWeightsCallback) : IAxonType
+    class AxonTypeThatUsesTwoWeights(IReadOnlyList<float> initialWeights, Action<float[]> currentWeightsCallback, int startNeuronIndex, int endNeuronIndex) : IAxonBuilder
     {
         public int Length => 1;
         public IReadOnlyList<float> InitialWeights => initialWeights;
 
+        public int StartNeuronIndex => startNeuronIndex;
+        public int EndNeuronIndex => endNeuronIndex;
 
         public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
         {
