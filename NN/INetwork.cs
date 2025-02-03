@@ -1,5 +1,6 @@
 ﻿using JBSnorro.NN.Internals;
 using Either = JBSnorro.Either<JBSnorro.NN.INeuronType, JBSnorro.NN.IAxonBuilder>;
+
 namespace JBSnorro.NN;
 
 /// <summary>
@@ -27,6 +28,7 @@ public interface INetwork
     }
 
     /// <summary>
+    /// For testing only! (uses deprecated <see cref="GetAxonConnectionDelegate"/>)
     /// Creates a network and machine to operate it.
     /// </summary>
     /// <param name="neuronTypes">The types of the neurons to create in the network.</param>
