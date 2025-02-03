@@ -46,13 +46,13 @@ static class NeuronTypes
     }
 }
 
-class MockAxonType : IAxonType
+class MockAxonType : IAxonBuilder
 {
-    public static IAxonType LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: [1f]);
+    public static IAxonBuilder LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: [1f]);
 
-    public static IAxonType?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
+    public static IAxonBuilder?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
     {
-        var result = new IAxonType?[neuronCount, neuronCount];
+        var result = new IAxonBuilder?[neuronCount, neuronCount];
         var getLength = CreateDefault2DGetLength(neuronCount);
         var getInitialWeight = CreateRandomWeightInitializer(random);
         for (int i = 0; i < neuronCount; i++)

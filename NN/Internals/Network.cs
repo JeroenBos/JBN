@@ -61,7 +61,7 @@ internal sealed class Network : INetwork
         var inputs = new List<Axon>();
         for (int i = 0; i < neuronCount; i++)
         {
-            var axonPrecursor = getConnection(IAxonType.FROM_INPUT, i);
+            var axonPrecursor = getConnection(IAxonBuilder.FROM_INPUT, i);
             if (axonPrecursor != null)
             {
                 inputs.Add(new Axon(axonPrecursor, this.neurons[i]));

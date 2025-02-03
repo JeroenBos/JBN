@@ -2,7 +2,10 @@ using JBSnorro.NN.Internals;
 
 namespace JBSnorro.NN;
 
-public interface IAxonType
+/// <summary>
+/// "Builder" in the sense that this contains data from which an axon can be built.
+/// </summary>
+public interface IAxonBuilder
 {
     /// <summary>
     /// An argument passed to <see cref="GetAxonConnectionDelegate"/> indicating the neuron connected to is an (imagined) input neuron.
@@ -11,7 +14,7 @@ public interface IAxonType
     /// <summary>
     /// Creates an unchanging axon: one that does not update its weights.
     /// </summary>
-    public static IAxonType CreateImmutable(int length, IReadOnlyList<float> initialWeight)
+    public static IAxonBuilder CreateImmutable(int length, IReadOnlyList<float> initialWeight)
     {
         return new ImmutableAxonType(length, initialWeight);
     }
@@ -41,4 +44,4 @@ public interface IAxonType
     }
 }
 
-public delegate IAxonType? GetAxonConnectionDelegate(int neuronFromIndex, int neuronToIndex);
+public delegate IAxonBuilder? GetAxonConnectionDelegate(int neuronFromIndex, int neuronToIndex);
