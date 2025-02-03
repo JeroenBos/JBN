@@ -23,12 +23,14 @@ public class AND
         }
         public static (IMachine Machine, INetwork Network) Construct(IReadOnlyList<float> weights_to_N2, IEnumerable<IReadOnlyList<bool>> feeds, int maxTime = 2)
         {
-            return INetwork.Create(
+            var network = INetwork.Create(
                 neuronTypes: Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray(),
                 outputCount: 1,
                 getAxon: GetAxonConnection,
-                feeder: INetworkFeeder.CreateDeterministicFeeder(feeds),
-                maxTime);
+                IClock.Create(maxTime));
+            var machine = IMachine.Create(network, INetworkFeeder.CreateDeterministicFeeder(feeds));
+            return (machine, network);
+
 
             IAxonBuilder? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
             {
@@ -36,10 +38,10 @@ public class AND
                 {
                     case (IAxonBuilder.FROM_INPUT, 0):
                     case (IAxonBuilder.FROM_INPUT, 1):
-                        return InputAxonType.Instance;
+                        return InputAxonType.Create(neuronToIndex);
                     case (0, 2):
                     case (1, 2):
-                        return IAxonBuilder.CreateImmutable(length: 1, [weights_to_N2[neuronFromIndex]]);
+                        return IAxonBuilder.CreateImmutable(length: 1, [weights_to_N2[neuronFromIndex]], neuronFromIndex, neuronToIndex);
                     case (IAxonBuilder.FROM_INPUT, 2):
                     case (0, 0):
                     case (1, 1):
@@ -189,8 +191,8 @@ public class NOT
     {
         switch ((neuronFromIndex, neuronToIndex))
         {
-            case (IAxonBuilder.FROM_INPUT, 1): return InputAxonType.Create([-1f]);
-            case (0, 1): return IAxonBuilder.CreateImmutable(length: 1, [1f]);
+            case (IAxonBuilder.FROM_INPUT, 1): return InputAxonType.Create(1, length: 1, [-1f]);
+            case (0, 1): return IAxonBuilder.CreateImmutable(length: 1, [1f], 0, 1);
             default: return null;
         }
     }

@@ -14,11 +14,13 @@ public interface IAxonBuilder
     /// <summary>
     /// Creates an unchanging axon: one that does not update its weights.
     /// </summary>
-    public static IAxonBuilder CreateImmutable(int length, IReadOnlyList<float> initialWeight)
+    public static IAxonBuilder CreateImmutable(int length, IReadOnlyList<float> initialWeight, int startNeuronIndex, int endNeuronIndex)
     {
-        return new ImmutableAxonType(length, initialWeight);
+        return new ImmutableAxonType(length, initialWeight, startNeuronIndex, endNeuronIndex);
     }
 
+    public int StartNeuronIndex { get; }
+    public int EndNeuronIndex { get; }
     public int Length { get; }
     /// <summary>
     /// The weights with which a new axon of this type is to be initialized. One weight per charge.

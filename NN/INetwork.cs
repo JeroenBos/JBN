@@ -1,5 +1,5 @@
 ﻿using JBSnorro.NN.Internals;
-
+using Either = JBSnorro.Either<JBSnorro.NN.INeuronType, JBSnorro.NN.IAxonBuilder>;
 namespace JBSnorro.NN;
 
 /// <summary>
@@ -12,31 +12,45 @@ public interface INetwork
     /// <summary>
     /// Creates a network and machine to operate it.
     /// </summary>
+    /// <param name="outputCount">The number of neurons at the end of <paramref name="seeder"/> that are output neurons (i.e. whose charge will be reported). </param>
+    /// <param name="feeder">A function specifing when input axons are triggered. </param>
+    /// <param name="maxTime">The maximum time the machine is allowed to run. </param>
+    public static (IMachine Machine, INetwork Network) Create(
+        IEnumerable<Either> seeder,
+        int outputCount,
+        INetworkFeeder feeder,
+        int? maxTime = null)
+    {
+        var network = Create(seeder, outputCount, clock: IClock.Create(maxTime));
+        var machine = IMachine.Create(network, feeder);
+        return (machine, network);
+    }
+
+    /// <summary>
+    /// Creates a network and machine to operate it.
+    /// </summary>
     /// <param name="neuronTypes">The types of the neurons to create in the network.</param>
     /// <param name="outputCount">The number of neurons at the end of <paramref name="neuronTypes"/> that are output neurons (i.e. whose charge will be reported). </param>
     /// <param name="getAxon">A function specifying connections between the neurons. The arguments are up to <paramref name="neuronTypes"/>.Count), the first parameter accepts -1 indicating input axon. </param>
     /// <param name="feeder">A function specifing when input axons are triggered. </param>
     /// <param name="maxTime">The maximum time the machine is allowed to run. </param>
-    public static (IMachine Machine, INetwork Network) Create(
+    internal static INetwork Create(
         IReadOnlyList<INeuronType> neuronTypes,
         int outputCount,
         GetAxonConnectionDelegate getAxon,
-        INetworkFeeder feeder,
-        int? maxTime = null)
+        IReadOnlyClock? clock = null)
     {
-        var clock = IClock.Create(maxTime);
-        var network = Create(neuronTypes, outputCount, getAxon, clock);
-        var machine = IMachine.Create(network, feeder);
-        return (machine, network);
+        var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neuronTypes.Count - 1, 0, neuronTypes.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
+        var seeder = Enumerable.Concat(neuronTypes.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
+        return Create(seeder, outputCount, clock);
     }
 
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
-    internal static INetwork Create(IReadOnlyList<INeuronType> neuronTypes,
+    internal static INetwork Create(IEnumerable<Either> seeder,
                                     int outputCount,
-                                    GetAxonConnectionDelegate getConnection,
                                     IReadOnlyClock? clock = null)
     {
-        return new Network(neuronTypes, outputCount, getConnection, clock ?? IClock.Create(maxTime: null));
+        return new Network(seeder, outputCount, clock ?? IClock.Create(maxTime: null));
     }
 
     public IReadOnlyClock Clock { get; }
@@ -53,4 +67,3 @@ public interface INetwork
     internal void Decay(IMachine machine);
     internal IReadOnlyList<Neuron> Neurons { get; }
 }
-

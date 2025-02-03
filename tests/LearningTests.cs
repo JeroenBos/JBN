@@ -18,7 +18,7 @@ public class LearningTests
         {
             switch ((neuronFromIndex, neuronToIndex))
             {
-                case (0, 1): return new WeightChangingAxonType<MockFeedback>((currentWeights, _feedback) => currentWeights[0] -= 0.05f);
+                case (0, 1): return new WeightChangingAxonType<MockFeedback>((currentWeights, _feedback) => currentWeights[0] -= 0.05f, 0, 1);
                 default: return null;
             }
         }
@@ -61,7 +61,7 @@ public class LearningTests
                         {
                             currentWeights[0] += 0.5f;
                         }
-                    });
+                    }, 0, 1);
                 default: return null;
             }
         }

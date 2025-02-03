@@ -9,17 +9,23 @@ namespace JBSnorro.NN.Internals;
 [DebuggerDisplay("Input")]
 internal sealed class InputAxonType : IAxonBuilder
 {
-    public static InputAxonType Instance { get; } = Create(initialWeights: [1f]);
-    public static InputAxonType Create(IReadOnlyList<float> initialWeights, int length = 1)
+    public static InputAxonType Create(int endNeuronIndex, int length = 1)
+    {
+        return Create(endNeuronIndex, length, [1f]);
+    }
+    public static InputAxonType Create(int endNeuronIndex, int length, IReadOnlyList<float> initialWeights)
     {
         IAxonBuilder.AssertPreconditions(length, initialWeights);
-        return new InputAxonType(length, initialWeights);
+        return new InputAxonType(length, initialWeights, endNeuronIndex);
     }
 
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
 
-    private InputAxonType(int length, IReadOnlyList<float> initialWeights) => (Length, InitialWeights) = (length, initialWeights);
+    public int StartNeuronIndex => IAxonBuilder.FROM_INPUT;
+    public int EndNeuronIndex { get; }
+
+    private InputAxonType(int length, IReadOnlyList<float> initialWeights, int endNeuronIndex) => (Length, InitialWeights, EndNeuronIndex) = (length, initialWeights, endNeuronIndex);
 
     public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
     {
