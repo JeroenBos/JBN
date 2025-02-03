@@ -18,6 +18,10 @@ internal sealed class Axon
     private readonly IAxonType type;
     private readonly int length;
     private readonly Neuron endpoint;
+    /// <summary>
+    /// Weights represent charges delivered to a neuron on emission.
+    /// The weights are simply added to the charges (implemented in <see cref="Neuron.Receive"/>).
+    /// </summary>
     private readonly float[] weights;
     private int timeOfDelivery = NEVER;
     private int excitationCount = 0;
@@ -45,7 +49,7 @@ internal sealed class Axon
     }
     internal void Emit(IMachine machine)
     {
-        endpoint.Receive(type.GetCharge(weights), machine);
+        endpoint.Receive(weights, machine);
     }
     internal void Process(IFeedback feedback, int time)
     {

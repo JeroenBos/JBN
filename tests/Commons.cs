@@ -42,7 +42,7 @@ static class NeuronTypes
         OnlyA = [A];
         OnlyOne = [One];
 
-        InitiallyCharged = new InitiallyChargedNeuronType(INeuronType.NoRetentionNeuronType, 1);
+        InitiallyCharged = new InitiallyChargedNeuronType(INeuronType.NoRetentionNeuronType, initialCharge: [1f]);
     }
 }
 
@@ -98,12 +98,12 @@ class MockAxonType : IAxonType
     }
 }
 
-class InitiallyChargedNeuronType(INeuronType adaptee, float initialCharge) : INeuronType
+class InitiallyChargedNeuronType(INeuronType adaptee, IReadOnlyList<float> initialCharge) : INeuronType
 {
     private readonly INeuronType adaptee = adaptee ?? throw new ArgumentNullException(nameof(adaptee));
-    public float InitialCharge { get; } = initialCharge;
+    IReadOnlyList<float> INeuronType.InitialCharge { get; } = initialCharge;
 
-    public float GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
+    public IReadOnlyList<float> GetDecay(int timeSinceLastChargeReceipt, int timeSinceLastExcitation)
     {
         return adaptee.GetDecay(timeSinceLastChargeReceipt, timeSinceLastExcitation);
     }

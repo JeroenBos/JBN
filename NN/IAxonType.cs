@@ -18,15 +18,16 @@ public interface IAxonType
     }
 
     public int Length { get; }
-    public IReadOnlyList<float> InitialWeights { get; }
-    /// <param name="currentWeights">This should be modified in-place.</param>
-    public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback);
-
     /// <summary>
-    /// Gets the charge delivered by this axon.
+    /// The weights with which a new axon of this type is to be initialized. One weight per charge.
+    /// Note that charge is something else than chemicals:
+    /// a neuron has different charges and an axon (upon emission) delivers those charges (weighted);
+    /// the chemicals are the fields that are extended by the neurons (and axons?) to determine growth.
+    /// So charges represent a bit neurotransmitters.
     /// </summary>
-    [DebuggerHidden]
-    public float GetCharge(float[] weights) => weights[0];
+    public IReadOnlyList<float> InitialWeights { get; }
+    /// <param name="currentWeights">This should be modified in-place. One per charge. </param>
+    public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback);
 
     internal static void AssertPreconditions(int length, IReadOnlyList<float> initialWeights)
     {
