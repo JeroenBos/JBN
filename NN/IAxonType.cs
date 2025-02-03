@@ -5,10 +5,9 @@ namespace JBSnorro.NN;
 public interface IAxonType
 {
     /// <summary>
-    /// An argument passed to <see cref="INetworkFactory.GetAxonConnection(int, int)"/> indicating the neuron connected to is an (imagined) input neuron.
+    /// An argument passed to <see cref="GetAxonConnectionDelegate"/> indicating the neuron connected to is an (imagined) input neuron.
     /// </summary>
     public const int FROM_INPUT = -1;
-    // public static IAxonType Input => InputAxonType.Instance;
     /// <summary>
     /// Creates an unchanging axon: one that does not update its weights.
     /// </summary>
