@@ -14,7 +14,7 @@ public class LearningTests
     [Fact]
     public void Network_can_change_to_output_zero()
     {
-        static IAxonBuilder? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+        static IAxonBuilder? getAxonConnection(int neuronFromIndex, int neuronToIndex)
         {
             switch ((neuronFromIndex, neuronToIndex))
             {
@@ -23,7 +23,7 @@ public class LearningTests
             }
         }
 
-        var network = INetwork.Create([NeuronTypes.AlwaysOn, NeuronTypes.NoRetention], outputCount: 1, GetAxonConnection, IClock.Create(100));
+        var network = INetwork.Create([NeuronTypes.AlwaysOn, NeuronTypes.NoRetention], outputCount: 1, getAxonConnection, IClock.Create(100));
         var machine = IMachine.Create(network);
         machine.OnTicked += (sender, e) =>
         {
@@ -46,7 +46,7 @@ public class LearningTests
     [Fact]
     public void Network_can_mimick_value()
     {
-        static IAxonBuilder? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+        static IAxonBuilder? getAxonConnection(int neuronFromIndex, int neuronToIndex)
         {
             switch ((neuronFromIndex, neuronToIndex))
             {
@@ -66,7 +66,7 @@ public class LearningTests
             }
         }
 
-        var network = INetwork.Create([NeuronTypes.AlwaysOn, NeuronTypes.NoRetention], outputCount: 1, GetAxonConnection, IClock.Create(100));
+        var network = INetwork.Create([NeuronTypes.AlwaysOn, NeuronTypes.NoRetention], outputCount: 1, getAxonConnection, IClock.Create(100));
         var machine = IMachine.Create(network);
 
         int aimAchieved = 0;
