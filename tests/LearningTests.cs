@@ -14,7 +14,7 @@ public class LearningTests
     [Fact]
     public void Network_can_change_to_output_zero()
     {
-        static IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+        static IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
         {
             switch ((neuronFromIndex, neuronToIndex))
             {
@@ -46,7 +46,7 @@ public class LearningTests
     [Fact]
     public void Network_can_mimick_value()
     {
-        static IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+        static IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
         {
             switch ((neuronFromIndex, neuronToIndex))
             {
@@ -72,7 +72,7 @@ public class LearningTests
         int aimAchieved = 0;
         machine.OnTicked += (sender, e) =>
         {
-            int aim = aimAchieved switch 
+            int aim = aimAchieved switch
             {
                 0 => 1,
                 1 => -1,
@@ -81,7 +81,7 @@ public class LearningTests
             };
 
             e.Feedback = e.Output[0] > aim ? DirectionalFeedback.TooHigh : DirectionalFeedback.TooLow;
-            if(float.Abs(e.Output[0] - aim) < 0.1) 
+            if (float.Abs(e.Output[0] - aim) < 0.1)
             {
                 aimAchieved++;
                 if (aimAchieved == 4)

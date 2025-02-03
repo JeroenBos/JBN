@@ -46,13 +46,13 @@ static class NeuronTypes
     }
 }
 
-class MockAxonType : IAxonType
+class MockAxonType : IAxonInitialization
 {
-    public static IAxonType LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: [1f]);
+    public static IAxonInitialization LengthTwo { get; } = new MockAxonType(length: 2, initialWeights: [1f]);
 
-    public static IAxonType?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
+    public static IAxonInitialization?[,] CreateRandom(int neuronCount, float connectionChance, Random random)
     {
-        var result = new IAxonType?[neuronCount, neuronCount];
+        var result = new IAxonInitialization?[neuronCount, neuronCount];
         var getLength = CreateDefault2DGetLength(neuronCount);
         var getInitialWeight = CreateRandomWeightInitializer(random);
         for (int i = 0; i < neuronCount; i++)
@@ -113,7 +113,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, IClock.Create(null)));
+        AtTime0 = new Machine(INetwork.Create(Array.Empty<INeuronType>(), 0, (i, j) => null, (_, _, _, _, _) => {}, IClock.Create(null)));
         AtTime0.Run(0);
     }
 }

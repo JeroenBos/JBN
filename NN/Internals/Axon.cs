@@ -4,18 +4,27 @@ namespace JBSnorro.NN.Internals;
 internal sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this delivers initial inputs at t=0, allowing throwing when dt==0
-    public Axon(IAxonType type, Neuron endpoint)
+    public Axon(int length, Neuron endpoint, int weightCount, UpdateWeightsDelegate updateWeights)
     {
-        if (type.Length <= 0 || type.Length > MAX_AXON_LENGTH)
-            throw new ArgumentOutOfRangeException($"{nameof(type)}.{nameof(IAxonType.Length)}");
+        this.length = length;
+        this.weights = new float[weightCount];
+        for (int i = 0; i < this.weights.Length; i++)
+        {
+            this.weights[i] = float.NaN;
+        }
+        this.endpoint = endpoint;
+        updateWeights(this.weights, 0, float.NaN, 0, null!);
+    }
+    public Axon(int length, Neuron endpoint, float[] weights)
+    {
+        ArgumentNullException.ThrowIfNull(weights);
+        ArgumentNullException.ThrowIfNull(endpoint);
 
-        this.type = type;
-        this.length = type.Length;
-        this.weights = type.InitialWeights.ToArray();
+        this.length = length;
+        this.weights = weights;
         this.endpoint = endpoint;
     }
 
-    private readonly IAxonType type;
     private readonly int length;
     private readonly Neuron endpoint;
     /// <summary>
@@ -51,15 +60,15 @@ internal sealed class Axon
     {
         endpoint.Receive(weights, machine);
     }
-    internal void Process(IFeedback feedback, int time)
+    internal void Process(IFeedback feedback, int time, UpdateWeightsDelegate updateWeights)
     {
         int timeSinceLastExcitation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position
-        type.UpdateWeights(weights,
-                           timeSinceLastExcitation,
-                           averageTimeBetweenExcitations,
-                           excitationCount,
-                           feedback);
+        updateWeights(weights,
+                      timeSinceLastExcitation,
+                      averageTimeBetweenExcitations,
+                      excitationCount,
+                      feedback);
     }
 }
 

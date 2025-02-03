@@ -41,7 +41,7 @@ public sealed class OnTickEventArgs : EventArgs
     public bool Stop { get; set; }
 
     /// <summary>
-    /// Gets or sets feedback that the network will use to update its internal state. This feedback is passed opaquely to <see cref="IAxonType.UpdateWeights"/> 
+    /// Gets or sets feedback that the network will use to update its internal state. This feedback is passed opaquely to <see cref="IAxonInitialization.UpdateWeights"/> 
     /// </summary>
     public IFeedback? Feedback { get; set; }
 

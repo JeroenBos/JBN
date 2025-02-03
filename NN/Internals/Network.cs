@@ -5,12 +5,14 @@ internal sealed class Network : INetwork
     private readonly IReadOnlyList<INeuronType> neuronTypes;
     private readonly IReadOnlyList<Neuron> neurons;
     private readonly float[] _output; // mutable
+    private UpdateWeightsDelegate updateWeights;
 
     /// <summary>
     /// Does not include input axons <see cref="Inputs"/> 
     /// </summary>
     public IReadOnlyList<Axon> Axons { get; }
     public IReadOnlyList<Axon> Inputs { get; }
+    public int ChargeCount { get; }
     public IReadOnlyClock Clock { get; }
     public float[] Output
     {
@@ -29,6 +31,7 @@ internal sealed class Network : INetwork
     public Network(IReadOnlyList<INeuronType> neuronTypes,
                    int outputCount,
                    GetAxonConnectionDelegate getConnection,
+                   UpdateWeightsDelegate updateWeights,
                    IReadOnlyClock clock)
     {
         int neuronCount = neuronTypes.Count;
@@ -41,17 +44,19 @@ internal sealed class Network : INetwork
         this.neuronTypes = neuronTypes;
         this.neurons = neuronTypes.Select((type, index) => new Neuron(type, type.InitialCharge, index)).ToArray();
         this._output = new float[outputCount];
+        this.updateWeights = updateWeights;
         List<Axon> axons = [];
         this.Axons = axons;
-
+        int chargeCount = neurons[0].Charges.Count;
+        
         for (int i = 0; i < neuronCount; i++)
         {
             for (int j = 0; j < neuronCount; j++)
             {
-                var axonPrecursor = getConnection(i, j);
-                if (axonPrecursor != null)
+                var axonLength = getConnection(i, j);
+                if (axonLength != null)
                 {
-                    var axon = new Axon(axonPrecursor, neurons[j]);
+                    var axon = new Axon(axonLength.Length, neurons[j], this.ChargeCount, this.updateWeights);
                     neurons[i].AddAxon(axon);
                     axons.Add(axon);
                 }
@@ -61,10 +66,10 @@ internal sealed class Network : INetwork
         var inputs = new List<Axon>();
         for (int i = 0; i < neuronCount; i++)
         {
-            var axonPrecursor = getConnection(IAxonType.FROM_INPUT, i);
-            if (axonPrecursor != null)
+            var axonLength = getConnection(INetwork.FROM_INPUT, i);
+            if (axonLength != null)
             {
-                inputs.Add(new Axon(axonPrecursor, this.neurons[i]));
+                inputs.Add(new Axon(axonLength.Length, this.neurons[i], this.ChargeCount, this.updateWeights));
             }
         }
         this.Inputs = inputs.ToArray();
@@ -85,7 +90,7 @@ internal sealed class Network : INetwork
     {
         foreach (var axon in Axons)
         {
-            axon.Process(feedback, this.Clock.Time);
+            axon.Process(feedback, this.Clock.Time, this.updateWeights);
         }
     }
 

@@ -27,20 +27,28 @@ public class AND
                 neuronTypes: Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).ToArray(),
                 outputCount: 1,
                 getAxon: GetAxonConnection,
+                updateWeights: updateWeights,
                 feeder: INetworkFeeder.CreateDeterministicFeeder(feeds),
                 maxTime);
 
-            IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+            void updateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
+            {
+                if (float.IsNaN(currentWeights[0]))
+                {
+
+                }
+            }
+            IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
             {
                 switch ((neuronFromIndex, neuronToIndex))
                 {
-                    case (IAxonType.FROM_INPUT, 0):
-                    case (IAxonType.FROM_INPUT, 1):
+                    case (INetwork.FROM_INPUT, 0):
+                    case (INetwork.FROM_INPUT, 1):
                         return InputAxonType.Instance;
                     case (0, 2):
                     case (1, 2):
-                        return IAxonType.CreateImmutable(length: 1, [weights_to_N2[neuronFromIndex]]);
-                    case (IAxonType.FROM_INPUT, 2):
+                        return IAxonInitialization(length: 1, [weights_to_N2[neuronFromIndex]]);
+                    case (INetwork.FROM_INPUT, 2):
                     case (0, 0):
                     case (1, 1):
                     case (2, 2):
@@ -179,18 +187,18 @@ public class NOT
     {
         var network = INetwork.Create([INeuronType.AlwaysOn, INeuronType.NoRetentionNeuronType], 1, GetAxonConnection, IClock.Create(5));
         var machine = IMachine.Create(network, INetworkFeeder.CreateDeterministicFeeder([[false], [false], [true], [true], [false]]));
-        
+
         var output = machine.RunCollect().Select(o => o[0]).ToArray();
 
         // t=0 is different because firing from AlwaysOn didn't arrive (because it didn't fire at t=-1 to arrive at t=0)
         Assert.Equal([0, 1, 0, 0, 1], output);
     }
-    private static IAxonType? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
+    private static IAxonInitialization? GetAxonConnection(int neuronFromIndex, int neuronToIndex)
     {
         switch ((neuronFromIndex, neuronToIndex))
         {
-            case (IAxonType.FROM_INPUT, 1): return InputAxonType.Create([-1f]);
-            case (0, 1): return IAxonType.CreateImmutable(length: 1, [1f]);
+            case (INetwork.FROM_INPUT, 1): return InputAxonType.Create([-1f]);
+            case (0, 1): return IAxonInitialization.Create(length: 1);
             default: return null;
         }
     }
