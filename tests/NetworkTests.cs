@@ -10,7 +10,7 @@ public class NetworkTests
     [Fact]
     public void CreateNetwork()
     {
-        INetwork.Create(NeuronTypes.OnlyOne,
+        INetwork.Create(NeuronTypes.OnlyOne.Select(type => INeuron.Create(type, label: null)).ToList(),
                         outputCount: 1,
                         (i, j) => i == -1 ? InputAxonType.Create(j) : null);
     }
@@ -20,7 +20,7 @@ public class NetworkTests
     public void RunActivatedNetworkOfOne()
     {
         var connections = new IAxonBuilder?[1, 1] { { null } };
-        var network = INetwork.Create(NeuronTypes.OnlyOne,
+        var network = INetwork.Create(NeuronTypes.OnlyOne.Select(type => INeuron.Create(type, label: null)).ToList(),
                                       outputCount: 1,
                                       (i, j) => i == -1 ? InputAxonType.Create(j) : null);
 
@@ -36,7 +36,7 @@ public class NetworkTests
     public void TestNeuronDeactivatesAfterExcitation()
     {
         var connections = new IAxonBuilder?[1, 1] { { null } };
-        var network = INetwork.Create(NeuronTypes.OnlyOne,
+        var network = INetwork.Create(NeuronTypes.OnlyOne.Select(type => INeuron.Create(type, label: null)).ToList(),
                                       outputCount: 1,
                                       (i, j) => i == -1 ? InputAxonType.Create(j) : null);
 
@@ -49,7 +49,7 @@ public class NetworkTests
     [Fact]
     public void TestNeuronCanActivateSelf()
     {
-        var network = INetwork.Create(NeuronTypes.OnlyOne,
+        var network = INetwork.Create(NeuronTypes.OnlyOne.Select(type => INeuron.Create(type, label: null)).ToList(),
                                       outputCount: 1,
                                       (i, j) => i == -1 ? InputAxonType.Create(j) : MockAxonType.LengthTwo(i, j));
 
@@ -78,7 +78,7 @@ public class NetworkTests
         // 3
         // as you can see, the number of fired neurons is [1, 0, 1]
         // 
-        var network = INetwork.Create(NeuronTypes.OnlyOne,
+        var network = INetwork.Create(NeuronTypes.OnlyOne.Select(type => INeuron.Create(type, label: null)).ToList(),
                                       outputCount: 1,
                                       (i, j) => i == -1 ? InputAxonType.Create(j) : MockAxonType.LengthTwo(i, j));
 
@@ -96,7 +96,7 @@ public class NetworkTests
     [Fact]
     public void Neuron_with_initial_charge_fires_normally()
     {
-        var network = INetwork.Create([NeuronTypes.InitiallyCharged],
+        var network = INetwork.Create([INeuron.Create(NeuronTypes.InitiallyCharged, label: null)],
                                       outputCount: 1,
                                       (i, j) => i == -1 ? InputAxonType.Create(j, length: 1, [0.1f]) : null);
         var machine = IMachine.Create(network);
@@ -111,7 +111,7 @@ public class NetworkTests
     [Fact]
     public void Neuron_with_charge_retention_fires_again()
     {
-        var network = INetwork.Create([NeuronTypes.AlwaysOn],
+        var network = INetwork.Create([INeuron.Create(NeuronTypes.AlwaysOn, label: null)],
                                       outputCount: 0,
                                       (i, j) => null);
         var machine = IMachine.Create(network);
@@ -151,7 +151,7 @@ public class NetworkTests
             randomInitialization[i] = [random.NextSingle() < initializationChance ? 1 : 0];
         }
 
-        var network = INetwork.Create(neuronTypes,
+        var network = INetwork.Create(neuronTypes.Select(type => INeuron.Create(type, label: null)).ToList(),
                                       outputCount,
                                       (i, j) => i == -1 ? (j < randomInitialization.Length ? InputAxonType.Create(j, 1, randomInitialization[j]) : null) : connections[i, j]);
 
@@ -208,7 +208,7 @@ public class NeuronTypeTests
             []
         , initialCharge: [1]);
 
-        var neuron = new Neuron(type);
+        var neuron = new Neuron(INeuron.Create(type, label: null));
         var charges = new float[4];
         for (int t = 0; t < charges.Length; t++)
         {
@@ -229,7 +229,7 @@ public class NeuronTypeTests
             [(maxDt: 2, decay: 0.5f)], // in contrast to the test above, activation is triggered in this one, hence we use that list
         initialCharge: [0]);
 
-        var neuron = new Neuron(type);
+        var neuron = new Neuron(INeuron.Create(type, label: null));
         // simulate without triggering Decay
         neuron.Receive([1], Machines.AtTime0);
         neuron.Excite(Machines.AtTime0);
@@ -250,7 +250,7 @@ public class NeuronTypeTests
     public void Clock_passed_to_Feedback_should_be_at_end_of_timestep()
     {
         const int maxTime = 3;
-        var network = INetwork.Create([INeuronType.NoRetentionNeuronType], 1, (_, _) => null, IClock.Create(maxTime));
+        var network = INetwork.Create([INeuron.Create(INeuronType.NoRetentionNeuronType, label: null)], 1, (_, _) => null, IClock.Create(maxTime));
         var machine = IMachine.Create(network);
         List<int> feedbackTimes = [];
         machine.OnTicked += (sender, e) => feedbackTimes.Add(sender.Clock.Time);
@@ -275,7 +275,7 @@ public class NeuronTypeTests
             (HIDDEN_NEURON, OUTPUT_NEURON) => new AxonTypeThatUsesTwoWeights([1f, (float)Math.PI] /*explicitly has two elements*/, currentWeightsCallback, HIDDEN_NEURON, OUTPUT_NEURON),
             _ => null
         };
-        var network = INetwork.Create([INeuronType.NoRetentionNeuronType, INeuronType.NoRetentionNeuronType], outputCount: 1, getConnections, IClock.Create(maxTime: 2));
+        var network = INetwork.Create([INeuron.Create(INeuronType.NoRetentionNeuronType, label: null), INeuron.Create(INeuronType.NoRetentionNeuronType, label: null)], outputCount: 1, getConnections, IClock.Create(maxTime: 2));
         var machine = IMachine.Create(network);
         machine.OnTicked += (sender, e) => e.Feedback = new MockFeedback();
 

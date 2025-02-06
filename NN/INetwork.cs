@@ -1,5 +1,5 @@
 ﻿using JBSnorro.NN.Internals;
-using Either = JBSnorro.Either<JBSnorro.NN.INeuronType, JBSnorro.NN.IAxonBuilder>;
+using Either = JBSnorro.Either<JBSnorro.NN.INeuron, JBSnorro.NN.IAxonBuilder>;
 
 namespace JBSnorro.NN;
 
@@ -31,19 +31,19 @@ public interface INetwork
     /// For testing only! (uses deprecated <see cref="GetAxonConnectionDelegate"/>)
     /// Creates a network and machine to operate it.
     /// </summary>
-    /// <param name="neuronTypes">The types of the neurons to create in the network.</param>
-    /// <param name="outputCount">The number of neurons at the end of <paramref name="neuronTypes"/> that are output neurons (i.e. whose charge will be reported). </param>
-    /// <param name="getAxon">A function specifying connections between the neurons. The arguments are up to <paramref name="neuronTypes"/>.Count), the first parameter accepts -1 indicating input axon. </param>
+    /// <param name="neurons">The types of the neurons to create in the network.</param>
+    /// <param name="outputCount">The number of neurons at the end of <paramref name="neurons"/> that are output neurons (i.e. whose charge will be reported). </param>
+    /// <param name="getAxon">A function specifying connections between the neurons. The arguments are up to <paramref name="neurons"/>.Count), the first parameter accepts -1 indicating input axon. </param>
     /// <param name="feeder">A function specifing when input axons are triggered. </param>
     /// <param name="maxTime">The maximum time the machine is allowed to run. </param>
     internal static INetwork Create(
-        IReadOnlyList<INeuronType> neuronTypes,
+        IReadOnlyList<INeuron> neurons,
         int outputCount,
         GetAxonConnectionDelegate getAxon,
         IReadOnlyClock? clock = null)
     {
-        var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neuronTypes.Count - 1, 0, neuronTypes.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
-        var seeder = Enumerable.Concat(neuronTypes.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
+        var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neurons.Count - 1, 0, neurons.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
+        var seeder = Enumerable.Concat(neurons.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
         return Create(seeder, outputCount, clock);
     }
 

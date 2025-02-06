@@ -11,4 +11,11 @@ public interface INeuron
     /// An object the user can pass by reference to identify neurons by.
     /// </summary>
     object? Label { get; }
+
+    public static INeuron Create(INeuronType type, object? label)
+    {
+        return new Implementation(type ?? throw new ArgumentNullException(nameof(type)), label);
+    }
+
+    private sealed record Implementation(INeuronType Type, object? Label) : INeuron { }
 }

@@ -23,7 +23,7 @@ public class LearningTests
             }
         }
 
-        var network = INetwork.Create([NeuronTypes.AlwaysOn, NeuronTypes.NoRetention], outputCount: 1, getAxonConnection, IClock.Create(100));
+        var network = INetwork.Create([INeuron.Create(NeuronTypes.AlwaysOn, label: null), INeuron.Create(NeuronTypes.NoRetention, label: null)], outputCount: 1, getAxonConnection, IClock.Create(100));
         var machine = IMachine.Create(network);
         machine.OnTicked += (sender, e) =>
         {
@@ -66,7 +66,7 @@ public class LearningTests
             }
         }
 
-        var network = INetwork.Create([NeuronTypes.AlwaysOn, NeuronTypes.NoRetention], outputCount: 1, getAxonConnection, IClock.Create(100));
+        var network = INetwork.Create([INeuron.Create(NeuronTypes.AlwaysOn, label: null), INeuron.Create(NeuronTypes.NoRetention, label: null)], outputCount: 1, getAxonConnection, IClock.Create(100));
         var machine = IMachine.Create(network);
 
         int aimAchieved = 0;

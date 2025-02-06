@@ -57,12 +57,15 @@ internal sealed class Neuron : INeuron
     object? INeuron.Label => this.label;
 
     private readonly object? label;
-    public Neuron(INeuronType type, object? label = null)
+
+    public Neuron(INeuron neuron)
     {
-        this.type = type;
+        ArgumentNullException.ThrowIfNull(neuron);
+
+        this.type = neuron.Type;
         this.axons = [];
-        this.charges = [.. type.InitialCharge];
-        this.label = label;
+        this.charges = [.. this.type.InitialCharge];
+        this.label = neuron.Label;
 
         if (this.charges.Any(value => value != 0))
         {

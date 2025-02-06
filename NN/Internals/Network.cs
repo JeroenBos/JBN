@@ -24,7 +24,7 @@ internal sealed class Network : INetwork
         }
     }
 
-    public Network(IEnumerable<Either<INeuronType, IAxonBuilder>> seeder,
+    public Network(IEnumerable<Either<INeuron, IAxonBuilder>> seeder,
                    int outputCount,
                    IReadOnlyClock clock)
     {
@@ -40,9 +40,9 @@ internal sealed class Network : INetwork
         var inputs = new List<Axon>();
         foreach (var element in seeder)
         {
-            if (element.TryGet(out INeuronType type))
+            if (element.TryGet(out INeuron neuron))
             {
-                neurons.Add(new Neuron(type, neurons.Count));
+                neurons.Add(new Neuron(neuron));
             }
             else if (element.TryGet(out IAxonBuilder axonBuilder))
             {
