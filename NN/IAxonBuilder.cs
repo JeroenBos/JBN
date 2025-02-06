@@ -12,6 +12,10 @@ public interface IAxonBuilder
     /// </summary>
     public const int FROM_INPUT = -1;
     /// <summary>
+    /// Sentinel object for reference comparison. If an axon start has this as a neuron label, it's not a neuron but an input axon. 
+    /// </summary>
+    public static readonly object FromInputLabel = new object();
+    /// <summary>
     /// Creates an unchanging axon: one that does not update its weights.
     /// </summary>
     public static IAxonBuilder CreateImmutable(int length, IReadOnlyList<float> initialWeight, int startNeuronIndex, int endNeuronIndex)
@@ -19,8 +23,8 @@ public interface IAxonBuilder
         return new ImmutableAxonType(length, initialWeight, startNeuronIndex, endNeuronIndex);
     }
 
-    public int StartNeuronIndex { get; }
-    public int EndNeuronIndex { get; }
+    public object StartNeuronLabel { get; }
+    public object EndNeuronLabel { get; }
     public int Length { get; }
     /// <summary>
     /// The weights with which a new axon of this type is to be initialized. One weight per charge.
@@ -47,3 +51,14 @@ public interface IAxonBuilder
 }
 
 public delegate IAxonBuilder? GetAxonConnectionDelegate(int neuronFromIndex, int neuronToIndex);
+
+/// <param name="currentWeights">
+/// The weights with which a new axon of this type is to be initialized. One per charge.
+/// Note that charge is something else than chemicals:
+/// a neuron has different charges and an axon (upon emission) delivers those charges (weighted);
+/// the chemicals are the fields that are extended by the neurons (and axons?) to determine growth.
+/// So charges represent a bit neurotransmitters.
+/// </param>
+public delegate void UpdateWeightsDelegate(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback, object? startLabel, object? endLabel);
+
+public delegate void GetAxonLength(object? startLabel, object? endLabel);

@@ -90,16 +90,16 @@ class MockAxonType : IAxonBuilder
         }
     }
 
-    private MockAxonType(int length, float[] initialWeights, int startNeuronIndex, int endNeuronIndex)
+    private MockAxonType(int length, float[] initialWeights, object startNeuronIndex, object endNeuronIndex)
     {
         this.Length = length;
         this.InitialWeights = initialWeights;
-        this.StartNeuronIndex = startNeuronIndex;
-        this.EndNeuronIndex = endNeuronIndex;
+        this.StartNeuronLabel = startNeuronIndex;
+        this.EndNeuronLabel = endNeuronIndex;
     }
 
-    public int StartNeuronIndex { get; }
-    public int EndNeuronIndex { get; }
+    public object StartNeuronLabel { get; }
+    public object EndNeuronLabel { get; }
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
     public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
@@ -122,7 +122,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create([], 0, IClock.Create(null)));
+        AtTime0 = new Machine(INetwork.Create([], 0, labelEqualityComparer: null, IClock.Create(null)));
         AtTime0.Run(0);
     }
 }

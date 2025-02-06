@@ -6,19 +6,19 @@
 [DebuggerDisplay("Axon")]
 internal sealed class ImmutableAxonType : IAxonBuilder
 {
-    internal ImmutableAxonType(int length, IReadOnlyList<float> initialWeight, int startNeuronIndex, int endNeuronIndex)
+    internal ImmutableAxonType(int length, IReadOnlyList<float> initialWeight, object startNeuronLabel, object endNeuronLabel)
     {
         IAxonBuilder.AssertPreconditions(length, initialWeight);
         this.Length = length;
         this.InitialWeights = initialWeight;
-        this.StartNeuronIndex = startNeuronIndex;
-        this.EndNeuronIndex = endNeuronIndex;
+        this.StartNeuronLabel = startNeuronLabel;
+        this.EndNeuronLabel = endNeuronLabel;
     }
 
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
-    public int StartNeuronIndex { get; }
-    public int EndNeuronIndex { get; }
+    public object StartNeuronLabel { get; }
+    public object EndNeuronLabel { get; }
 
     public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
     {

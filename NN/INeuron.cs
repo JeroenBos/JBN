@@ -12,6 +12,7 @@ public interface INeuron
     /// </summary>
     object? Label { get; }
 
+    public static INeuron Create(INeuronType type, int index) => Create(type, (object)index);
     public static INeuron Create(INeuronType type, object? label)
     {
         return new Implementation(type ?? throw new ArgumentNullException(nameof(type)), label);

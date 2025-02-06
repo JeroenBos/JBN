@@ -26,6 +26,7 @@ internal sealed class Network : INetwork
 
     public Network(IEnumerable<Either<INeuron, IAxonBuilder>> seeder,
                    int outputCount,
+                   IEqualityComparer<object?>? labelEqualityComparer,
                    IReadOnlyClock clock)
     {
         Assert(seeder is not null);
@@ -36,27 +37,33 @@ internal sealed class Network : INetwork
         this._output = new float[outputCount];
         List<Axon> axons = [];
         this.Axons = axons;
-        
+
+        var neuronsByLabel = new Dictionary<object, Neuron>(labelEqualityComparer);
         var inputs = new List<Axon>();
         foreach (var element in seeder)
         {
-            if (element.TryGet(out INeuron neuron))
+            if (element.TryGet(out INeuron _neuron))
             {
-                neurons.Add(new Neuron(neuron));
+                var neuron = new Neuron(_neuron);
+                neurons.Add(neuron);
+                if (_neuron.Label is not null)
+                {
+                    neuronsByLabel[_neuron.Label] = neuron;
+                }
             }
             else if (element.TryGet(out IAxonBuilder axonBuilder))
             {
-                Neuron endpoint = neurons[axonBuilder.EndNeuronIndex];
+                Neuron endpoint = axonBuilder.EndNeuronLabel is int index ? neurons[index] : neuronsByLabel[axonBuilder.EndNeuronLabel];
                 Axon axon = new Axon(axonBuilder, endpoint);
 
-                if (axonBuilder.StartNeuronIndex == IAxonBuilder.FROM_INPUT)
+                if (ReferenceEquals(axonBuilder.StartNeuronLabel, IAxonBuilder.FromInputLabel))
                 {
                     inputs.Add(axon);
                 }
                 else
                 {
                     axons.Add(axon);
-                    Neuron startpoint = neurons[axonBuilder.StartNeuronIndex];
+                    Neuron startpoint = neuronsByLabel[axonBuilder.StartNeuronLabel];
                     startpoint.AddAxon(axon);
                 }
             }
@@ -65,7 +72,7 @@ internal sealed class Network : INetwork
         this.Inputs = inputs.ToArray();
         this.neurons = neurons.ToArray();
 
-        if (outputCount > this.neurons.Count) 
+        if (outputCount > this.neurons.Count)
         {
             throw new Exception("outputCount > neurons.Count");
         }

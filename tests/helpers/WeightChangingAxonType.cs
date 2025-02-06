@@ -5,8 +5,8 @@ sealed class WeightChangingAxonType<TFeedback>(Action<float[], TFeedback> change
     public int Length => 1;
     public IReadOnlyList<float> InitialWeights => [1f];
 
-    public int StartNeuronIndex => startNeuronIndex;
-    public int EndNeuronIndex => endNeuronIndex;
+    public object StartNeuronLabel => startNeuronIndex;
+    public object EndNeuronLabel => endNeuronIndex;
 
     public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
     {
