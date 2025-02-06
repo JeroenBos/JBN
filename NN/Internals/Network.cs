@@ -42,7 +42,7 @@ internal sealed class Network : INetwork
         {
             if (element.TryGet(out INeuronType type))
             {
-                neurons.Add(new Neuron(type, type.InitialCharge, neurons.Count));
+                neurons.Add(new Neuron(type, neurons.Count));
             }
             else if (element.TryGet(out IAxonBuilder axonBuilder))
             {

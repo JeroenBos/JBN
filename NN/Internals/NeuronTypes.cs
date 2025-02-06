@@ -20,6 +20,8 @@ internal sealed class VariableNeuronType : INeuronType
     const float ChargeTailValue = 0;
     private readonly (int maxDt, float decay)[] noExcitation;
     private readonly (int maxDt, float decay)[] excitation;
+    private readonly float[] initialCharge;
+    IReadOnlyList<float> INeuronType.InitialCharge => initialCharge;
 
     /// <summary>
     /// Creates a <see cref="INeuronType"/> where the excitations are variable.
@@ -27,13 +29,14 @@ internal sealed class VariableNeuronType : INeuronType
     /// <param name="noExcitation">
     /// The maxDt should be thought of as number of time steps until and including which the associated decay rate applies. 
     /// </param>
-    public VariableNeuronType((int maxDt, float decay)[] noExcitation, (int maxDt, float decay)[] excitation)
+    public VariableNeuronType((int maxDt, float decay)[] noExcitation, (int maxDt, float decay)[] excitation, float[] initialCharge)
     {
         verify(noExcitation);
         verify(excitation);
 
         this.noExcitation = noExcitation;
         this.excitation = excitation;
+        this.initialCharge = initialCharge;
 
         static void verify((int maxDt, float decay)[] list, [CallerArgumentExpression("list")] string paramName = "")
         {

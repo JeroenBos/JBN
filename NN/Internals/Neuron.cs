@@ -57,14 +57,14 @@ internal sealed class Neuron : INeuron
     object? INeuron.Label => this.label;
 
     private readonly object? label;
-    public Neuron(INeuronType type, IReadOnlyList<float> initialCharge, object? label = null)
+    public Neuron(INeuronType type, object? label = null)
     {
         this.type = type;
         this.axons = [];
-        this.charges = [.. initialCharge];
+        this.charges = [.. type.InitialCharge];
         this.label = label;
 
-        if (initialCharge.Any(value => value != 0))
+        if (this.charges.Any(value => value != 0))
         {
             this.lastReceivedChargeTime = 0;
         }

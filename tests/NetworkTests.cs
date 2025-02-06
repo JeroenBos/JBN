@@ -206,9 +206,9 @@ public class NeuronTypeTests
         var type = INeuronType.CreateVariable(
             [(maxDt: 2, decay: 0.5f)],
             []
-        );
+        , initialCharge: [1]);
 
-        var neuron = new Neuron(type, initialCharge: [1]);
+        var neuron = new Neuron(type);
         var charges = new float[4];
         for (int t = 0; t < charges.Length; t++)
         {
@@ -226,10 +226,10 @@ public class NeuronTypeTests
     {
         var type = new VariableNeuronType(
             [],
-            [(maxDt: 2, decay: 0.5f)] // in contrast to the test above, activation is triggered in this one, hence we use that list
-        );
+            [(maxDt: 2, decay: 0.5f)], // in contrast to the test above, activation is triggered in this one, hence we use that list
+        initialCharge: [0]);
 
-        var neuron = new Neuron(type, initialCharge: [0]);
+        var neuron = new Neuron(type);
         // simulate without triggering Decay
         neuron.Receive([1], Machines.AtTime0);
         neuron.Excite(Machines.AtTime0);

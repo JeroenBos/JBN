@@ -24,9 +24,9 @@ static class NeuronTypes
             (11, 0f),
         ], [
             (0, 1f),
-        ]);
+        ], [0]);
 
-        B = new VariableNeuronType([], [(1, 0.1f)]);
+        B = new VariableNeuronType([], [(1, 0.1f)], [0]);
 
         C = new VariableNeuronType([
             (1, 0.9f),
@@ -37,7 +37,7 @@ static class NeuronTypes
             (4, 1),
             (5, invSqrt2),
             (6, invSqrt2),
-        ]);
+        ], [0]);
 
         OnlyA = [A];
         OnlyOne = [One];
