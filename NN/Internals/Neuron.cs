@@ -1,7 +1,7 @@
 namespace JBSnorro.NN.Internals;
 
 [DebuggerDisplay("Neuron({index == null ? -1 : index}, EffectiveCharge={EffectiveCharge})")]
-internal sealed class Neuron
+internal sealed class Neuron : INeuron
 {
     /// <summary>
     /// The threshold of charge over which a neuron fires.
@@ -53,17 +53,17 @@ internal sealed class Neuron
     /// </summary>
     public float EffectiveCharge => this.type.GetEffectiveCharge(this.Charges);
 
-#if DEBUG
-    private readonly int? index;
-#endif
-    public Neuron(INeuronType type, IReadOnlyList<float> initialCharge, int? index = null)
+    INeuronType INeuron.Type => this.type;
+    object? INeuron.Label => this.label;
+
+    private readonly object? label;
+    public Neuron(INeuronType type, IReadOnlyList<float> initialCharge, object? label = null)
     {
         this.type = type;
         this.axons = [];
         this.charges = [.. initialCharge];
-#if DEBUG
-        this.index = index;
-#endif
+        this.label = label;
+
         if (initialCharge.Any(value => value != 0))
         {
             this.lastReceivedChargeTime = 0;
