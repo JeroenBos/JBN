@@ -45,7 +45,7 @@ internal sealed class Network : INetwork
         var inputs = new List<Axon>();
         foreach (var element in seeder)
         {
-            if (element.TryGet(out INeuron _neuron))
+            if (element.Get(out INeuron _neuron, out IAxonBuilder axonBuilder))
             {
                 var neuron = new Neuron(_neuron);
                 neurons.Add(neuron);
@@ -54,7 +54,7 @@ internal sealed class Network : INetwork
                     neuronsByLabel[_neuron.Label] = neuron;
                 }
             }
-            else if (element.TryGet(out IAxonBuilder axonBuilder))
+            else
             {
                 Neuron endpoint = axonBuilder.EndNeuronLabel is int index ? neurons[index] : neuronsByLabel[axonBuilder.EndNeuronLabel];
 
@@ -71,7 +71,6 @@ internal sealed class Network : INetwork
                     startpoint.AddAxon(axon);
                 }
             }
-            else throw new Exception("Invalid seed");
         }
         this.Inputs = inputs.ToArray();
         this.neurons = neurons.ToArray();
