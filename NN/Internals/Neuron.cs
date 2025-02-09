@@ -54,9 +54,7 @@ internal sealed class Neuron : INeuron
     public float EffectiveCharge => this.type.GetEffectiveCharge(this.Charges);
 
     INeuronType INeuron.Type => this.type;
-    object? INeuron.Label => this.label;
-
-    private readonly object? label;
+    public object Label { get; }
 
     public Neuron(INeuron neuron)
     {
@@ -65,7 +63,7 @@ internal sealed class Neuron : INeuron
         this.type = neuron.Type;
         this.axons = [];
         this.charges = [.. this.type.InitialCharge];
-        this.label = neuron.Label;
+        this.Label = neuron.Label;
 
         if (this.charges.Any(value => value != 0))
         {

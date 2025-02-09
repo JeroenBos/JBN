@@ -18,9 +18,9 @@ public interface IAxonBuilder
     /// <summary>
     /// Creates an unchanging axon: one that does not update its weights.
     /// </summary>
-    public static IAxonBuilder CreateImmutable(int length, IReadOnlyList<float> initialWeight, int startNeuronIndex, int endNeuronIndex)
+    public static IAxonBuilder CreateImmutable(int length, IReadOnlyList<float> initialWeight, object startNeuronLabel, object endNeuronLabel)
     {
-        return new ImmutableAxonType(length, initialWeight, startNeuronIndex, endNeuronIndex);
+        return new ImmutableAxonBuilder(length, initialWeight, startNeuronLabel, endNeuronLabel);
     }
 
     /// <summary>
@@ -42,8 +42,6 @@ public interface IAxonBuilder
     /// So charges represent a bit neurotransmitters.
     /// </summary>
     public IReadOnlyList<float> InitialWeights { get; }
-    /// <param name="currentWeights">This should be modified in-place. One per charge. </param>
-    public void UpdateWeights(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback);
 
     internal static void AssertPreconditions(int length, IReadOnlyList<float> initialWeights)
     {
@@ -69,4 +67,11 @@ public delegate IAxonBuilder? GetAxonConnectionDelegate(int neuronFromIndex, int
 /// </param>
 public delegate void UpdateWeightsDelegate(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback, object? startLabel, object? endLabel);
 
+public static class UpdateWeightsDelegateExtensions
+{
+    public static UpdateWeightsDelegate Empty { get; } = empty;
+    private static void empty(float[] currentWeights, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback, object? startLabel, object? endLabel)
+    {
+    }
+}
 public delegate void GetAxonLength(object? startLabel, object? endLabel);

@@ -26,9 +26,4 @@ internal sealed class InputAxonType : IAxonBuilder
     public object EndNeuronLabel { get; }
 
     private InputAxonType(int length, IReadOnlyList<float> initialWeights, object endNeuronIndex) => (Length, InitialWeights, EndNeuronLabel) = (length, initialWeights, endNeuronIndex);
-
-    public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
-    {
-        throw new InvalidOperationException("Input axons don't update their weights");
-    }
 }

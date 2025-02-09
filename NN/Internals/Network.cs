@@ -3,6 +3,7 @@ namespace JBSnorro.NN.Internals;
 internal sealed class Network : INetwork
 {
     private readonly IReadOnlyList<Neuron> neurons;
+    private readonly UpdateWeightsDelegate update;
     private readonly float[] _output; // mutable
 
     /// <summary>
@@ -26,12 +27,15 @@ internal sealed class Network : INetwork
 
     public Network(IEnumerable<Either<INeuron, IAxonBuilder>> seeder,
                    int outputCount,
+                   UpdateWeightsDelegate update,
                    IReadOnlyClock clock)
     {
         Assert(seeder is not null);
+        Assert(update is not null);
         Assert(clock is not null);
 
         this.Clock = clock;
+        this.update = update;
         var neurons = new List<Neuron>();
         this._output = new float[outputCount];
         List<Axon> axons = [];
@@ -53,16 +57,17 @@ internal sealed class Network : INetwork
             else if (element.TryGet(out IAxonBuilder axonBuilder))
             {
                 Neuron endpoint = axonBuilder.EndNeuronLabel is int index ? neurons[index] : neuronsByLabel[axonBuilder.EndNeuronLabel];
-                Axon axon = new Axon(axonBuilder, endpoint);
 
                 if (ReferenceEquals(axonBuilder.StartNeuronLabel, IAxonBuilder.FromInputLabel))
                 {
+                    Axon axon = new Axon(axonBuilder, startpoint: null, endpoint);
                     inputs.Add(axon);
                 }
                 else
                 {
-                    axons.Add(axon);
                     Neuron startpoint = neuronsByLabel[axonBuilder.StartNeuronLabel];
+                    Axon axon = new Axon(axonBuilder, startpoint, endpoint);
+                    axons.Add(axon);
                     startpoint.AddAxon(axon);
                 }
             }
@@ -92,7 +97,7 @@ internal sealed class Network : INetwork
     {
         foreach (var axon in Axons)
         {
-            axon.Process(feedback, this.Clock.Time);
+            axon.Process(feedback, this.update, this.Clock.Time);
         }
     }
 

@@ -11,13 +11,13 @@ public interface INeuron
     /// An object the user can pass by reference to identify neurons by.
     /// The default object equality comparison is used, that is <see cref="object.Equals(object?)"/> 
     /// </summary>
-    object? Label { get; }
+    object Label { get; }
 
     public static INeuron Create(INeuronType type, int index) => Create(type, (object)index);
-    public static INeuron Create(INeuronType type, object? label)
+    public static INeuron Create(INeuronType type, object label)
     {
-        return new Implementation(type ?? throw new ArgumentNullException(nameof(type)), label);
+        return new Implementation(type ?? throw new ArgumentNullException(nameof(type)), label ?? throw new ArgumentNullException(nameof(label)));
     }
 
-    private sealed record Implementation(INeuronType Type, object? Label) : INeuron { }
+    private sealed record Implementation(INeuronType Type, object Label) : INeuron { }
 }

@@ -26,6 +26,7 @@ public class AND
             var network = INetwork.Create(
                 neurons: Enumerable.Repeat(INeuronType.NoRetentionNeuronType, /*neuron count: */3).Select(INeuron.Create).ToArray(),
                 outputCount: 1,
+                update: UpdateWeightsDelegateExtensions.Empty,
                 getAxon: GetAxonConnection,
                 IClock.Create(maxTime));
             var machine = IMachine.Create(network, INetworkFeeder.CreateDeterministicFeeder(feeds));
@@ -179,7 +180,7 @@ public class NOT
     [Fact]
     public void Input_sequence_FTTF_is_negated_by_NOT_operator()
     {
-        var network = INetwork.Create(new INeuronType[] { INeuronType.AlwaysOn, INeuronType.NoRetentionNeuronType }.Select(INeuron.Create).ToList(), 1, GetAxonConnection, IClock.Create(5));
+        var network = INetwork.Create(new INeuronType[] { INeuronType.AlwaysOn, INeuronType.NoRetentionNeuronType }.Select(INeuron.Create).ToList(), 1, UpdateWeightsDelegateExtensions.Empty, GetAxonConnection, IClock.Create(5));
         var machine = IMachine.Create(network, INetworkFeeder.CreateDeterministicFeeder([[false], [false], [true], [true], [false]]));
 
         var output = machine.RunCollect().Select(o => o[0]).ToArray();

@@ -25,7 +25,7 @@ public interface INetwork
         UpdateWeightsDelegate update,
         int? maxTime = null)
     {
-        var network = Create(seeder, outputCount, clock: IClock.Create(maxTime));
+        var network = Create(seeder, outputCount, update, clock: IClock.Create(maxTime));
         var machine = IMachine.Create(network, feeder);
         return (machine, network);
     }
@@ -42,20 +42,22 @@ public interface INetwork
     internal static INetwork Create(
         IReadOnlyList<INeuron> neurons,
         int outputCount,
+        UpdateWeightsDelegate update,
         GetAxonConnectionDelegate getAxon,
         IReadOnlyClock? clock = null)
     {
         var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neurons.Count - 1, 0, neurons.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
         var seeder = Enumerable.Concat(neurons.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
-        return Create(seeder, outputCount, clock);
+        return Create(seeder, outputCount, update, clock);
     }
 
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
     internal static INetwork Create(IEnumerable<Either> seeder,
                                     int outputCount,
+                                    UpdateWeightsDelegate update,
                                     IReadOnlyClock? clock = null)
     {
-        return new Network(seeder, outputCount, clock ?? IClock.Create(maxTime: null));
+        return new Network(seeder, outputCount, update, clock ?? IClock.Create(maxTime: null));
     }
 
     public IReadOnlyClock Clock { get; }
