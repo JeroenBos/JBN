@@ -17,16 +17,15 @@ public interface INetwork
     /// <param name="outputCount">The number of neurons at the end of <paramref name="seeder"/> that are output neurons (i.e. whose charge will be reported). </param>
     /// <param name="feeder">A function specifing when input axons are triggered. </param>
     /// <param name="maxTime">The maximum time the machine is allowed to run. </param>
-    /// <param name="labelEqualityComparer"> Compares labels for equality for identifying which neurons axons are connected to. </param>
+    /// <param name="update"></param>
     public static (IMachine Machine, INetwork Network) Create(
         IEnumerable<Either> seeder,
         int outputCount,
         INetworkFeeder feeder,
         UpdateWeightsDelegate update,
-        IEqualityComparer<object?>? labelEqualityComparer,
         int? maxTime = null)
     {
-        var network = Create(seeder, outputCount, labelEqualityComparer, clock: IClock.Create(maxTime));
+        var network = Create(seeder, outputCount, clock: IClock.Create(maxTime));
         var machine = IMachine.Create(network, feeder);
         return (machine, network);
     }
@@ -48,16 +47,15 @@ public interface INetwork
     {
         var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neurons.Count - 1, 0, neurons.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
         var seeder = Enumerable.Concat(neurons.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
-        return Create(seeder, outputCount, labelEqualityComparer: null, clock);
+        return Create(seeder, outputCount, clock);
     }
 
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
     internal static INetwork Create(IEnumerable<Either> seeder,
                                     int outputCount,
-                                    IEqualityComparer<object?>? labelEqualityComparer,
                                     IReadOnlyClock? clock = null)
     {
-        return new Network(seeder, outputCount, labelEqualityComparer, clock ?? IClock.Create(maxTime: null));
+        return new Network(seeder, outputCount, clock ?? IClock.Create(maxTime: null));
     }
 
     public IReadOnlyClock Clock { get; }

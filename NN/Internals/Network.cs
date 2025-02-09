@@ -26,7 +26,6 @@ internal sealed class Network : INetwork
 
     public Network(IEnumerable<Either<INeuron, IAxonBuilder>> seeder,
                    int outputCount,
-                   IEqualityComparer<object?>? labelEqualityComparer,
                    IReadOnlyClock clock)
     {
         Assert(seeder is not null);
@@ -38,7 +37,7 @@ internal sealed class Network : INetwork
         List<Axon> axons = [];
         this.Axons = axons;
 
-        var neuronsByLabel = new Dictionary<object, Neuron>(labelEqualityComparer);
+        var neuronsByLabel = new Dictionary<object, Neuron>();
         var inputs = new List<Axon>();
         foreach (var element in seeder)
         {

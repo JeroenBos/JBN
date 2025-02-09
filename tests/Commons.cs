@@ -122,7 +122,7 @@ class Machines
     public static Machine AtTime0 { get; }
     static Machines()
     {
-        AtTime0 = new Machine(INetwork.Create([], 0, labelEqualityComparer: null, IClock.Create(null)));
+        AtTime0 = new Machine(INetwork.Create([], 0, IClock.Create(null)));
         AtTime0.Run(0);
     }
 }

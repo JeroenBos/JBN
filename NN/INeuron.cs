@@ -9,6 +9,7 @@ public interface INeuron
     INeuronType Type { get; }
     /// <summary>
     /// An object the user can pass by reference to identify neurons by.
+    /// The default object equality comparison is used, that is <see cref="object.Equals(object?)"/> 
     /// </summary>
     object? Label { get; }
 

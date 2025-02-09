@@ -14,7 +14,7 @@ public interface IAxonBuilder
     /// <summary>
     /// Sentinel object for reference comparison. If an axon start has this as a neuron label, it's not a neuron but an input axon. 
     /// </summary>
-    public static readonly object FromInputLabel = new object();
+    public static object FromInputLabel => InputSingleton.Instance;
     /// <summary>
     /// Creates an unchanging axon: one that does not update its weights.
     /// </summary>
@@ -23,7 +23,15 @@ public interface IAxonBuilder
         return new ImmutableAxonType(length, initialWeight, startNeuronIndex, endNeuronIndex);
     }
 
+    /// <summary>
+    /// The label identifying the start neuron of this axon.
+    /// The default object equality comparison is used, that is <see cref="object.Equals(object?)"/> 
+    /// </summary>
     public object StartNeuronLabel { get; }
+    /// <summary>
+    /// The label identifying the end neuron of this axon.
+    /// The default object equality comparison is used, that is <see cref="object.Equals(object?)"/> 
+    /// </summary>
     public object EndNeuronLabel { get; }
     public int Length { get; }
     /// <summary>
