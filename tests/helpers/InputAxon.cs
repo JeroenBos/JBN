@@ -13,7 +13,7 @@ internal sealed class InputAxonType : IAxonBuilder
     {
         return Create(endNeuronIndex, length, [1f]);
     }
-    public static InputAxonType Create(int endNeuronIndex, int length, IReadOnlyList<float> initialWeights)
+    public static InputAxonType Create(object endNeuronIndex, int length, IReadOnlyList<float> initialWeights)
     {
         IAxonBuilder.AssertPreconditions(length, initialWeights);
         return new InputAxonType(length, initialWeights, endNeuronIndex);
@@ -22,13 +22,8 @@ internal sealed class InputAxonType : IAxonBuilder
     public int Length { get; }
     public IReadOnlyList<float> InitialWeights { get; }
 
-    public int StartNeuronIndex => IAxonBuilder.FROM_INPUT;
-    public int EndNeuronIndex { get; }
+    public object StartNeuronLabel => IAxonBuilder.FromInputLabel;
+    public object EndNeuronLabel { get; }
 
-    private InputAxonType(int length, IReadOnlyList<float> initialWeights, int endNeuronIndex) => (Length, InitialWeights, EndNeuronIndex) = (length, initialWeights, endNeuronIndex);
-
-    public void UpdateWeights(float[] currentWeight, int timeSinceLastExcitation, float averageTimeBetweenExcitations, int excitationCount, IFeedback feedback)
-    {
-        throw new InvalidOperationException("Input axons don't update their weights");
-    }
+    private InputAxonType(int length, IReadOnlyList<float> initialWeights, object endNeuronIndex) => (Length, InitialWeights, EndNeuronLabel) = (length, initialWeights, endNeuronIndex);
 }

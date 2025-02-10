@@ -4,7 +4,7 @@ namespace JBSnorro.NN.Internals;
 internal sealed class Axon
 {
     public static readonly int InputLength = 1; // if the machine starts at t=-1, this delivers initial inputs at t=0, allowing throwing when dt==0
-    public Axon(IAxonBuilder type, Neuron endpoint)
+    public Axon(IAxonBuilder type, Neuron? startpoint, Neuron endpoint)
     {
         if (type.Length <= 0 || type.Length > MAX_AXON_LENGTH)
             throw new ArgumentOutOfRangeException($"{nameof(type)}.{nameof(IAxonBuilder.Length)}");
@@ -12,11 +12,13 @@ internal sealed class Axon
         this.type = type;
         this.length = type.Length;
         this.weights = type.InitialWeights.ToArray();
-        this.endpoint = endpoint;
+        this.startpoint = startpoint;
+        this.endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
     }
 
     private readonly IAxonBuilder type;
     private readonly int length;
+    private readonly Neuron? startpoint;
     private readonly Neuron endpoint;
     /// <summary>
     /// Weights represent charges delivered to a neuron on emission.
@@ -51,15 +53,17 @@ internal sealed class Axon
     {
         endpoint.Receive(weights, machine);
     }
-    internal void Process(IFeedback feedback, int time)
+    internal void Process(IFeedback feedback, UpdateWeightsDelegate update, int time)
     {
         int timeSinceLastExcitation = time - timeOfDelivery - length;
         // TODO: pass along a vector representing position
-        type.UpdateWeights(weights,
-                           timeSinceLastExcitation,
-                           averageTimeBetweenExcitations,
-                           excitationCount,
-                           feedback);
+        update(weights,
+               timeSinceLastExcitation,
+               averageTimeBetweenExcitations,
+               excitationCount,
+               feedback,
+               startpoint,
+               endpoint);
     }
 }
 

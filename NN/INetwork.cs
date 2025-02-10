@@ -1,5 +1,6 @@
-﻿using JBSnorro.NN.Internals;
-using Either = JBSnorro.Either<JBSnorro.NN.INeuronType, JBSnorro.NN.IAxonBuilder>;
+﻿using System.Runtime.CompilerServices;
+using JBSnorro.NN.Internals;
+using Either = JBSnorro.Either<JBSnorro.NN.INeuron, JBSnorro.NN.IAxonBuilder>;
 
 namespace JBSnorro.NN;
 
@@ -16,13 +17,15 @@ public interface INetwork
     /// <param name="outputCount">The number of neurons at the end of <paramref name="seeder"/> that are output neurons (i.e. whose charge will be reported). </param>
     /// <param name="feeder">A function specifing when input axons are triggered. </param>
     /// <param name="maxTime">The maximum time the machine is allowed to run. </param>
+    /// <param name="update"></param>
     public static (IMachine Machine, INetwork Network) Create(
         IEnumerable<Either> seeder,
         int outputCount,
         INetworkFeeder feeder,
+        UpdateWeightsDelegate update,
         int? maxTime = null)
     {
-        var network = Create(seeder, outputCount, clock: IClock.Create(maxTime));
+        var network = Create(seeder, outputCount, update, clock: IClock.Create(maxTime));
         var machine = IMachine.Create(network, feeder);
         return (machine, network);
     }
@@ -31,28 +34,30 @@ public interface INetwork
     /// For testing only! (uses deprecated <see cref="GetAxonConnectionDelegate"/>)
     /// Creates a network and machine to operate it.
     /// </summary>
-    /// <param name="neuronTypes">The types of the neurons to create in the network.</param>
-    /// <param name="outputCount">The number of neurons at the end of <paramref name="neuronTypes"/> that are output neurons (i.e. whose charge will be reported). </param>
-    /// <param name="getAxon">A function specifying connections between the neurons. The arguments are up to <paramref name="neuronTypes"/>.Count), the first parameter accepts -1 indicating input axon. </param>
+    /// <param name="neurons">The types of the neurons to create in the network.</param>
+    /// <param name="outputCount">The number of neurons at the end of <paramref name="neurons"/> that are output neurons (i.e. whose charge will be reported). </param>
+    /// <param name="getAxon">A function specifying connections between the neurons. The arguments are up to <paramref name="neurons"/>.Count), the first parameter accepts -1 indicating input axon. </param>
     /// <param name="feeder">A function specifing when input axons are triggered. </param>
     /// <param name="maxTime">The maximum time the machine is allowed to run. </param>
     internal static INetwork Create(
-        IReadOnlyList<INeuronType> neuronTypes,
+        IReadOnlyList<INeuron> neurons,
         int outputCount,
+        UpdateWeightsDelegate update,
         GetAxonConnectionDelegate getAxon,
         IReadOnlyClock? clock = null)
     {
-        var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neuronTypes.Count - 1, 0, neuronTypes.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
-        var seeder = Enumerable.Concat(neuronTypes.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
-        return Create(seeder, outputCount, clock);
+        var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neurons.Count - 1, 0, neurons.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
+        var seeder = Enumerable.Concat(neurons.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
+        return Create(seeder, outputCount, update, clock);
     }
 
     /// <remarks>If you use this method for creating a Network you need to initialize the input axons yourself.</remarks>
     internal static INetwork Create(IEnumerable<Either> seeder,
                                     int outputCount,
+                                    UpdateWeightsDelegate update,
                                     IReadOnlyClock? clock = null)
     {
-        return new Network(seeder, outputCount, clock ?? IClock.Create(maxTime: null));
+        return new Network(seeder, outputCount, update, clock ?? IClock.Create(maxTime: null));
     }
 
     public IReadOnlyClock Clock { get; }
