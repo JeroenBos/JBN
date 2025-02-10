@@ -2,14 +2,16 @@ namespace JBSnorro.NN.Internals;
 
 internal sealed class Network : INetwork
 {
-    private readonly IReadOnlyList<Neuron> neurons;
+    private readonly List<Neuron> neurons;
+    private readonly List<Axon> axons;
     private readonly UpdateWeightsDelegate update;
+    private readonly Dictionary<object, Neuron> neuronsByLabel;
     private readonly float[] _output; // mutable
 
     /// <summary>
     /// Does not include input axons <see cref="Inputs"/> 
     /// </summary>
-    public IReadOnlyList<Axon> Axons { get; }
+    public IReadOnlyList<Axon> Axons => axons;
     public IReadOnlyList<Axon> Inputs { get; }
     public IReadOnlyClock Clock { get; }
     public float[] Output
@@ -25,25 +27,32 @@ internal sealed class Network : INetwork
         }
     }
 
-    public Network(IEnumerable<Either<INeuron, IAxonBuilder>> seeder,
+    public Network(IEnumerable<Either<INeuron, IAxonBuilder>> elements,
                    int outputCount,
                    UpdateWeightsDelegate update,
                    IReadOnlyClock clock)
     {
-        Assert(seeder is not null);
-        Assert(update is not null);
+        Assert(elements is not null);
         Assert(clock is not null);
 
         this.Clock = clock;
+        this.neurons = new();
+        this.axons = new();
         this.update = update;
-        var neurons = new List<Neuron>();
+        this.neuronsByLabel = new();
         this._output = new float[outputCount];
-        List<Axon> axons = [];
-        this.Axons = axons;
+        this.Inputs = this.AddInternal(elements)?.ToArray() ?? throw new ContractException($"{nameof(this.Add)} must return a list when called from the ctor");
 
-        var neuronsByLabel = new Dictionary<object, Neuron>();
-        var inputs = new List<Axon>();
-        foreach (var element in seeder)
+        if (outputCount > this.neurons.Count)
+        {
+            throw new ContractException($"{nameof(outputCount)} > neurons.Count");
+        }
+    }
+
+    private List<Axon>? AddInternal(IEnumerable<Either<INeuron, IAxonBuilder>> elements)
+    {
+        var inputs = this.Inputs == null ? new List<Axon>() : null;
+        foreach (var element in elements)
         {
             if (element.Get(out INeuron _neuron, out IAxonBuilder axonBuilder))
             {
@@ -60,6 +69,10 @@ internal sealed class Network : INetwork
 
                 if (ReferenceEquals(axonBuilder.StartNeuronLabel, IAxonBuilder.FromInputLabel))
                 {
+                    if (inputs is null)
+                    {
+                        throw new InvalidOperationException("Input axons can only be added at the initialization of the network");
+                    }
                     Axon axon = new Axon(axonBuilder, startpoint: null, endpoint);
                     inputs.Add(axon);
                 }
@@ -72,13 +85,12 @@ internal sealed class Network : INetwork
                 }
             }
         }
-        this.Inputs = inputs.ToArray();
-        this.neurons = neurons.ToArray();
 
-        if (outputCount > this.neurons.Count)
-        {
-            throw new Exception("outputCount > neurons.Count");
-        }
+        return inputs;
+    }
+    public void Add(IEnumerable<Either<INeuron, IAxonBuilder>> elements)
+    {
+        AddInternal(elements);
     }
 
     public void Decay(IMachine machine)

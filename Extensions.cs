@@ -24,11 +24,18 @@ class Contracts
     {
         if (!condition)
         {
-            throw new Exception(message);
+            throw new ContractException(message);
         }
     }
 }
 
+[Serializable]
+public class ContractException : Exception
+{
+    public ContractException() { }
+    public ContractException(string message) : base(message) { }
+    public ContractException(string message, Exception inner) : base(message, inner) { }
+}
 
 class Helpers
 {
