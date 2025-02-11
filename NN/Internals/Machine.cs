@@ -28,7 +28,7 @@ internal sealed class Machine : IMachine
         this.clock = network.MutableClock;
         this.emits = [[]];
         // they're all potentially excited because the initial charge is not known
-        this.potentiallyExcitedDuringStep = [.. this.Network.Neurons];
+        this.potentiallyExcitedDuringStep = [.. this.Network._Neurons];
     }
 
     /// <summary>

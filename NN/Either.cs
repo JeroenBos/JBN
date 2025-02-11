@@ -23,6 +23,16 @@ public sealed class Either<T1, T2> where T1 : notnull where T2 : notnull
         value = this.Value2!;
         return value is not null;
     }
+    /// <summary>
+    /// Extracts the value, whichever one it is.
+    /// </summary>
+    /// <returns><see langword="true"/> if this is a <typeparamref name="T1"/>, <see langword="false"/> if this is a <typeparamref name="T2"/>. </returns>
+    public bool Get(out T1 value1, out T2 value2)
+    {
+        value1 = this.Value1!;
+        value2 = this.Value2!;
+        return value1 is not null;
+    }
 
     public static implicit operator Either<T1, T2>(T1 value) => new(value);
     public static implicit operator Either<T1, T2>(T2 value) => new(value);

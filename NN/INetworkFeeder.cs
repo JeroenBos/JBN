@@ -34,6 +34,13 @@ public interface INetworkFeeder
     {
         return new PredeterminedFeeder(inputs);
     }
+    /// <summary>
+    /// Creates a network feeder that doesn't feed any input (mainly for testing purposes).
+    /// </summary>
+    public static INetworkFeeder CreateEmptyFeeder()
+    {
+        return new PredeterminedFeeder([]);
+    }
 
     /// <summary>
     /// Feeds the input axons. Gets called every time step.
