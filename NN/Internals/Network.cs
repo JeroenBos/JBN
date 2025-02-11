@@ -8,6 +8,7 @@ internal sealed class Network : INetwork
     private readonly Dictionary<object, Neuron> neuronsByLabel;
     private readonly float[] _output; // mutable
 
+    public IReadOnlyList<INeuron> Neurons => neurons;
     /// <summary>
     /// Does not include input axons <see cref="Inputs"/> 
     /// </summary>
@@ -112,5 +113,5 @@ internal sealed class Network : INetwork
         }
     }
 
-    IReadOnlyList<Neuron> INetwork.Neurons => neurons;
+    IReadOnlyList<Neuron> INetwork._Neurons => neurons;
 }
