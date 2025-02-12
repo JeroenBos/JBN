@@ -1,4 +1,4 @@
-namespace JBSnorro;
+namespace JBSnorro.NN; // not JBSnorro, because JBSnorro.dll already has a type called `Either'2` and would conflict
 
 public sealed class Either<T1, T2> where T1 : notnull where T2 : notnull
 {
@@ -38,10 +38,10 @@ public sealed class Either<T1, T2> where T1 : notnull where T2 : notnull
     public static implicit operator Either<T1, T2>(T2 value) => new(value);
 }
 
-
-static class Enumerable2D
+// also internal to prevent conflicts with JBSnorro.dll
+static class EnumerableExtensions
 {
-    public static IEnumerable<T> Range<T>(int start0, int end0, int start1, int end1, Func<int, int, T> selector)
+    public static IEnumerable<T> Range2D<T>(int start0, int end0, int start1, int end1, Func<int, int, T> selector)
     {
         for (int i = start0; i <= end0; i++)
         {
