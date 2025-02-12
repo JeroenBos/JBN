@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using JBSnorro.NN.Internals;
-using Either = JBSnorro.Either<JBSnorro.NN.INeuron, JBSnorro.NN.IAxonBuilder>;
+using Either = JBSnorro.NN.Either<JBSnorro.NN.INeuron, JBSnorro.NN.IAxonBuilder>;
 
 namespace JBSnorro.NN;
 
@@ -46,7 +46,7 @@ public interface INetwork
         GetAxonConnectionDelegate getAxon,
         IReadOnlyClock? clock = null)
     {
-        var axons = Enumerable2D.Range(IAxonBuilder.FROM_INPUT, neurons.Count - 1, 0, neurons.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
+        var axons = EnumerableExtensions.Range2D(IAxonBuilder.FROM_INPUT, neurons.Count - 1, 0, neurons.Count - 1, (i, j) => getAxon(i, j)).Where(x => x is not null);
         var seeder = Enumerable.Concat(neurons.Select(neuronType => new Either(neuronType)), axons.Select(axonBuilder => new Either(axonBuilder!)));
         return Create(seeder, outputCount, update, clock);
     }
