@@ -39,9 +39,9 @@ public sealed class Either<T1, T2> where T1 : notnull where T2 : notnull
 }
 
 
-static class Enumerable2D
+static class EnumerableExtensions
 {
-    public static IEnumerable<T> Range<T>(int start0, int end0, int start1, int end1, Func<int, int, T> selector)
+    public static IEnumerable<T> Range2D<T>(int start0, int end0, int start1, int end1, Func<int, int, T> selector)
     {
         for (int i = start0; i <= end0; i++)
         {
